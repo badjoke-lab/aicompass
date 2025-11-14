@@ -1,0 +1,125 @@
+[
+  {
+    "id": "gpt-4-1",
+    "name": "GPT-4.1",
+    "provider": "OpenAI",
+    "total": 72.3,
+    "delta": 3.2,
+    "scores": {
+      "performance": 95,
+      "safety": 22,
+      "cost": 35,
+      "transparency": 80
+    },
+    "categories": {
+      "text": 94,
+      "coding": 92,
+      "vision": 80,
+      "image": null,
+      "video": null
+    },
+    "history": [
+      { "date": "2025-10-01", "total": 69.1 },
+      { "date": "2025-11-01", "total": 72.3 }
+    ],
+    "evidence": {
+      "pricing": ["https://example.com/openai/pricing"],
+      "benchmarks": ["https://example.com/gpt4-benchmarks"],
+      "safety": ["https://example.com/gpt4-safety"],
+      "technical": ["https://example.com/gpt4-report"]
+    },
+    "waiting": false
+  },
+  {
+    "id": "claude-3-5",
+    "name": "Claude 3.5",
+    "provider": "Anthropic",
+    "total": 68.1,
+    "delta": -4.5,
+    "scores": {
+      "performance": 90,
+      "safety": 24,
+      "cost": 30,
+      "transparency": 82
+    },
+    "categories": {
+      "text": 92,
+      "coding": 90,
+      "vision": 75,
+      "image": null,
+      "video": null
+    },
+    "history": [
+      { "date": "2025-10-01", "total": 72.6 },
+      { "date": "2025-11-01", "total": 68.1 }
+    ],
+    "evidence": {
+      "pricing": ["https://example.com/anthropic/pricing"],
+      "benchmarks": ["https://example.com/claude-benchmarks"],
+      "safety": ["https://example.com/claude-safety"],
+      "technical": ["https://example.com/claude-report"]
+    },
+    "waiting": false
+  },
+  {
+    "id": "gemini-1-5-pro",
+    "name": "Gemini 1.5 Pro",
+    "provider": "Google",
+    "total": 64.1,
+    "delta": 1.0,
+    "scores": {
+      "performance": 84,
+      "safety": 20,
+      "cost": 40,
+      "transparency": 75
+    },
+    "categories": {
+      "text": 86,
+      "coding": 80,
+      "vision": 78,
+      "image": 70,
+      "video": 65
+    },
+    "history": [
+      { "date": "2025-10-01", "total": 63.1 },
+      { "date": "2025-11-01", "total": 64.1 }
+    ],
+    "evidence": {
+      "pricing": ["https://example.com/gemini/pricing"],
+      "benchmarks": ["https://example.com/gemini-benchmarks"],
+      "safety": ["https://example.com/gemini-safety"],
+      "technical": ["https://example.com/gemini-report"]
+    },
+    "waiting": false
+  },
+  {
+    "id": "grok-1-5",
+    "name": "Grok 1.5",
+    "provider": "xAI",
+    "total": 29.4,
+    "delta": 0.0,
+    "scores": {
+      "performance": 60,
+      "safety": 4,
+      "cost": 0,
+      "transparency": 55
+    },
+    "categories": {
+      "text": 70,
+      "coding": 65,
+      "vision": null,
+      "image": null,
+      "video": null
+    },
+    "history": [
+      { "date": "2025-11-01", "total": 29.4 }
+    ],
+    "evidence": {
+      "pricing": [],
+      "benchmarks": [],
+      "safety": [],
+      "technical": []
+    },
+    "waiting": true
+  }
+]
