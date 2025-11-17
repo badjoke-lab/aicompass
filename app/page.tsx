@@ -1,28 +1,21 @@
-import modelsData from "@/data/models/index.json";
-import ModelCard, { type Model } from "@/components/ModelCard";
+import ModelCard from "@/components/ModelCard";
+import ModelRollup from "@/components/ModelRollup";
+import StatsBar from "@/components/StatsBar";
+import {
+  DELTA_WINDOW_DAYS,
+  getLeaderboard,
+  getModels,
+  getSpikes,
+  getSummaryStats
+} from "@/lib/models";
 
-const models = modelsData as Model[];
-
-function getSpikes(models: Model[]) {
-  const gainers = models
-    .filter((m) => m.delta >= 3 && !m.waiting)
-    .sort((a, b) => b.delta - a.delta)
-    .slice(0, 3);
-
-  const droppers = models
-    .filter((m) => m.delta <= -3 && !m.waiting)
-    .sort((a, b) => a.delta - b.delta)
-    .slice(0, 3);
-
-  return { gainers, droppers };
-}
+const models = getModels();
+const { leaders: top10, rest } = getLeaderboard(10, models);
+const { gainers, droppers } = getSpikes(models);
+const stats = getSummaryStats(models);
+const lastUpdatedLabel = formatDate(stats.lastUpdated);
 
 export default function ScoresPage() {
-  const sorted = [...models].sort((a, b) => b.total - a.total);
-  const top10 = sorted.slice(0, 10);
-  const rest = sorted.slice(10);
-  const { gainers, droppers } = getSpikes(models);
-
   return (
     <div className="flex flex-col gap-8">
       <section className="space-y-3">
@@ -34,9 +27,12 @@ export default function ScoresPage() {
           Every score is backed by public evidence and a transparent method.
         </p>
         <p className="text-xs text-slate-500">
-          Last update: 2025-11-01 · Δ window: 30 days
+          Last update: {lastUpdatedLabel ?? "TBD"} · Δ window: {DELTA_WINDOW_DAYS}
+          {" "}days
         </p>
       </section>
+
+      <StatsBar stats={stats} windowDays={DELTA_WINDOW_DAYS} />
 
       {/* PC: grid, Mobile: stacked */}
       <section className="space-y-3">
@@ -53,42 +49,9 @@ export default function ScoresPage() {
         {rest.length > 0 && (
           <div className="mt-4 space-y-2">
             <p className="text-[0.7rem] uppercase tracking-wide text-slate-500">
-              Other models
+              Other tracked models
             </p>
-            <div className="space-y-1 rounded-xl border border-slate-800 bg-surface/60 p-3 text-xs">
-              {rest.map((model) => (
-                <div
-                  key={model.id}
-                  className="flex items-center justify-between border-b border-slate-800/60 pb-1.5 last:border-0 last:pb-0"
-                >
-                  <div className="flex flex-col">
-                    <span className="font-medium text-slate-100">
-                      {model.name}
-                    </span>
-                    <span className="text-[0.7rem] text-slate-500">
-                      {model.provider}
-                    </span>
-                  </div>
-                  <div className="text-right text-[0.7rem]">
-                    <div className="text-slate-400">
-                      Total {model.total.toFixed(1)}
-                    </div>
-                    <div
-                      className={
-                        model.delta > 0
-                          ? "text-positive"
-                          : model.delta < 0
-                            ? "text-negative"
-                            : "text-slate-400"
-                      }
-                    >
-                      Δ {model.delta > 0 ? "+" : ""}
-                      {model.delta.toFixed(1)}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <ModelRollup models={rest} offset={top10.length} />
           </div>
         )}
       </section>
@@ -161,4 +124,13 @@ export default function ScoresPage() {
       </section>
     </div>
   );
+}
+
+function formatDate(date: Date | null) {
+  if (!date) return null;
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit"
+  }).format(date);
 }

@@ -1,41 +1,9 @@
 import Link from "next/link";
-
-export interface Model {
-  id: string;
-  name: string;
-  provider: string;
-  total: number;
-  delta: number;
-  scores: {
-    performance: number;
-    safety: number;
-    cost: number;
-    transparency: number;
-  };
-  categories?: {
-    text?: number | null;
-    coding?: number | null;
-    vision?: number | null;
-    image?: number | null;
-    video?: number | null;
-  };
-  waiting?: boolean;
-}
-
-function formatDelta(delta: number): string {
-  if (delta === 0) return "±0.0";
-  return `${delta > 0 ? "+" : ""}${delta.toFixed(1)}`;
-}
-
-function getSpike(delta: number, waiting?: boolean): "up" | "down" | "waiting" | null {
-  if (waiting) return "waiting";
-  if (delta >= 3) return "up";
-  if (delta <= -3) return "down";
-  return null;
-}
+import type { Model } from "@/types/model";
+import { formatDelta, getSpikeDirection } from "@/lib/models";
 
 export default function ModelCard({ model }: { model: Model }) {
-  const spike = getSpike(model.delta, model.waiting);
+  const spike = getSpikeDirection(model.delta, model.waiting);
 
   return (
     <Link
