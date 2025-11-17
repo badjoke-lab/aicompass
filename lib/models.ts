@@ -10,6 +10,10 @@ export function getModels(): Model[] {
   return models;
 }
 
+export function getModelBySlug(slug: string): Model | undefined {
+  return models.find((model) => model.slug === slug);
+}
+
 export function getSortedModels(list: Model[] = models): Model[] {
   return [...list].sort((a, b) => b.total - a.total);
 }
@@ -44,6 +48,24 @@ export function getSpikes(list: Model[] = models) {
     .sort((a, b) => a.delta - b.delta)
     .slice(0, 3);
   return { gainers, droppers };
+}
+
+export type ModelStatusCode = "leader" | "spikeUp" | "spikeDown" | "waiting";
+
+export function getModelStatuses(model: Model, rank?: number): ModelStatusCode[] {
+  const statuses: ModelStatusCode[] = [];
+  if (rank === 1) {
+    statuses.push("leader");
+  }
+  const spike = getSpikeDirection(model.delta, model.waiting);
+  if (spike === "up") {
+    statuses.push("spikeUp");
+  } else if (spike === "down") {
+    statuses.push("spikeDown");
+  } else if (spike === "waiting") {
+    statuses.push("waiting");
+  }
+  return statuses;
 }
 
 export function getSummaryStats(list: Model[] = models) {
