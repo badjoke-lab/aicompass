@@ -1,26 +1,31 @@
 [
   {
-    "id": "gpt-4-1",
+    "slug": "gpt-4-1",
     "name": "GPT-4.1",
     "provider": "OpenAI",
-    "total": 72.3,
-    "delta": 3.2,
+    "modalities": ["Text", "Coding", "Vision"],
+    "total": 82.4,
+    "delta": 4.1,
     "scores": {
-      "performance": 95,
-      "safety": 22,
-      "cost": 35,
-      "transparency": 80
+      "performance": 97,
+      "safety": 32,
+      "cost": 38,
+      "reliability": 94,
+      "transparency": 82,
+      "ecosystem": 91,
+      "adoption": 95
     },
     "categories": {
-      "text": 94,
-      "coding": 92,
-      "vision": 80,
-      "image": null,
-      "video": null
+      "text": 96,
+      "coding": 94,
+      "vision": 88,
+      "image": 84,
+      "video": 72
     },
     "history": [
-      { "date": "2025-10-01", "total": 69.1 },
-      { "date": "2025-11-01", "total": 72.3 }
+      { "date": "2025-01-05", "total": 76.3 },
+      { "date": "2025-01-20", "total": 78.3 },
+      { "date": "2025-02-10", "total": 82.4 }
     ],
     "evidence": {
       "pricing": ["https://example.com/openai/pricing"],
@@ -31,27 +36,32 @@
     "waiting": false
   },
   {
-    "id": "claude-3-5",
+    "slug": "claude-3-5",
     "name": "Claude 3.5",
     "provider": "Anthropic",
-    "total": 68.1,
-    "delta": -4.5,
+    "modalities": ["Text", "Coding"],
+    "total": 77.2,
+    "delta": -2.8,
     "scores": {
-      "performance": 90,
-      "safety": 24,
-      "cost": 30,
-      "transparency": 82
+      "performance": 93,
+      "safety": 36,
+      "cost": 40,
+      "reliability": 89,
+      "transparency": 85,
+      "ecosystem": 70,
+      "adoption": 78
     },
     "categories": {
-      "text": 92,
-      "coding": 90,
-      "vision": 75,
+      "text": 95,
+      "coding": 92,
+      "vision": 74,
       "image": null,
       "video": null
     },
     "history": [
-      { "date": "2025-10-01", "total": 72.6 },
-      { "date": "2025-11-01", "total": 68.1 }
+      { "date": "2024-12-10", "total": 80.0 },
+      { "date": "2025-01-10", "total": 79.5 },
+      { "date": "2025-02-10", "total": 77.2 }
     ],
     "evidence": {
       "pricing": ["https://example.com/anthropic/pricing"],
@@ -62,27 +72,32 @@
     "waiting": false
   },
   {
-    "id": "gemini-1-5-pro",
+    "slug": "gemini-1-5-pro",
     "name": "Gemini 1.5 Pro",
     "provider": "Google",
-    "total": 64.1,
-    "delta": 1.0,
+    "modalities": ["Text", "Coding", "Vision", "Audio"],
+    "total": 73.5,
+    "delta": 1.6,
     "scores": {
-      "performance": 84,
-      "safety": 20,
-      "cost": 40,
-      "transparency": 75
+      "performance": 88,
+      "safety": 30,
+      "cost": 44,
+      "reliability": 80,
+      "transparency": 77,
+      "ecosystem": 83,
+      "adoption": 76
     },
     "categories": {
-      "text": 86,
-      "coding": 80,
-      "vision": 78,
-      "image": 70,
-      "video": 65
+      "text": 90,
+      "coding": 86,
+      "vision": 82,
+      "image": 78,
+      "video": 70
     },
     "history": [
-      { "date": "2025-10-01", "total": 63.1 },
-      { "date": "2025-11-01", "total": 64.1 }
+      { "date": "2024-12-01", "total": 69.3 },
+      { "date": "2025-01-01", "total": 71.9 },
+      { "date": "2025-02-01", "total": 73.5 }
     ],
     "evidence": {
       "pricing": ["https://example.com/gemini/pricing"],
@@ -93,16 +108,128 @@
     "waiting": false
   },
   {
-    "id": "grok-1-5",
-    "name": "Grok 1.5",
-    "provider": "xAI",
-    "total": 29.4,
+    "slug": "llama-3-70b",
+    "name": "Llama 3 70B",
+    "provider": "Meta",
+    "modalities": ["Text", "Coding"],
+    "total": 69.1,
+    "delta": 2.2,
+    "scores": {
+      "performance": 84,
+      "safety": 24,
+      "cost": 55,
+      "reliability": 78,
+      "transparency": 88,
+      "ecosystem": 86,
+      "adoption": 72
+    },
+    "categories": {
+      "text": 88,
+      "coding": 85,
+      "vision": 62,
+      "image": null,
+      "video": null
+    },
+    "history": [
+      { "date": "2024-12-15", "total": 66.0 },
+      { "date": "2025-01-15", "total": 66.9 },
+      { "date": "2025-02-10", "total": 69.1 }
+    ],
+    "evidence": {
+      "pricing": ["https://example.com/meta/license"],
+      "benchmarks": ["https://example.com/llama-benchmarks"],
+      "safety": ["https://example.com/llama-safety"],
+      "technical": ["https://example.com/llama-report"]
+    },
+    "waiting": false
+  },
+  {
+    "slug": "mistral-large",
+    "name": "Mistral Large",
+    "provider": "Mistral AI",
+    "modalities": ["Text", "Coding"],
+    "total": 65.8,
     "delta": 0.0,
     "scores": {
-      "performance": 60,
-      "safety": 4,
-      "cost": 0,
-      "transparency": 55
+      "performance": 81,
+      "safety": 22,
+      "cost": 60,
+      "reliability": 74,
+      "transparency": 68,
+      "ecosystem": 64,
+      "adoption": 60
+    },
+    "categories": {
+      "text": 84,
+      "coding": 82,
+      "vision": null,
+      "image": null,
+      "video": null
+    },
+    "history": [
+      { "date": "2024-12-05", "total": 65.8 },
+      { "date": "2025-01-05", "total": 65.8 },
+      { "date": "2025-02-05", "total": 65.8 }
+    ],
+    "evidence": {
+      "pricing": ["https://example.com/mistral/pricing"],
+      "benchmarks": ["https://example.com/mistral-benchmarks"],
+      "safety": ["https://example.com/mistral-safety"],
+      "technical": ["https://example.com/mistral-report"]
+    },
+    "waiting": false
+  },
+  {
+    "slug": "amazon-titan-omni",
+    "name": "Titan Omni",
+    "provider": "Amazon",
+    "modalities": ["Text", "Vision", "Audio"],
+    "total": 58.4,
+    "delta": 3.6,
+    "scores": {
+      "performance": 70,
+      "safety": 18,
+      "cost": 68,
+      "reliability": 60,
+      "transparency": 58,
+      "ecosystem": 66,
+      "adoption": 55
+    },
+    "categories": {
+      "text": 72,
+      "coding": 68,
+      "vision": 64,
+      "image": 60,
+      "video": 54
+    },
+    "history": [
+      { "date": "2024-12-01", "total": 52.0 },
+      { "date": "2025-01-01", "total": 54.8 },
+      { "date": "2025-02-01", "total": 58.4 }
+    ],
+    "evidence": {
+      "pricing": ["https://example.com/amazon/pricing"],
+      "benchmarks": ["https://example.com/titan-benchmarks"],
+      "safety": ["https://example.com/titan-safety"],
+      "technical": ["https://example.com/titan-report"]
+    },
+    "waiting": false
+  },
+  {
+    "slug": "grok-1-5",
+    "name": "Grok 1.5",
+    "provider": "xAI",
+    "modalities": ["Text", "Coding"],
+    "total": 41.2,
+    "delta": 0.0,
+    "scores": {
+      "performance": 62,
+      "safety": 8,
+      "cost": 40,
+      "reliability": 44,
+      "transparency": 30,
+      "ecosystem": 25,
+      "adoption": 22
     },
     "categories": {
       "text": 70,
@@ -112,7 +239,8 @@
       "video": null
     },
     "history": [
-      { "date": "2025-11-01", "total": 29.4 }
+      { "date": "2024-12-10", "total": 41.2 },
+      { "date": "2025-01-10", "total": 41.2 }
     ],
     "evidence": {
       "pricing": [],
