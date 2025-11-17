@@ -1,6 +1,13 @@
 import modelsData from "@/data/models/index.json";
-import type { Model } from "@/components/ModelCard";
+import type { Model } from "@/types/model";
 import Link from "next/link";
+import HistorySparkline from "@/components/HistorySparkline";
+import EvidenceSection from "@/components/EvidenceSection";
+import {
+  DELTA_WINDOW_DAYS,
+  formatDelta,
+  getSpikeDirection
+} from "@/lib/models";
 
 const models = modelsData as Model[];
 
@@ -33,11 +40,19 @@ export default function ModelPage({ params }: { params: Params }) {
       </Link>
 
       <header className="flex flex-col justify-between gap-4 rounded-xl border border-slate-800 bg-surface/60 p-4 sm:flex-row sm:items-end">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-50">
-            {model.name}
-          </h1>
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-2xl font-semibold text-slate-50">
+              {model.name}
+            </h1>
+            <StatusChip model={model} />
+          </div>
           <p className="text-sm text-slate-400">{model.provider}</p>
+          {model.waiting && (
+            <p className="text-[0.7rem] text-amber-300">
+              Waiting on more public evidence. Scores may change as data matures.
+            </p>
+          )}
         </div>
         <div className="text-right">
           <div className="text-xs uppercase tracking-wide text-slate-400">
@@ -47,18 +62,9 @@ export default function ModelPage({ params }: { params: Params }) {
             {model.total.toFixed(1)}
           </div>
           <div className="text-xs text-slate-500">
-            Δ 30d{" "}
-            <span
-              className={
-                model.delta > 0
-                  ? "text-positive"
-                  : model.delta < 0
-                    ? "text-negative"
-                    : "text-slate-300"
-              }
-            >
-              {model.delta > 0 ? "+" : ""}
-              {model.delta.toFixed(1)}
+            Δ {DELTA_WINDOW_DAYS}d{" "}
+            <span className={deltaColor(model.delta)}>
+              {formatDelta(model.delta)}
             </span>
           </div>
         </div>
@@ -94,29 +100,60 @@ export default function ModelPage({ params }: { params: Params }) {
         </div>
       </section>
 
-      {/* ここは後で本格的なグラフに差し替える */}
       <section className="space-y-3 rounded-xl border border-slate-800 bg-surface/60 p-4 text-sm">
         <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
           Trend (total score)
         </h2>
-        <p className="text-xs text-slate-400">
-          Trend visualization will be added later. For now, raw history data:
+        <HistorySparkline history={model.history} />
+        <p className="text-[0.65rem] text-slate-500">
+          Δ window {DELTA_WINDOW_DAYS} days. Raw checkpoints are normalized
+          before a new release is added to the scoreboard.
         </p>
-        <pre className="overflow-x-auto rounded-lg bg-slate-950/60 p-3 text-[0.7rem] text-slate-200">
-{JSON.stringify((model as any).history ?? [], null, 2)}
-        </pre>
       </section>
 
       <section className="space-y-3 rounded-xl border border-slate-800 bg-surface/60 p-4 text-sm">
         <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-          Evidence (sample)
+          Evidence
         </h2>
-        <p className="text-xs text-slate-400">
-          Evidence links here are placeholders. In Phase 1, they will be filled
-          with real URLs for pricing, benchmarks, safety, and reports.
+        <EvidenceSection evidence={model.evidence} />
+        <p className="text-[0.65rem] text-slate-500">
+          Every reference is public. Links will expand as Phase 1 sources are
+          published.
         </p>
       </section>
     </div>
+  );
+}
+
+function deltaColor(delta: number) {
+  if (delta > 0) return "text-positive";
+  if (delta < 0) return "text-negative";
+  return "text-slate-300";
+}
+
+function StatusChip({ model }: { model: Model }) {
+  const spike = getSpikeDirection(model.delta, model.waiting);
+  if (!spike) return null;
+
+  const baseClass =
+    "rounded-full px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide";
+
+  if (spike === "waiting") {
+    return (
+      <span className={`${baseClass} bg-slate-600/30 text-slate-200`}>
+        Waiting
+      </span>
+    );
+  }
+
+  const palette = spike === "up"
+    ? { bg: "bg-positive/10", text: "text-positive", label: "Spike ↑" }
+    : { bg: "bg-negative/10", text: "text-negative", label: "Spike ↓" };
+
+  return (
+    <span className={`${baseClass} ${palette.bg} ${palette.text}`}>
+      {palette.label}
+    </span>
   );
 }
 
