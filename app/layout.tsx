@@ -4,8 +4,9 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 export const metadata = {
-  title: "AI Compass v2",
-  description: "Transparent, data-driven scoring for modern AI models."
+  title: "AI Model Scoreboard",
+  description:
+    "Independent AI model rankings focused on transparent evidence, open metrics, and meaningful deltas."
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

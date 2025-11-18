@@ -2,17 +2,24 @@ export default function AboutPage() {
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-semibold text-slate-50 sm:text-2xl">
-        About AI Compass
+        About AI Model Scoreboard
       </h1>
       <p className="text-sm text-slate-400">
-        AI Compass is a BadJoke-Lab project that scores modern AI models with a
-        focus on transparency and reproducibility. It is not sponsored by any
-        vendor.
+        AI Model Scoreboard is a community-run initiative to benchmark
+        foundation models with an emphasis on evidence, reproducibility, and
+        accessible storytelling. We are not affiliated with any of the vendors
+        we track.
       </p>
+        <p className="text-sm text-slate-400">
+          Every score and spike that appears on the board must be backed by a
+          public artifact—eval reports, deployment notes, pricing updates, or
+          policy statements. If evidence is missing, the model stays in a
+          provisional &ldquo;waiting&rdquo; state until we can verify the claim.
+        </p>
       <p className="text-sm text-slate-400">
-        The goal is to provide a simple, data-first overview of how models
-        compare, how they change over time, and where the underlying evidence
-        comes from.
+        The project is intentionally minimal: one table, clear deltas, and a
+        cadence that mirrors how operators make roadmap decisions. Transparency
+        is the product.
       </p>
     </div>
   );

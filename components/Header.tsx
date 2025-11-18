@@ -18,14 +18,14 @@ export default function Header() {
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-xs font-bold text-white">
-            🧭
+            🧮
           </div>
           <div className="leading-tight">
             <div className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">
-              BadJoke-Lab
+              AI Model Scoreboard
             </div>
             <div className="text-lg font-semibold text-slate-50">
-              AI Compass
+              Independent rankings
             </div>
           </div>
         </Link>
