@@ -19,7 +19,7 @@ export default function ScoresPage() {
     <div className="flex flex-col gap-10">
       <section className="space-y-4">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
-          aims-v1 scoreboard
+          AI Model Scoreboard · aims-v1
         </p>
         <h1 className="text-3xl font-semibold text-slate-50 sm:text-4xl">
           Transparent AI model leaderboard

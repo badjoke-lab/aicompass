@@ -5,9 +5,10 @@ export default function PrivacyPage() {
         Privacy
       </h1>
       <p className="text-sm text-slate-400">
-        AI Compass does not collect personal information. Basic analytics may be
-        used (e.g. Cloudflare Web Analytics, Vercel logs) to understand traffic
-        and improve the service.
+        AI Model Scoreboard does not collect personal information. Basic
+        privacy-respecting analytics (e.g. Cloudflare Web Analytics, Vercel
+        logs) are used only to understand traffic patterns and keep the service
+        stable.
       </p>
       <p className="text-sm text-slate-400">
         No user accounts, no tracking cookies, and no advertising identifiers
