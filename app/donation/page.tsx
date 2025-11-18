@@ -1,26 +1,33 @@
 const donationLinks = [
   {
-    label: "Stripe",
-    href: "https://donate.stripe.com/6oEg2w0G1e0ldLa288",
-    description: "One-time or recurring card donations via Stripe Checkout.",
+    label: "Stripe Payment Link",
+    href: "https://stripe.com/payments/placeholder",
+    description:
+      "Placeholder checkout link for card donations. Replace once the production Stripe Payment Link is issued.",
   },
   {
-    label: "Ko-fi",
-    href: "https://ko-fi.com/aimodelscoreboard",
-    description: "Buy a coffee and leave a note with research requests.",
+    label: "Ko-fi Profile",
+    href: "https://ko-fi.com/placeholder",
+    description:
+      "Support the project with small tips while we wait for the permanent Ko-fi vanity URL.",
   },
 ];
 
 const wallets = [
   {
-    asset: "XRP",
-    address: "rPVMhWB3DR57cWFbL6rG5VNz48FGNdJv9q",
-    memo: "Tag not required",
+    asset: "BTC",
+    address: "bc1-placeholder-bitcoin-wallet-address",
+    memo: "Mainnet SegWit placeholder until multisig is configured.",
   },
   {
     asset: "ETH",
-    address: "0x4F3C5c9fF2b9B7C933F1A6F7554A95A1bCAbC11",
-    memo: "Supports any ERC-20 stablecoin",
+    address: "0xplaceholderETHaddress000000000000000000000000",
+    memo: "Use for native ETH or ERC-20 transfers until custodial wallet goes live.",
+  },
+  {
+    asset: "USDT",
+    address: "TRC20-placeholder-usdt-wallet-address",
+    memo: "Shown for stablecoin supporters; swap with production wallet ID later.",
   },
 ];
 
@@ -62,7 +69,7 @@ export default function DonationPage() {
 
       <section className="space-y-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
-          Crypto wallets
+          Crypto wallets (placeholder)
         </h2>
         <div className="grid gap-3 sm:grid-cols-2">
           {wallets.map((wallet) => (
@@ -83,9 +90,9 @@ export default function DonationPage() {
       </section>
 
       <p className="text-xs text-slate-500">
-        Need an invoice or different rails? Email
+        Need an invoice, bank wire, or verified wallet? Email
         <span className="font-semibold text-slate-300"> hello@aimodelscoreboard.org </span>
-        and we’ll work it out.
+        and we’ll send the production credentials.
       </p>
     </div>
   );
