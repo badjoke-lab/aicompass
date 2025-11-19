@@ -2,9 +2,10 @@ import type { Model } from "@/types/model";
 
 interface Props {
   history?: Model["history"];
+  chartId?: string;
 }
 
-export default function HistorySparkline({ history }: Props) {
+export default function HistorySparkline({ history, chartId }: Props) {
   if (!history || history.length === 0) {
     return (
       <p className="text-xs text-slate-500">
@@ -14,6 +15,7 @@ export default function HistorySparkline({ history }: Props) {
   }
 
   const normalized = history as NonNullable<Model["history"]>;
+  const gradientId = chartId ? `sparkGradient-${chartId}` : "sparkGradient";
   const points = buildPoints(normalized);
   const first = normalized[0];
   const latest = normalized[normalized.length - 1];
@@ -22,14 +24,14 @@ export default function HistorySparkline({ history }: Props) {
     <div>
       <svg viewBox="0 0 100 40" className="h-32 w-full">
         <defs>
-          <linearGradient id="sparkGradient" x1="0" x2="0" y1="0" y2="1">
+          <linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">
             <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" />
             <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
           </linearGradient>
         </defs>
         <path
           d={points.area}
-          fill="url(#sparkGradient)"
+          fill={`url(#${gradientId})`}
           className="opacity-40"
         />
         <path
