@@ -3,7 +3,13 @@
     "slug": "gpt-4-1",
     "name": "GPT-4.1",
     "provider": "OpenAI",
+    "vendor": "OpenAI",
+    "releaseDate": "2024-12",
+    "modality": "text",
     "modalities": ["Text", "Coding", "Vision"],
+    "parameterSize": "1T+",
+    "trainingDisclosureLevel": 1,
+    "evalReproducibilityLevel": 2,
     "total": 82.4,
     "delta": 4.1,
     "scores": {
@@ -23,15 +29,67 @@
       "video": 72
     },
     "history": [
-      { "date": "2025-01-05", "total": 76.3 },
-      { "date": "2025-01-20", "total": 78.3 },
-      { "date": "2025-02-10", "total": 82.4 }
+      {
+        "date": "2025-01-05",
+        "total": 76.3,
+        "scores": { "performance": 94, "safety": 28, "cost": 35 }
+      },
+      {
+        "date": "2025-01-20",
+        "total": 78.3,
+        "scores": { "performance": 95, "safety": 30, "cost": 36 }
+      },
+      {
+        "date": "2025-02-10",
+        "total": 82.4,
+        "scores": { "performance": 97, "safety": 32, "cost": 38 }
+      }
     ],
     "evidence": {
       "pricing": ["https://example.com/openai/pricing"],
       "benchmarks": ["https://example.com/gpt4-benchmarks"],
       "safety": ["https://example.com/gpt4-safety"],
-      "technical": ["https://example.com/gpt4-report"]
+      "technical": ["https://example.com/gpt4-report"],
+      "items": [
+        {
+          "category": "performance",
+          "title": "GPT-4.1 on MMLU",
+          "url": "https://example.com/gpt41-mmlu",
+          "tag": "Perf"
+        },
+        {
+          "category": "safety",
+          "title": "OpenAI system card",
+          "url": "https://example.com/gpt41-safety",
+          "note": "Red-team summary"
+        },
+        {
+          "category": "cost",
+          "title": "Pricing table",
+          "url": "https://example.com/gpt41-cost"
+        },
+        {
+          "category": "reliability",
+          "title": "Status history",
+          "url": "https://example.com/gpt41-status",
+          "tag": "Uptime"
+        },
+        {
+          "category": "transparency",
+          "title": "Policy blog",
+          "url": "https://example.com/gpt41-transparency"
+        },
+        {
+          "category": "ecosystem",
+          "title": "Plugin partners",
+          "url": "https://example.com/gpt41-ecosystem"
+        },
+        {
+          "category": "adoption",
+          "title": "Enterprise case study",
+          "url": "https://example.com/gpt41-adoption"
+        }
+      ]
     },
     "waiting": false
   },
@@ -39,7 +97,13 @@
     "slug": "claude-3-5",
     "name": "Claude 3.5",
     "provider": "Anthropic",
+    "vendor": "Anthropic",
+    "releaseDate": "2024-11",
+    "modality": "text",
     "modalities": ["Text", "Coding"],
+    "parameterSize": "70B",
+    "trainingDisclosureLevel": 2,
+    "evalReproducibilityLevel": 2,
     "total": 77.2,
     "delta": -2.8,
     "scores": {
@@ -59,15 +123,49 @@
       "video": null
     },
     "history": [
-      { "date": "2024-12-10", "total": 80.0 },
-      { "date": "2025-01-10", "total": 79.5 },
-      { "date": "2025-02-10", "total": 77.2 }
+      {
+        "date": "2024-12-05",
+        "total": 81.0,
+        "scores": { "performance": 94, "safety": 38 }
+      },
+      {
+        "date": "2025-01-20",
+        "total": 80.0,
+        "scores": { "performance": 93, "safety": 36 }
+      },
+      {
+        "date": "2025-02-10",
+        "total": 77.2,
+        "scores": { "performance": 93, "safety": 36, "reliability": 89 }
+      }
     ],
     "evidence": {
       "pricing": ["https://example.com/anthropic/pricing"],
       "benchmarks": ["https://example.com/claude-benchmarks"],
       "safety": ["https://example.com/claude-safety"],
-      "technical": ["https://example.com/claude-report"]
+      "technical": ["https://example.com/claude-report"],
+      "items": [
+        {
+          "category": "performance",
+          "title": "Claude 3.5 GSM8K",
+          "url": "https://example.com/claude-gsm8k"
+        },
+        {
+          "category": "safety",
+          "title": "Anthropic red-team memo",
+          "url": "https://example.com/claude-redteam"
+        },
+        {
+          "category": "transparency",
+          "title": "Claude release blog",
+          "url": "https://example.com/claude-release"
+        },
+        {
+          "category": "adoption",
+          "title": "Customer spotlight",
+          "url": "https://example.com/claude-customer"
+        }
+      ]
     },
     "waiting": false
   },
@@ -75,7 +173,13 @@
     "slug": "gemini-1-5-pro",
     "name": "Gemini 1.5 Pro",
     "provider": "Google",
+    "vendor": "Google DeepMind",
+    "releaseDate": "2024-12",
+    "modality": "vlm",
     "modalities": ["Text", "Coding", "Vision", "Audio"],
+    "parameterSize": "1.5T",
+    "trainingDisclosureLevel": 1,
+    "evalReproducibilityLevel": 2,
     "total": 73.5,
     "delta": 1.6,
     "scores": {
@@ -95,15 +199,44 @@
       "video": 70
     },
     "history": [
-      { "date": "2024-12-01", "total": 69.3 },
-      { "date": "2025-01-01", "total": 71.9 },
-      { "date": "2025-02-01", "total": 73.5 }
+      {
+        "date": "2024-12-01",
+        "total": 69.3,
+        "scores": { "performance": 86, "ecosystem": 80 }
+      },
+      {
+        "date": "2025-01-10",
+        "total": 71.9,
+        "scores": { "performance": 87, "ecosystem": 81 }
+      },
+      {
+        "date": "2025-02-01",
+        "total": 73.5,
+        "scores": { "performance": 88, "safety": 30, "ecosystem": 83 }
+      }
     ],
     "evidence": {
       "pricing": ["https://example.com/gemini/pricing"],
       "benchmarks": ["https://example.com/gemini-benchmarks"],
       "safety": ["https://example.com/gemini-safety"],
-      "technical": ["https://example.com/gemini-report"]
+      "technical": ["https://example.com/gemini-report"],
+      "items": [
+        {
+          "category": "performance",
+          "title": "Gemini VLM evals",
+          "url": "https://example.com/gemini-vlm"
+        },
+        {
+          "category": "cost",
+          "title": "Burst pricing blog",
+          "url": "https://example.com/gemini-cost"
+        },
+        {
+          "category": "ecosystem",
+          "title": "Workspace integrations",
+          "url": "https://example.com/gemini-workspace"
+        }
+      ]
     },
     "waiting": false
   },
@@ -111,7 +244,13 @@
     "slug": "llama-3-70b",
     "name": "Llama 3 70B",
     "provider": "Meta",
+    "vendor": "Meta",
+    "releaseDate": "2024-12",
+    "modality": "text",
     "modalities": ["Text", "Coding"],
+    "parameterSize": "70B",
+    "trainingDisclosureLevel": 3,
+    "evalReproducibilityLevel": 2,
     "total": 69.1,
     "delta": 2.2,
     "scores": {
@@ -131,15 +270,39 @@
       "video": null
     },
     "history": [
-      { "date": "2024-12-15", "total": 66.0 },
-      { "date": "2025-01-15", "total": 66.9 },
-      { "date": "2025-02-10", "total": 69.1 }
+      {
+        "date": "2024-12-15",
+        "total": 66.0,
+        "scores": { "performance": 82, "transparency": 86 }
+      },
+      {
+        "date": "2025-01-15",
+        "total": 66.9,
+        "scores": { "performance": 83, "transparency": 87 }
+      },
+      {
+        "date": "2025-02-10",
+        "total": 69.1,
+        "scores": { "performance": 84, "transparency": 88, "ecosystem": 86 }
+      }
     ],
     "evidence": {
       "pricing": ["https://example.com/meta/license"],
       "benchmarks": ["https://example.com/llama-benchmarks"],
       "safety": ["https://example.com/llama-safety"],
-      "technical": ["https://example.com/llama-report"]
+      "technical": ["https://example.com/llama-report"],
+      "items": [
+        {
+          "category": "transparency",
+          "title": "Meta openness report",
+          "url": "https://example.com/llama-transparency"
+        },
+        {
+          "category": "ecosystem",
+          "title": "Developer tooling",
+          "url": "https://example.com/llama-ecosystem"
+        }
+      ]
     },
     "waiting": false
   },
@@ -147,7 +310,13 @@
     "slug": "mistral-large",
     "name": "Mistral Large",
     "provider": "Mistral AI",
+    "vendor": "Mistral AI",
+    "releaseDate": "2024-12",
+    "modality": "text",
     "modalities": ["Text", "Coding"],
+    "parameterSize": "Large",
+    "trainingDisclosureLevel": 2,
+    "evalReproducibilityLevel": 1,
     "total": 65.8,
     "delta": 0.0,
     "scores": {
@@ -167,15 +336,39 @@
       "video": null
     },
     "history": [
-      { "date": "2024-12-05", "total": 65.8 },
-      { "date": "2025-01-05", "total": 65.8 },
-      { "date": "2025-02-05", "total": 65.8 }
+      {
+        "date": "2024-12-05",
+        "total": 65.0,
+        "scores": { "performance": 80 }
+      },
+      {
+        "date": "2025-01-15",
+        "total": 65.8,
+        "scores": { "performance": 81 }
+      },
+      {
+        "date": "2025-02-05",
+        "total": 65.8,
+        "scores": { "performance": 81, "cost": 60 }
+      }
     ],
     "evidence": {
       "pricing": ["https://example.com/mistral/pricing"],
       "benchmarks": ["https://example.com/mistral-benchmarks"],
       "safety": ["https://example.com/mistral-safety"],
-      "technical": ["https://example.com/mistral-report"]
+      "technical": ["https://example.com/mistral-report"],
+      "items": [
+        {
+          "category": "cost",
+          "title": "Efficient serving write-up",
+          "url": "https://example.com/mistral-cost"
+        },
+        {
+          "category": "adoption",
+          "title": "Open weights partners",
+          "url": "https://example.com/mistral-adoption"
+        }
+      ]
     },
     "waiting": false
   },
@@ -183,7 +376,13 @@
     "slug": "amazon-titan-omni",
     "name": "Titan Omni",
     "provider": "Amazon",
+    "vendor": "Amazon",
+    "releaseDate": "2024-10",
+    "modality": "multimodal",
     "modalities": ["Text", "Vision", "Audio"],
+    "parameterSize": "100B",
+    "trainingDisclosureLevel": 1,
+    "evalReproducibilityLevel": 1,
     "total": 58.4,
     "delta": 3.6,
     "scores": {
@@ -203,15 +402,39 @@
       "video": 54
     },
     "history": [
-      { "date": "2024-12-01", "total": 52.0 },
-      { "date": "2025-01-01", "total": 54.8 },
-      { "date": "2025-02-01", "total": 58.4 }
+      {
+        "date": "2024-12-01",
+        "total": 52.0,
+        "scores": { "performance": 66 }
+      },
+      {
+        "date": "2025-01-10",
+        "total": 54.8,
+        "scores": { "performance": 68 }
+      },
+      {
+        "date": "2025-02-01",
+        "total": 58.4,
+        "scores": { "performance": 70, "cost": 68 }
+      }
     ],
     "evidence": {
       "pricing": ["https://example.com/amazon/pricing"],
       "benchmarks": ["https://example.com/titan-benchmarks"],
       "safety": ["https://example.com/titan-safety"],
-      "technical": ["https://example.com/titan-report"]
+      "technical": ["https://example.com/titan-report"],
+      "items": [
+        {
+          "category": "reliability",
+          "title": "Titan uptime note",
+          "url": "https://example.com/titan-uptime"
+        },
+        {
+          "category": "adoption",
+          "title": "AWS service launch",
+          "url": "https://example.com/titan-adoption"
+        }
+      ]
     },
     "waiting": false
   },
@@ -219,7 +442,13 @@
     "slug": "grok-1-5",
     "name": "Grok 1.5",
     "provider": "xAI",
+    "vendor": "xAI",
+    "releaseDate": "2024-11",
+    "modality": "text",
     "modalities": ["Text", "Coding"],
+    "parameterSize": "314B",
+    "trainingDisclosureLevel": 0,
+    "evalReproducibilityLevel": 0,
     "total": 41.2,
     "delta": 0.0,
     "scores": {
@@ -239,14 +468,35 @@
       "video": null
     },
     "history": [
-      { "date": "2024-12-10", "total": 41.2 },
-      { "date": "2025-01-10", "total": 41.2 }
+      {
+        "date": "2024-12-15",
+        "total": 41.2,
+        "scores": { "performance": 60 }
+      },
+      {
+        "date": "2025-01-10",
+        "total": 41.2,
+        "scores": { "performance": 62 }
+      },
+      {
+        "date": "2025-02-05",
+        "total": 41.2,
+        "scores": { "performance": 62, "cost": 40 }
+      }
     ],
     "evidence": {
       "pricing": [],
       "benchmarks": [],
       "safety": [],
-      "technical": []
+      "technical": [],
+      "items": [
+        {
+          "category": "performance",
+          "title": "Placeholder eval",
+          "url": "https://example.com/grok-eval",
+          "note": "Pending validation"
+        }
+      ]
     },
     "waiting": true
   }

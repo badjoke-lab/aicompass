@@ -7,6 +7,7 @@ import {
   DELTA_WINDOW_DAYS,
   formatDelta,
   getModelBySlug,
+  getModelDelta,
   getModelStatuses,
   getModels,
   getSortedModels
@@ -34,6 +35,7 @@ export default function ModelPage({ params }: { params: Params }) {
   const rank = sortedModels.findIndex((entry) => entry.slug === model.slug) + 1;
   const statuses = getModelStatuses(model, rank);
   const scoreCards = getScoreCards(model);
+  const delta = getModelDelta(model);
 
   return (
     <div className="space-y-6">
@@ -46,7 +48,7 @@ export default function ModelPage({ params }: { params: Params }) {
           <div>
             <p className="text-xs uppercase tracking-wide text-slate-500">Vendor</p>
             <h1 className="text-3xl font-semibold text-slate-50">{model.name}</h1>
-            <p className="text-sm text-slate-400">{model.provider}</p>
+            <p className="text-sm text-slate-400">{model.vendor ?? model.provider}</p>
           </div>
           {model.modalities && model.modalities.length > 0 && (
             <div className="flex flex-wrap gap-2 text-[0.65rem]">
@@ -72,7 +74,7 @@ export default function ModelPage({ params }: { params: Params }) {
           <p className="text-4xl font-semibold text-slate-50">{model.total.toFixed(1)}</p>
           <p className="text-sm text-slate-400">
             Δ {DELTA_WINDOW_DAYS}d {" "}
-            <span className={deltaColor(model.delta)}>{formatDelta(model.delta)}</span>
+            <span className={deltaColor(delta)}>{formatDelta(delta)}</span>
           </p>
           <p className="text-xs text-slate-500">Ranked #{rank}</p>
         </div>

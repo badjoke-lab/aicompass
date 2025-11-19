@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Model } from "@/types/model";
-import { DELTA_WINDOW_DAYS, formatDelta, getModelStatuses } from "@/lib/models";
+import { DELTA_WINDOW_DAYS, formatDelta, getModelDelta, getModelStatuses } from "@/lib/models";
 import StatusPills from "@/components/StatusPills";
 
 interface Props {
@@ -17,6 +17,7 @@ const mobileMetrics = [
 
 export default function LeaderboardCard({ model, rank }: Props) {
   const statuses = getModelStatuses(model, rank);
+  const delta = getModelDelta(model);
   return (
     <Link
       href={`/models/${model.slug}`}
@@ -26,15 +27,15 @@ export default function LeaderboardCard({ model, rank }: Props) {
         <div>
           <p className="text-[0.65rem] uppercase tracking-wide text-slate-500">#{rank}</p>
           <p className="text-lg font-semibold text-slate-50">{model.name}</p>
-          <p className="text-xs text-slate-400">{model.provider}</p>
+          <p className="text-xs text-slate-400">{model.vendor ?? model.provider}</p>
         </div>
         <div className="text-right">
           <p className="text-[0.65rem] uppercase tracking-wide text-slate-500">Total</p>
           <p className="text-2xl font-semibold text-slate-50">
             {model.total.toFixed(1)}
           </p>
-          <p className={`text-[0.65rem] ${deltaColor(model.delta)}`}>
-            Δ {DELTA_WINDOW_DAYS}d {formatDelta(model.delta)}
+          <p className={`text-[0.65rem] ${deltaColor(delta)}`}>
+            Δ {DELTA_WINDOW_DAYS}d {formatDelta(delta)}
           </p>
         </div>
       </div>

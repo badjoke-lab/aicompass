@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Model } from "@/types/model";
-import { DELTA_WINDOW_DAYS, formatDelta, getModelStatuses } from "@/lib/models";
+import { DELTA_WINDOW_DAYS, formatDelta, getModelDelta, getModelStatuses } from "@/lib/models";
 import StatusPills from "@/components/StatusPills";
 
 interface Props {
@@ -28,6 +28,7 @@ export default function MoversList({ title, models, direction }: Props) {
         )}
         {models.map((model, index) => {
           const statuses = getModelStatuses(model);
+          const delta = getModelDelta(model);
           return (
             <div
               key={`${model.slug}-${index}`}
@@ -38,10 +39,10 @@ export default function MoversList({ title, models, direction }: Props) {
                   <Link href={`/models/${model.slug}`} className="font-semibold text-slate-50">
                     {model.name}
                   </Link>
-                  <p className="text-xs text-slate-400">{model.provider}</p>
+                  <p className="text-xs text-slate-400">{model.vendor ?? model.provider}</p>
                 </div>
                 <div className={`text-sm font-semibold ${direction === "up" ? "text-positive" : "text-negative"}`}>
-                  {formatDelta(model.delta)}
+                  {formatDelta(delta)}
                 </div>
               </div>
               <StatusPills statuses={statuses} className="mt-2" />
