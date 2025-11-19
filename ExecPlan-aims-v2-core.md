@@ -28,3 +28,4 @@
 
 ## Status
 - 2025-02-16: Plan created for aims-v2 core refactor.
+- 2025-02-18: Execution started for aims-v2-core (standalone engine + internal metrics console) to keep v1 UI untouched while enabling v2 diagnostics.
