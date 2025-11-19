@@ -118,7 +118,7 @@ export default function ModelPage({ params }: { params: Params }) {
           30-day sparkline
         </h2>
         <div className="mt-3">
-          <HistorySparkline history={model.history} />
+          <HistorySparkline history={model.history} chartId={model.slug} />
         </div>
         <p className="text-[0.65rem] text-slate-500">
           Mock history shown for aims-v1 preview. Δ window {DELTA_WINDOW_DAYS} days.

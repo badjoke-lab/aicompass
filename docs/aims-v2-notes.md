@@ -21,3 +21,11 @@ All new fields are optional so older entries remain valid.
 - `history` entries now follow `ModelHistoryEntry` (`date`, `total`, optional `scores`).
 - `scores` holds partial snapshots of the primary metrics so v2 charts can slice per-category deltas later.
 - `getModelDelta` + `getHistoryDelta` in `lib/models.ts` translate the canonical 30-day window into a helper the UI can keep using without behavior changes.
+
+## History extensions & internal monitor (aims-v2)
+- Each tracked model now ships with 6–8 weekly checkpoints covering the last ~90 days to unblock richer charting.
+- `lib/historyStats.ts` exports helpers for derived history stats:
+  - `getHistoryDerivedStats` returns the 30-day delta, a volatility bucket (stable/mixed/volatile), and the update count in the current window.
+  - `getVolatilityBucket` normalizes a simple standard-deviation heuristic for future reuse.
+  - `getUpdateCount` isolates how many checkpoints land inside an arbitrary day window.
+- `/internal/history` is an operator-only view (not linked publicly) that displays each model, its derived history stats, a sparkline, and the latest checkpoints so we can audit the data powering the public leaderboard without touching the aims-v1 navigation.
