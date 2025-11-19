@@ -1,6 +1,7 @@
 # Exec Plan: aims-v2-data-model
 
 ## Goals
+codex/start-execplan-for-aims-v2-data-model-1lv5c5
 - Extend the internal data model so the AI Model Scoreboard can capture richer metadata, evidence, and score history per model, without changing the existing aims-v1 UI.
 - Preserve all current aims-v1 scoring, leaderboard behavior, and 30-day deltas while preparing the codebase for future aims-v2 features.
 - Keep changes scoped to TypeScript types and local data artifacts (no backend) and document any new fields briefly if needed.
@@ -16,3 +17,4 @@
 
 ## Status
 - 2025-02-16: Plan created.
+

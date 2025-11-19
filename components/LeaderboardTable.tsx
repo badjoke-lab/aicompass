@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Model } from "@/types/model";
-import { formatDelta, getModelStatuses } from "@/lib/models";
+import { formatDelta, getModelDelta, getModelStatuses } from "@/lib/models";
 import StatusPills from "@/components/StatusPills";
 
 interface Props {
@@ -47,6 +47,7 @@ export default function LeaderboardTable({ models, windowDays }: Props) {
             {models.map((model, index) => {
               const rank = index + 1;
               const statuses = getModelStatuses(model, rank);
+              const delta = getModelDelta(model, windowDays);
               return (
                 <tr
                   key={model.slug}
@@ -60,7 +61,7 @@ export default function LeaderboardTable({ models, windowDays }: Props) {
                     >
                       {model.name}
                     </Link>
-                    <p className="text-xs text-slate-400">{model.provider}</p>
+                    <p className="text-xs text-slate-400">{model.vendor ?? model.provider}</p>
                     {model.modalities && model.modalities.length > 0 && (
                       <p className="text-[0.65rem] text-slate-500">
                         {model.modalities.join(" · ")}
@@ -72,8 +73,8 @@ export default function LeaderboardTable({ models, windowDays }: Props) {
                     <div className="text-xl font-semibold text-slate-50">
                       {model.total.toFixed(1)}
                     </div>
-                    <div className={`text-[0.65rem] ${deltaColor(model.delta)}`}>
-                      Δ {windowDays}d {formatDelta(model.delta)}
+                    <div className={`text-[0.65rem] ${deltaColor(delta)}`}>
+                      Δ {windowDays}d {formatDelta(delta)}
                     </div>
                   </td>
                   {metricColumns.map((column) => (
