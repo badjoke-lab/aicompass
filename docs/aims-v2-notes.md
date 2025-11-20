@@ -28,4 +28,4 @@ All new fields are optional so older entries remain valid.
   - `getHistoryDerivedStats` returns the 30-day delta, a volatility bucket (stable/mixed/volatile), and the update count in the current window.
   - `getVolatilityBucket` normalizes a simple standard-deviation heuristic for future reuse.
   - `getUpdateCount` isolates how many checkpoints land inside an arbitrary day window.
-- `/internal/history` is an operator-only view (not linked publicly) that displays each model, its derived history stats, a sparkline, and the latest checkpoints so we can audit the data powering the public leaderboard without touching the aims-v1 navigation.
+- `/v2/internal/history` is an operator-only view (not linked publicly) that displays each model, its derived history stats, a sparkline, and the latest checkpoints so we can audit the data powering the public leaderboard without touching the aims-v1 navigation.
