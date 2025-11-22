@@ -1,126 +1,142 @@
 import Link from "next/link";
-import { v2ScoreEngine } from "@/lib/v2";
-import type { V2ModelWithMetrics } from "@/lib/v2";
+import { notFound } from "next/navigation";
+import { RatioBar } from "@/components/v2/RatioBar";
+import { SectionCard } from "@/components/v2/SectionCard";
+import { getInternalDashboardData, v2ScoreEngine } from "@/lib/v2";
 
 export const metadata = {
-  title: "AIMS v2 · Prototype leaderboard"
+  title: "AIMS v2 · Model detail"
 };
 
-export default function V2LeaderboardPage() {
-  const snapshots = v2ScoreEngine.getSnapshots();
-  const ranked = [...snapshots].sort((a, b) => b.metrics.total - a.metrics.total);
-  const generatedAt = new Date().toISOString();
+const dashboard = getInternalDashboardData();
+
+export default function V2ModelDetailPage({ params }: { params: { slug: string } }) {
+  const slug = decodeURIComponent(params.slug);
+  const snapshot = v2ScoreEngine.getBySlug(slug);
+  if (!snapshot) {
+    notFound();
+  }
+  const healthRow = dashboard.modelHealth.find((entry) => entry.slug === slug);
+  const ordered = [...dashboard.metrics].sort((a, b) => b.metrics.total - a.metrics.total);
+  const rank = ordered.findIndex((entry) => entry.model.slug === slug) + 1;
+
+  const metadataRatio = healthRow?.metadata.ratio ?? 0;
+  const evidenceRatio = healthRow?.evidence.ratio ?? 0;
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-col gap-2">
-        <div>
-          <p className="text-xs uppercase tracking-wide text-slate-400">alpha-only</p>
-          <h1 className="text-2xl font-semibold text-slate-50">AIMS v2 leaderboard snapshot</h1>
+    <div className="space-y-8">
+      <header className="space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">aims v2 internal</p>
+        <div className="space-y-1">
+          <h1 className="text-3xl font-semibold text-slate-50">{snapshot.metrics.name}</h1>
+          <p className="text-sm text-slate-400">{snapshot.metrics.vendor}</p>
         </div>
-        <p className="text-sm text-slate-400">
-          Rendering {ranked.length} tracked models from the v2 score engine. Metrics update with the
-          data files and reuse all volatility, transparency, and delta logic from `/lib/v2`.
-        </p>
-        <p className="text-[0.75rem] text-slate-500">Generated at {generatedAt}</p>
+        <div className="flex flex-wrap gap-2 text-xs text-slate-400">
+          <span className="rounded-full border border-slate-800 px-3 py-1">Rank #{rank || "-"}</span>
+          <span className="rounded-full border border-slate-800 px-3 py-1">Volatility {snapshot.metrics.volatilityBucket}</span>
+          <span className="rounded-full border border-slate-800 px-3 py-1">History samples {snapshot.model.history?.length ?? 0}</span>
+        </div>
       </header>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/30">
-        <table className="min-w-full divide-y divide-slate-800 text-sm">
-          <thead className="bg-slate-900/70 text-xs uppercase tracking-wide text-slate-400">
-            <tr>
-              <th className="px-4 py-3 text-left">Rank</th>
-              <th className="px-4 py-3 text-left">Model</th>
-              <th className="px-4 py-3 text-left">Total</th>
-              <th className="px-4 py-3 text-left">Weighted Δ</th>
-              <th className="px-4 py-3 text-left">Trend velocity</th>
-              <th className="px-4 py-3 text-left">Volatility</th>
-              <th className="px-4 py-3 text-left">Transparency</th>
-              <th className="px-4 py-3 text-left">Ecosystem</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-900/60">
-            {ranked.map((entry, index) => (
-              <LeaderboardRow key={entry.model.slug} entry={entry} rank={index + 1} />
-            ))}
-          </tbody>
-        </table>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <MetricCard label="Composite" value={snapshot.metrics.total.toFixed(1)} helper="v2 total score" />
+        <MetricCard
+          label="Weighted Δ"
+          value={snapshot.metrics.weightedDelta.value.toFixed(2)}
+          helper={`raw Δ ${snapshot.metrics.weightedDelta.rawDelta.toFixed(1)}`}
+        />
+        <MetricCard
+          label="Trend velocity"
+          value={`${snapshot.metrics.trendVelocity.velocity.toFixed(2)} /wk`}
+          helper={`Δ ${snapshot.metrics.trendVelocity.delta.toFixed(1)} window ${snapshot.metrics.trendVelocity.windowDays}d`}
+        />
+        <MetricCard
+          label="Transparency"
+          value={`${(snapshot.metrics.transparencyCompliance.ratio * 100).toFixed(1)}%`}
+          helper={`score ${snapshot.metrics.transparencyCompliance.transparencyScore.toFixed(1)}`}
+        />
       </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <SectionCard title="Health composition" description="Ratios pulled directly from v2 dashboard calculations">
+          <div className="space-y-3">
+            <RatioBar label="Metadata" ratio={metadataRatio} />
+            <RatioBar label="Evidence" ratio={evidenceRatio} />
+            <RatioBar label="Transparency" ratio={snapshot.metrics.transparencyCompliance.ratio} emphasis />
+            <RatioBar
+              label="Stability (inverse volatility)"
+              ratio={Math.max(0, 1 - snapshot.metrics.volatilityIndex / 6)}
+            />
+          </div>
+        </SectionCard>
+
+        <SectionCard title="Ecosystem depth" description="Derived from modalities, adoption, and evidence signals">
+          <div className="space-y-3">
+            <p className="text-3xl font-semibold text-slate-50">{snapshot.metrics.ecosystemDepth.depth.toFixed(1)}</p>
+            <p className="text-sm text-slate-400">
+              {snapshot.metrics.ecosystemDepth.evidenceSignals} signals · modality bonus {snapshot.metrics.ecosystemDepth.modalityBonus.toFixed(1)} ·
+              coverage bonus {snapshot.metrics.ecosystemDepth.coverageBonus.toFixed(1)}
+            </p>
+            <RatioBar label="Depth vs cap" ratio={Math.min(1, snapshot.metrics.ecosystemDepth.depth / 120)} />
+          </div>
+        </SectionCard>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <SectionCard title="Metadata fields" description="Fields counted toward completeness ratio">
+          {healthRow ? (
+            <div className="grid gap-2 sm:grid-cols-2">
+              {healthRow.metadata.present.map((label) => (
+                <Pill key={label} label={label} tone="positive" />
+              ))}
+              {healthRow.metadata.missing.map((label) => (
+                <Pill key={label} label={label} tone="neutral" />
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-slate-500">No metadata breakdown available.</p>
+          )}
+        </SectionCard>
+
+        <SectionCard title="Evidence buckets" description="Signals grouped by pricing, benchmarks, safety, technical, items">
+          {healthRow ? (
+            <div className="space-y-2">
+              {healthRow.evidence.buckets.map((bucket) => (
+                <div key={bucket.key} className="flex items-center justify-between rounded-xl border border-slate-800 px-3 py-2">
+                  <div>
+                    <p className="font-semibold text-slate-100">{bucket.label}</p>
+                    <p className="text-[0.7rem] text-slate-500">{bucket.count} signals</p>
+                  </div>
+                  <p className="text-sm font-mono text-slate-50">{(bucket.completeness * 100).toFixed(1)}%</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-slate-500">No evidence breakdown available.</p>
+          )}
+        </SectionCard>
+      </div>
+
+      <SectionCard title="Return to leaderboard" description="Browse all v2-ranked models">
+        <Link href="/v2/leaderboard" className="text-sm font-semibold text-accent underline-offset-4 hover:underline">
+          View leaderboard
+        </Link>
+      </SectionCard>
     </div>
   );
 }
 
-function LeaderboardRow({ entry, rank }: { entry: V2ModelWithMetrics; rank: number }) {
-  const { metrics } = entry;
-  const transparencyPercent = toPercent(metrics.transparencyCompliance.ratio);
-  const ecosystemPercent = Math.min(120, metrics.ecosystemDepth.depth) / 120;
-
+function MetricCard({ label, value, helper }: { label: string; value: string; helper?: string }) {
   return (
-    <tr className="bg-gradient-to-r from-slate-950/20 to-slate-900/10">
-      <td className="px-4 py-4 text-sm font-semibold text-slate-400">#{rank}</td>
-      <td className="px-4 py-4">
-        <div className="flex flex-col">
-          <Link
-            href={`/v2/models/${entry.model.slug}`}
-            className="font-semibold text-slate-100 underline-offset-4 hover:text-accent hover:underline"
-          >
-            {metrics.name}
-          </Link>
-          <span className="text-xs text-slate-500">{metrics.vendor}</span>
-        </div>
-      </td>
-      <td className="px-4 py-4">
-        <div className="text-base font-semibold text-slate-100">{metrics.total.toFixed(1)}</div>
-        <p className="text-xs text-slate-500">overall score</p>
-      </td>
-      <td className="px-4 py-4 text-sm">
-        <div className="font-mono text-base text-slate-100">{metrics.weightedDelta.value.toFixed(2)}</div>
-        <p className="text-xs text-slate-500">
-          raw Δ {metrics.weightedDelta.rawDelta.toFixed(1)} · stability ×{metrics.weightedDelta.stabilityPenalty.toFixed(2)}
-        </p>
-      </td>
-      <td className="px-4 py-4 text-sm">
-        <div className={`font-semibold ${metrics.trendVelocity.velocity >= 0 ? "text-positive" : "text-negative"}`}>
-          {metrics.trendVelocity.velocity.toFixed(2)} /wk
-        </div>
-        <p className="text-xs text-slate-500">
-          window {metrics.trendVelocity.windowDays}d · Δ {metrics.trendVelocity.delta.toFixed(1)}
-        </p>
-      </td>
-      <td className="px-4 py-4 text-sm">
-        <p className="font-semibold capitalize text-slate-100">{metrics.volatilityBucket}</p>
-        <p className="text-xs text-slate-500">index {metrics.volatilityIndex.toFixed(2)}</p>
-      </td>
-      <td className="px-4 py-4 text-sm">
-        <div className="flex flex-col gap-1">
-          <span className="font-semibold text-slate-100">{transparencyPercent.toFixed(0)}%</span>
-          <RatioBar ratio={metrics.transparencyCompliance.ratio} label="compliance" />
-        </div>
-      </td>
-      <td className="px-4 py-4 text-sm">
-        <div className="flex flex-col gap-1">
-          <span className="font-semibold text-slate-100">
-            {metrics.ecosystemDepth.depth.toFixed(1)} pts · {metrics.ecosystemDepth.evidenceSignals} signals
-          </span>
-          <RatioBar ratio={ecosystemPercent} label="ecosystem" />
-        </div>
-      </td>
-    </tr>
-  );
-}
-
-function RatioBar({ ratio, label }: { ratio: number; label: string }) {
-  const width = `${Math.min(1, Math.max(0, ratio)) * 100}%`;
-  return (
-    <div>
-      <div className="h-2 w-full rounded-full bg-slate-800">
-        <div className="h-2 rounded-full bg-accent" style={{ width }} />
-      </div>
-      <p className="mt-1 text-[0.65rem] uppercase tracking-wide text-slate-500">{label}</p>
+    <div className="space-y-2 rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
+      <p className="text-[0.65rem] uppercase tracking-wide text-slate-500">{label}</p>
+      <p className="text-2xl font-semibold text-slate-50">{value}</p>
+      {helper ? <p className="text-xs text-slate-500">{helper}</p> : null}
     </div>
   );
 }
 
-function toPercent(value: number) {
-  return Math.round(value * 100);
+function Pill({ label, tone }: { label: string; tone: "positive" | "neutral" }) {
+  const toneClass = tone === "positive" ? "border-emerald-500/60 text-emerald-200" : "border-slate-700 text-slate-300";
+  return <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs ${toneClass}`}>{label}</span>;
 }
