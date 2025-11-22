@@ -1,4 +1,7 @@
 import LeaderboardTable from "@/components/v2/LeaderboardTable";
+import { V2_DELTA_WINDOW_DAYS, v2ScoreEngine } from "@/lib/v2";
+
+const snapshots = v2ScoreEngine.getSnapshots();
 
 export const metadata = {
   title: "AIMS v2 · Leaderboard"
@@ -15,7 +18,7 @@ export default function V2LeaderboardPage() {
         </div>
       </header>
 
-      <LeaderboardTable />
+      <LeaderboardTable entries={snapshots} windowLabel={`Δ${V2_DELTA_WINDOW_DAYS}d`} />
     </main>
   );
 }
