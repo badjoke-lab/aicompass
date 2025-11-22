@@ -1,457 +1,288 @@
-import HistorySparkline from "@/components/HistorySparkline";
-import { DELTA_WINDOW_DAYS } from "@/lib/models";
-import {
-  TRANSPARENCY_ALERT_THRESHOLD,
-  getInternalDashboardData,
-  type SpikeAlert,
-  type TransparencyAlert,
-  type TrendLeader
-} from "@/lib/v2";
+import { SparkBars } from "@/components/v2/dashboard/SparkBars";
+import { getInternalDashboardData } from "@/lib/v2/getInternalDashboardData";
+import { v2ScoreEngine } from "@/lib/v2/scoreEngine";
+import type { V2ModelWithMetrics } from "@/lib/v2/types";
 
 const dashboard = getInternalDashboardData();
+const snapshots = v2ScoreEngine.getSnapshots();
 
 export const metadata = {
-  title: "Internal dashboard · AI Model Scoreboard"
+  title: "AIMS v2 internal dashboard"
 };
 
 export default function InternalDashboardPage() {
+  const ecosystemLeaders = [...snapshots]
+    .sort((a, b) => b.metrics.ecosystemDepth.depth - a.metrics.ecosystemDepth.depth)
+    .slice(0, 3);
+
   const summaryCards = [
     {
-      label: "Global health score",
-      value: `${dashboard.summary.globalHealthScore}`,
-      suffix: "/100",
-      helper: "Composite metadata, evidence, transparency, volatility"
+      label: "Global health",
+      value: `${dashboard.summary.globalHealthScore}/100`,
+      helper: "Composite metadata, evidence, transparency, stability"
     },
     {
       label: "Tracked models",
       value: `${dashboard.summary.tracked}`,
-      suffix: ` active ${dashboard.summary.active} · waiting ${dashboard.summary.waiting}`,
-      helper: `Coverage ${dashboard.summary.coveragePercent}%`
+      helper: `Active ${dashboard.summary.active} · Waiting ${dashboard.summary.waiting}`
     },
     {
-      label: "Median transparency ratio",
+      label: "Transparency median",
       value: `${dashboard.summary.medianTransparency.toFixed(1)}%`,
-      helper: "Ratio of transparency score vs disclosure expectation"
+      helper: "Ratio of transparency vs disclosure"
     },
     {
-      label: "Metadata vs evidence",
+      label: "Completeness",
       value: `${dashboard.summary.metadataAverage.toFixed(1)}% / ${dashboard.summary.evidenceAverage.toFixed(1)}%`,
-      helper: "Average completeness"
+      helper: "Metadata · Evidence averages"
     }
   ];
 
-  const volatilityMix = dashboard.summary.volatilityMix;
-  const bucketColors: Record<string, string> = {
-    stable: "bg-emerald-400",
-    mixed: "bg-amber-300",
-    volatile: "bg-rose-400"
-  };
-  const healthRows = [...dashboard.modelHealth].sort((a, b) => b.healthScore - a.healthScore);
-
   return (
     <div className="space-y-8">
-      <section className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">aims-v2 internal</p>
-        <h1 className="text-3xl font-semibold text-slate-50">Integrated diagnostics dashboard</h1>
-        <p className="max-w-4xl text-sm text-slate-400">
-          Unified internal-only cockpit combining aims-v2 metrics, anomaly detection, completeness tracking, and velocity
-          signals. All computations reuse deterministic v2 helpers without touching the public aims-v1 surface.
+      <header className="space-y-2">
+        <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-slate-500">aims v2 · internal</p>
+        <h1 className="text-3xl font-semibold text-slate-50">Metrics cockpit</h1>
+        <p className="max-w-3xl text-sm text-slate-400">
+          Private-only snapshot that blends v2 completeness, volatility, transparency, and ecosystem depth without touching
+          the public surface.
         </p>
-        <p className="text-xs uppercase tracking-widest text-slate-500">Desktop only</p>
-      </section>
+      </header>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {summaryCards.map((card) => (
-          <article key={card.label} className="rounded-2xl border border-slate-800 bg-surface/80 p-4">
+          <article key={card.label} className="rounded-2xl border border-slate-800 bg-surface/80 p-4 shadow-sm">
             <p className="text-[0.65rem] uppercase tracking-wide text-slate-500">{card.label}</p>
-            <p className="mt-2 text-3xl font-semibold text-slate-50">
-              {card.value}
-              {card.suffix ? <span className="text-base text-slate-500"> {card.suffix}</span> : null}
-            </p>
-            <p className="mt-2 text-xs text-slate-500">{card.helper}</p>
+            <p className="mt-2 text-2xl font-semibold text-slate-50">{card.value}</p>
+            <p className="text-xs text-slate-500">{card.helper}</p>
           </article>
         ))}
       </section>
 
-      <section className="rounded-3xl border border-slate-800 bg-surface/80 p-5">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Volatility mix</p>
-            <h2 className="text-xl font-semibold text-slate-100">{Object.values(volatilityMix).reduce((a, b) => a + b, 0)} models</h2>
+      <section className="grid gap-4 md:grid-cols-2">
+        <article className="rounded-2xl border border-slate-800 bg-surface/80 p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[0.65rem] uppercase tracking-[0.3em] text-slate-500">Volatility mix</p>
+              <p className="text-lg font-semibold text-slate-50">{Object.values(dashboard.summary.volatilityMix).reduce((a, b) => a + b, 0)} models</p>
+              <p className="text-xs text-slate-500">Stable · Mixed · Volatile</p>
+            </div>
+            <SparkBars
+              bars={["stable", "mixed", "volatile"].map((bucket) => dashboard.summary.volatilityMix[bucket as keyof typeof dashboard.summary.volatilityMix] ?? 0)}
+              max={Math.max(...Object.values(dashboard.summary.volatilityMix)) || 1}
+            />
           </div>
-          <div className="flex flex-wrap gap-3 text-sm">
-            {Object.entries(volatilityMix).map(([bucket, count]) => (
-              <span
-                key={bucket}
-                className="inline-flex items-center rounded-full border border-slate-700/80 px-3 py-1 text-slate-300"
-              >
-                <span className={`mr-2 h-2 w-2 rounded-full ${bucketColors[bucket] ?? "bg-blue-400"}`} />
-                {bucket} · {count}
-              </span>
+          <div className="mt-3 grid gap-2 sm:grid-cols-3">
+            {Object.entries(dashboard.summary.volatilityMix).map(([bucket, count]) => (
+              <div key={bucket} className="rounded-xl border border-slate-800/70 bg-slate-900/40 px-3 py-2 text-xs text-slate-300">
+                <p className="font-semibold capitalize text-slate-50">{bucket}</p>
+                <p className="text-slate-400">{count} tracked</p>
+              </div>
             ))}
           </div>
-        </div>
+        </article>
+
+        <article className="rounded-2xl border border-slate-800 bg-surface/80 p-4">
+          <p className="text-[0.65rem] uppercase tracking-[0.3em] text-slate-500">Spikes</p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <AlertList title="Gainers" items={dashboard.anomalies.gainers} tone="up" />
+            <AlertList title="Droppers" items={dashboard.anomalies.droppers} tone="down" />
+          </div>
+          <div className="mt-4">
+            <p className="text-[0.65rem] uppercase tracking-[0.3em] text-slate-500">Transparency alerts</p>
+            <AlertTransparency items={dashboard.anomalies.transparency} />
+          </div>
+        </article>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-3">
-        <AnomalyCard title="Spike gainers" description={`Δ${DELTA_WINDOW_DAYS}d movers ≥ +3`} data={dashboard.anomalies.gainers} />
-        <AnomalyCard title="Spike droppers" description={`Δ${DELTA_WINDOW_DAYS}d movers ≤ -3`} data={dashboard.anomalies.droppers} />
-        <TransparencyCard alerts={dashboard.anomalies.transparency} />
+      <section className="grid gap-4 lg:grid-cols-2">
+        <article className="rounded-2xl border border-slate-800 bg-surface/80 p-4">
+          <p className="text-[0.65rem] uppercase tracking-[0.3em] text-slate-500">Metadata completeness</p>
+          <p className="text-2xl font-semibold text-slate-50">{dashboard.summary.metadataAverage.toFixed(1)}%</p>
+          <p className="text-xs text-slate-500">Coverage across vendor, release, disclosure, and sizing</p>
+          <div className="mt-3 space-y-2">
+            {dashboard.metadata.coverage.slice(0, 3).map((field) => (
+              <FieldRow key={field.key} label={field.label} value={field.coveragePercent} />
+            ))}
+          </div>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            {dashboard.metadata.strongest.map((entry) => (
+              <MiniCard key={entry.slug} title={entry.name} subtitle={entry.vendor} value={`${entry.ratio.toFixed(1)}%`} />
+            ))}
+          </div>
+        </article>
+
+        <article className="rounded-2xl border border-slate-800 bg-surface/80 p-4">
+          <p className="text-[0.65rem] uppercase tracking-[0.3em] text-slate-500">Evidence completeness</p>
+          <p className="text-2xl font-semibold text-slate-50">{dashboard.summary.evidenceAverage.toFixed(1)}%</p>
+          <p className="text-xs text-slate-500">Benchmarks, safety, pricing, technical, curated notes</p>
+          <div className="mt-3 space-y-2">
+            {dashboard.evidence.coverage.slice(0, 3).map((bucket) => (
+              <FieldRow key={bucket.key} label={bucket.label} value={bucket.completeness} />
+            ))}
+          </div>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            {dashboard.evidence.weakest.map((entry) => (
+              <MiniCard
+                key={entry.slug}
+                title={entry.name}
+                subtitle={entry.vendor}
+                value={`${entry.ratio.toFixed(1)}%`}
+                footnote={entry.missingBuckets.length ? `Missing ${entry.missingBuckets.join(", ")}` : undefined}
+              />
+            ))}
+          </div>
+        </article>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-2">
-        <CompletenessCard
-          title="Metadata completeness"
-          average={dashboard.summary.metadataAverage}
-          coverage={dashboard.metadata.coverage}
-          strongest={dashboard.metadata.strongest}
-          weakest={dashboard.metadata.weakest}
-          helper="Vendor, release, modality, scale, and disclosure requirements"
-        />
-        <EvidenceCard
-          average={dashboard.summary.evidenceAverage}
-          coverage={dashboard.evidence.coverage}
-          weakest={dashboard.evidence.weakest}
-        />
-      </section>
+      <section className="grid gap-4 md:grid-cols-2">
+        <article className="rounded-2xl border border-slate-800 bg-surface/80 p-4">
+          <p className="text-[0.65rem] uppercase tracking-[0.3em] text-slate-500">Velocity</p>
+          <p className="text-lg font-semibold text-slate-50">Δ{dashboard.summary.coveragePercent}% coverage</p>
+          <p className="text-xs text-slate-500">Trend leaders and watchlist</p>
+          <div className="mt-3 space-y-3">
+            {dashboard.trendLeaders.map((entry) => (
+              <TrendRow key={entry.slug} entry={entry} />
+            ))}
+            {dashboard.trendWatch.map((entry) => (
+              <TrendRow key={entry.slug} entry={entry} muted />
+            ))}
+          </div>
+        </article>
 
-      <section className="space-y-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Health table</p>
-          <h2 className="text-2xl font-semibold text-slate-50">Model integrity monitor</h2>
-          <p className="text-sm text-slate-400">
-            Composite health = metadata (32%) + evidence (20%) + transparency (20%) + stability (15%) + velocity & weighted
-            delta (13%).
-          </p>
-        </div>
-        <div className="overflow-x-auto rounded-3xl border border-slate-800 bg-surface/80">
-          <table className="min-w-full text-left text-sm text-slate-300">
-            <thead>
-              <tr className="text-xs uppercase tracking-wide text-slate-500">
-                <th className="px-4 py-3 font-semibold">Model</th>
-                <th className="px-4 py-3 font-semibold">Health</th>
-                <th className="px-4 py-3 font-semibold">Metadata</th>
-                <th className="px-4 py-3 font-semibold">Evidence</th>
-                <th className="px-4 py-3 font-semibold">Transparency</th>
-                <th className="px-4 py-3 font-semibold">Velocity</th>
-                <th className="px-4 py-3 font-semibold">Δ{DELTA_WINDOW_DAYS}d weighted</th>
-                <th className="px-4 py-3 font-semibold">Volatility</th>
-              </tr>
-            </thead>
-            <tbody>
-              {healthRows.map((row) => (
-                <tr key={row.slug} className="border-t border-slate-800/70">
-                  <td className="px-4 py-3">
-                    <div className="font-semibold text-slate-50">{row.name}</div>
-                    <div className="text-xs uppercase tracking-wide text-slate-500">{row.vendor}</div>
-                    <div className="text-[0.7rem] text-slate-500">Total {row.total.toFixed(1)}</div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="text-xl font-semibold text-slate-50">{row.healthScore}</div>
-                    <p className="text-xs text-slate-500">{row.spikeDirection ? `Spike ${row.spikeDirection}` : "Normal"}</p>
-                    {row.transparencyViolation ? (
-                      <p className="text-xs text-amber-400">Transparency watch</p>
-                    ) : null}
-                  </td>
-                  <td className="px-4 py-3">
-                    <PercentBar
-                      value={row.metadata.ratio * 100}
-                      label={`${row.metadata.present.length}/${row.metadata.present.length + row.metadata.missing.length} fields`}
-                    />
-                  </td>
-                  <td className="px-4 py-3">
-                    <PercentBar value={row.evidence.ratio * 100} label={`${row.evidence.signals} signals`} />
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="text-lg font-semibold text-slate-50">{(row.transparencyRatio * 100).toFixed(0)}%</div>
-                    <p className="text-xs text-slate-500">ratio vs disclosure</p>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="text-lg font-semibold text-slate-50">{row.trendVelocity.velocity.toFixed(2)}/wk</div>
-                    <p className="text-xs text-slate-500">Δ{row.trendVelocity.delta.toFixed(2)} over {row.trendVelocity.sampleCount} pts</p>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="text-lg font-semibold text-slate-50">{row.weightedDelta.toFixed(2)}</div>
-                    <p className="text-xs text-slate-500">Momentum weighted delta</p>
-                  </td>
-                  <td className="px-4 py-3 capitalize">{row.volatilityBucket}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section className="grid gap-6 lg:grid-cols-2">
-        <TrendPanel title="Velocity leaders" description="> +0.25 per week" data={dashboard.trendLeaders} />
-        <TrendPanel title="Velocity watch" description="< -0.2 per week" data={dashboard.trendWatch} />
-      </section>
-
-      <section className="space-y-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-500">V2 metrics</p>
-          <h2 className="text-2xl font-semibold text-slate-50">Snapshot table</h2>
-          <p className="text-sm text-slate-400">
-            Mirrors the dedicated metrics console but anchored here for cross-reference with internal health signals.
-          </p>
-        </div>
-        <div className="hidden overflow-x-auto rounded-3xl border border-slate-800 bg-surface/80 shadow-lg xl:block">
-          <table className="min-w-full text-left text-sm text-slate-300">
-            <thead>
-              <tr className="text-xs uppercase tracking-wide text-slate-500">
-                <th className="px-5 py-4 font-semibold">Model</th>
-                <th className="px-5 py-4 font-semibold">Volatility index</th>
-                <th className="px-5 py-4 font-semibold">Transparency compliance</th>
-                <th className="px-5 py-4 font-semibold">Trend velocity</th>
-                <th className="px-5 py-4 font-semibold">Ecosystem depth</th>
-                <th className="px-5 py-4 font-semibold">Weighted Δ{DELTA_WINDOW_DAYS}d</th>
-              </tr>
-            </thead>
-            <tbody>
-              {dashboard.metrics.map(({ model, metrics }) => (
-                <tr key={model.slug} className="border-t border-slate-800/70">
-                  <td className="px-5 py-4">
-                    <div className="font-semibold text-slate-50">{model.name}</div>
-                    <div className="text-xs uppercase tracking-wide text-slate-500">{metrics.vendor}</div>
-                    <div className="text-[0.7rem] text-slate-500">Total {model.total.toFixed(1)}</div>
-                  </td>
-                  <td className="px-5 py-4">
-                    <div className="text-lg font-semibold text-slate-50">{metrics.volatilityIndex.toFixed(2)}</div>
-                    <div className="text-xs uppercase tracking-wide text-slate-500">{metrics.volatilityBucket}</div>
-                  </td>
-                  <td className="px-5 py-4">
-                    <div className="text-lg font-semibold text-slate-50">{(metrics.transparencyCompliance.ratio * 100).toFixed(0)}%</div>
-                    <div className="text-xs text-slate-500">
-                      Disclosure score {metrics.transparencyCompliance.disclosureScore.toFixed(1)} · transparency {metrics.transparencyCompliance.transparencyScore}
-                    </div>
-                  </td>
-                  <td className="px-5 py-4">
-                    <div className="text-lg font-semibold text-slate-50">{metrics.trendVelocity.velocity.toFixed(2)} / wk</div>
-                    <div className="text-xs text-slate-500">Δ{metrics.trendVelocity.delta.toFixed(2)} over {metrics.trendVelocity.sampleCount} pts</div>
-                  </td>
-                  <td className="px-5 py-4">
-                    <div className="text-lg font-semibold text-slate-50">{metrics.ecosystemDepth.depth.toFixed(1)}</div>
-                    <div className="text-xs text-slate-500">
-                      +{metrics.ecosystemDepth.modalityBonus.toFixed(1)} modalities · +{metrics.ecosystemDepth.coverageBonus.toFixed(1)} evidence ({metrics.ecosystemDepth.evidenceSignals} signals)
-                    </div>
-                  </td>
-                  <td className="px-5 py-4">
-                    <div className="text-lg font-semibold text-slate-50">{metrics.weightedDelta.value.toFixed(2)}</div>
-                    <div className="text-xs text-slate-500">
-                      Raw {metrics.weightedDelta.rawDelta.toFixed(2)} · momentum {metrics.weightedDelta.momentumBoost.toFixed(2)} · stability {metrics.weightedDelta.stabilityPenalty.toFixed(2)}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <p className="text-xs text-slate-500 xl:hidden">
-          Full metrics table available on ≥1280px viewports.
-        </p>
+        <article className="rounded-2xl border border-slate-800 bg-surface/80 p-4">
+          <p className="text-[0.65rem] uppercase tracking-[0.3em] text-slate-500">Ecosystem depth</p>
+          <p className="text-lg font-semibold text-slate-50">Modalities × adoption × evidence</p>
+          <div className="mt-3 space-y-3">
+            {ecosystemLeaders.map((entry) => (
+              <EcosystemRow key={entry.model.slug} entry={entry} />
+            ))}
+          </div>
+        </article>
       </section>
     </div>
   );
 }
 
-function AnomalyCard({ title, description, data }: { title: string; description: string; data: SpikeAlert[] }) {
+function FieldRow({ label, value }: { label: string; value: number }) {
   return (
-    <article className="rounded-3xl border border-slate-800 bg-surface/80 p-5">
-      <p className="text-xs uppercase tracking-[0.3em] text-slate-500">{title}</p>
-      <p className="text-sm text-slate-400">{description}</p>
-      <ul className="mt-3 space-y-3 text-sm">
-        {data.length === 0 ? <li className="text-xs text-slate-500">No alerts</li> : null}
-        {data.map((item) => (
-          <li key={item.slug} className="flex items-center justify-between rounded-2xl border border-slate-800/60 px-3 py-2">
-            <div>
-              <p className="font-semibold text-slate-50">{item.name}</p>
-              <p className="text-xs uppercase tracking-wide text-slate-500">{item.vendor}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-lg font-semibold text-slate-50">{item.deltaLabel}</p>
-              <p className="text-xs text-slate-500">Total {item.total.toFixed(1)}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </article>
+    <div className="flex items-center justify-between rounded-xl border border-slate-800/70 bg-slate-900/40 px-3 py-2 text-xs text-slate-300">
+      <div>
+        <p className="font-semibold text-slate-50">{label}</p>
+        <p className="text-[0.7rem] text-slate-500">Coverage</p>
+      </div>
+      <SparkBars bars={[value]} max={100} />
+    </div>
   );
 }
 
-function TransparencyCard({ alerts }: { alerts: TransparencyAlert[] }) {
-  return (
-    <article className="rounded-3xl border border-amber-900/60 bg-amber-950/20 p-5">
-      <p className="text-xs uppercase tracking-[0.3em] text-amber-400">Transparency alerts</p>
-      <p className="text-sm text-amber-200">Ratio &lt; {TRANSPARENCY_ALERT_THRESHOLD * 100}%</p>
-      <ul className="mt-3 space-y-3 text-sm">
-        {alerts.length === 0 ? <li className="text-xs text-amber-200">No violations</li> : null}
-        {alerts.map((alert) => (
-          <li key={alert.slug} className="flex items-center justify-between rounded-2xl border border-amber-800/50 px-3 py-2">
-            <div>
-              <p className="font-semibold text-amber-100">{alert.name}</p>
-              <p className="text-xs uppercase tracking-wide text-amber-400">{alert.vendor}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-lg font-semibold text-amber-100">{(alert.ratio * 100).toFixed(0)}%</p>
-              <p className="text-[0.65rem] text-amber-300">T {alert.transparencyScore} · D {alert.disclosureScore.toFixed(1)}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </article>
-  );
-}
-
-function CompletenessCard({
+function MiniCard({
   title,
-  average,
-  coverage,
-  strongest,
-  weakest,
-  helper
+  subtitle,
+  value,
+  footnote
 }: {
   title: string;
-  average: number;
-  coverage: { key: string; label: string; coveragePercent: number }[];
-  strongest: { slug: string; name: string; vendor: string; ratio: number }[];
-  weakest: { slug: string; name: string; vendor: string; ratio: number; missing: string[] }[];
-  helper: string;
+  subtitle: string;
+  value: string;
+  footnote?: string;
 }) {
   return (
-    <article className="rounded-3xl border border-slate-800 bg-surface/80 p-5">
-      <p className="text-xs uppercase tracking-[0.3em] text-slate-500">{title}</p>
-      <p className="text-3xl font-semibold text-slate-50">{average.toFixed(1)}%</p>
-      <p className="text-sm text-slate-400">{helper}</p>
-      <div className="mt-4 space-y-3">
-        {coverage.map((field) => (
-          <div key={field.key}>
-            <div className="flex items-center justify-between text-xs text-slate-400">
-              <span>{field.label}</span>
-              <span>{field.coveragePercent}%</span>
-            </div>
-            <div className="mt-1 h-2 rounded-full bg-slate-900">
-              <div className="h-2 rounded-full bg-blue-500" style={{ width: `${field.coveragePercent}%` }} />
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="mt-5 grid gap-4 text-sm lg:grid-cols-2">
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Strongest</p>
-          <ul className="mt-2 space-y-2">
-            {strongest.map((entry) => (
-              <li key={entry.slug} className="rounded-xl border border-slate-800/60 px-3 py-2">
-                <p className="font-semibold text-slate-50">{entry.name}</p>
-                <p className="text-xs uppercase tracking-wide text-slate-500">{entry.vendor}</p>
-                <p className="text-xs text-slate-400">{entry.ratio.toFixed(1)}%</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Gaps</p>
-          <ul className="mt-2 space-y-2">
-            {weakest.map((entry) => (
-              <li key={entry.slug} className="rounded-xl border border-slate-800/60 px-3 py-2">
-                <p className="font-semibold text-slate-50">{entry.name}</p>
-                <p className="text-xs uppercase tracking-wide text-slate-500">{entry.vendor}</p>
-                <p className="text-xs text-slate-400">
-                  {entry.ratio.toFixed(1)}% · Missing {entry.missing.length ? entry.missing.join(", ") : "—"}
-                </p>
-              </li>
-            ))}
-            {weakest.length === 0 ? <li className="text-xs text-slate-500">No gaps</li> : null}
-          </ul>
-        </div>
-      </div>
-    </article>
+    <div className="rounded-xl border border-slate-800/70 bg-slate-900/40 px-3 py-2 text-sm text-slate-300">
+      <p className="font-semibold text-slate-50">{title}</p>
+      <p className="text-[0.7rem] uppercase tracking-wide text-slate-500">{subtitle}</p>
+      <p className="text-xs text-slate-400">{value}</p>
+      {footnote ? <p className="text-[0.65rem] text-slate-500">{footnote}</p> : null}
+    </div>
   );
 }
 
-function EvidenceCard({
-  average,
-  coverage,
-  weakest
+function AlertList({
+  title,
+  items,
+  tone
 }: {
-  average: number;
-  coverage: { key: string; label: string; count: number; completeness: number }[];
-  weakest: { slug: string; name: string; vendor: string; ratio: number; missingBuckets: string[] }[];
+  title: string;
+  items: Array<{ slug: string; name: string; vendor: string; deltaLabel: string; total: number }>;
+  tone: "up" | "down";
 }) {
-  return (
-    <article className="rounded-3xl border border-slate-800 bg-surface/80 p-5">
-      <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Evidence completeness</p>
-      <p className="text-3xl font-semibold text-slate-50">{average.toFixed(1)}%</p>
-      <p className="text-sm text-slate-400">Pricing, benchmarks, safety, technical, curated notes</p>
-      <div className="mt-4 space-y-3">
-        {coverage.map((bucket) => (
-          <div key={bucket.key}>
-            <div className="flex items-center justify-between text-xs text-slate-400">
-              <span>{bucket.label}</span>
-              <span>{bucket.completeness.toFixed(1)}%</span>
-            </div>
-            <div className="mt-1 h-2 rounded-full bg-slate-900">
-              <div className="h-2 rounded-full bg-emerald-500" style={{ width: `${Math.min(bucket.completeness, 100)}%` }} />
-            </div>
-            <p className="mt-1 text-[0.65rem] text-slate-500">Avg docs {bucket.count.toFixed(1)}</p>
-          </div>
-        ))}
-      </div>
-      <div className="mt-5">
-        <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Evidence backlog</p>
-        <ul className="mt-2 space-y-2 text-sm">
-          {weakest.map((entry) => (
-            <li key={entry.slug} className="rounded-xl border border-slate-800/60 px-3 py-2">
-              <p className="font-semibold text-slate-50">{entry.name}</p>
-              <p className="text-xs uppercase tracking-wide text-slate-500">{entry.vendor}</p>
-              <p className="text-xs text-slate-400">
-                {entry.ratio.toFixed(1)}% · Missing {entry.missingBuckets.length ? entry.missingBuckets.join(", ") : "—"}
-              </p>
-            </li>
-          ))}
-          {weakest.length === 0 ? <li className="text-xs text-slate-500">No backlog</li> : null}
-        </ul>
-      </div>
-    </article>
-  );
-}
-
-function PercentBar({ value, label }: { value: number; label: string }) {
   return (
     <div>
-      <div className="flex items-center justify-between text-xs text-slate-400">
-        <span>{value.toFixed(1)}%</span>
-        <span>{label}</span>
-      </div>
-      <div className="mt-1 h-1.5 rounded-full bg-slate-900">
-        <div className="h-1.5 rounded-full bg-indigo-500" style={{ width: `${Math.min(100, Math.max(0, value))}%` }} />
+      <p className="text-[0.65rem] uppercase tracking-[0.3em] text-slate-500">{title}</p>
+      <div className="mt-2 space-y-2 text-sm">
+        {items.length === 0 ? <p className="text-xs text-slate-600">None</p> : null}
+        {items.map((item) => (
+          <div key={item.slug} className="flex items-center justify-between rounded-xl border border-slate-800/70 bg-slate-900/40 px-3 py-2">
+            <div>
+              <p className="font-semibold text-slate-50">{item.name}</p>
+              <p className="text-[0.7rem] uppercase tracking-wide text-slate-500">{item.vendor}</p>
+            </div>
+            <div className="text-right">
+              <p className={`text-sm font-semibold ${tone === "up" ? "text-emerald-400" : "text-rose-400"}`}>{item.deltaLabel}</p>
+              <p className="text-[0.7rem] text-slate-500">Total {item.total.toFixed(1)}</p>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
 
-function TrendPanel({ title, description, data }: { title: string; description: string; data: TrendLeader[] }) {
+function AlertTransparency({
+  items
+}: {
+  items: Array<{ slug: string; name: string; vendor: string; ratio: number; transparencyScore: number; disclosureScore: number }>;
+}) {
   return (
-    <article className="rounded-3xl border border-slate-800 bg-surface/80 p-5">
-      <p className="text-xs uppercase tracking-[0.3em] text-slate-500">{title}</p>
-      <p className="text-sm text-slate-400">{description}</p>
-      <div className="mt-4 space-y-6">
-        {data.length === 0 ? <p className="text-xs text-slate-500">No data</p> : null}
-        {data.map((entry) => {
-          const chartId = `${title}-${entry.slug}`.replace(/\s+/g, "-").toLowerCase();
-          return (
-            <div key={entry.slug} className="grid gap-3 lg:grid-cols-2">
-              <div>
-                <p className="text-lg font-semibold text-slate-50">{entry.name}</p>
-                <p className="text-xs uppercase tracking-wide text-slate-500">{entry.vendor}</p>
-                <p className="text-sm text-slate-400">
-                  {entry.velocity.toFixed(2)} / wk · Δ{entry.delta.toFixed(2)} · {entry.volatilityBucket}
-                </p>
-              </div>
-              <HistorySparkline history={entry.history} chartId={chartId} />
-            </div>
-          );
-        })}
+    <div className="mt-2 space-y-2 text-sm">
+      {items.length === 0 ? <p className="text-xs text-slate-600">No violations</p> : null}
+      {items.map((item) => (
+        <div key={item.slug} className="flex items-center justify-between rounded-xl border border-amber-900/50 bg-amber-950/20 px-3 py-2">
+          <div>
+            <p className="font-semibold text-amber-100">{item.name}</p>
+            <p className="text-[0.7rem] uppercase tracking-wide text-amber-400">{item.vendor}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm font-semibold text-amber-200">{(item.ratio * 100).toFixed(0)}%</p>
+            <p className="text-[0.65rem] text-amber-300">T {item.transparencyScore} · D {item.disclosureScore.toFixed(1)}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TrendRow({ entry, muted = false }: { entry: { name: string; vendor: string; velocity: number; delta: number }; muted?: boolean }) {
+  return (
+    <div className={`flex items-center justify-between rounded-xl border border-slate-800/70 px-3 py-2 text-sm ${muted ? "bg-slate-900/30 text-slate-400" : "bg-slate-900/50 text-slate-200"}`}>
+      <div>
+        <p className="font-semibold text-slate-50">{entry.name}</p>
+        <p className="text-[0.7rem] uppercase tracking-wide text-slate-500">{entry.vendor}</p>
       </div>
-    </article>
+      <div className="text-right">
+        <p className="text-sm font-semibold text-emerald-400">{entry.velocity.toFixed(2)} / wk</p>
+        <p className="text-[0.7rem] text-slate-500">Δ{entry.delta.toFixed(2)}</p>
+      </div>
+    </div>
+  );
+}
+
+function EcosystemRow({ entry }: { entry: V2ModelWithMetrics }) {
+  const depth = entry.metrics.ecosystemDepth;
+  return (
+    <div className="rounded-xl border border-slate-800/70 bg-slate-900/50 px-3 py-3 text-sm text-slate-300">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="font-semibold text-slate-50">{entry.model.name}</p>
+          <p className="text-[0.7rem] uppercase tracking-wide text-slate-500">{entry.metrics.vendor}</p>
+        </div>
+        <p className="text-lg font-semibold text-blue-300">{depth.depth.toFixed(1)}</p>
+      </div>
+      <div className="mt-2 grid gap-2 sm:grid-cols-3">
+        <SparkBars bars={[depth.modalityBonus]} max={25} label="Modalities" />
+        <SparkBars bars={[depth.coverageBonus]} max={25} label="Evidence" />
+        <SparkBars bars={[depth.evidenceSignals]} max={10} label="Signals" />
+      </div>
+    </div>
   );
 }
