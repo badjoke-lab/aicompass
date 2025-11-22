@@ -1,6 +1,6 @@
 import { getSnapshot } from "@/lib/v3/snapshot";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export default async function ScoresPage() {
   const snapshot = await getSnapshot();

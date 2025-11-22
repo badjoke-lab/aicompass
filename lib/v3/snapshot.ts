@@ -165,8 +165,7 @@ async function fetchWithRetry(url: string, init?: RequestInit, attempts = 3): Pr
     try {
       const response = await fetch(url, {
         ...init,
-        next: { revalidate: CACHE_TTL_MS / 1000 },
-        cache: "no-store"
+        next: { revalidate: CACHE_TTL_MS / 1000 }
       });
       if (!response.ok) {
         throw new Error(`Request failed with status ${response.status}`);
