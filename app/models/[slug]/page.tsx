@@ -1,170 +1,220 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import EvidenceSection from "@/components/EvidenceSection";
-import HistorySparkline from "@/components/HistorySparkline";
-import StatusPills from "@/components/StatusPills";
-import {
-  DELTA_WINDOW_DAYS,
-  formatDelta,
-  getModelBySlug,
-  getModelDelta,
-  getModelStatuses,
-  getModels,
-  getSortedModels
-} from "@/lib/models";
-import type { Model } from "@/types/model";
 
-const models = getModels();
-const sortedModels = getSortedModels(models);
+import { MetricTile } from "@/components/v2/MetricTile";
+import { RatioBar } from "@/components/v2/RatioBar";
+import { SectionCard } from "@/components/v2/SectionCard";
+import { V2ScoreEngine, getEvidence, getModels, getScores } from "@/lib/v2";
 
-interface Params {
-  slug: string;
+export const metadata = {
+  title: "AIMS v2 · Model detail"
+};
+
+interface ModelDetailPageProps {
+  params: { slug: string };
 }
 
-export async function generateStaticParams() {
-  return models.map((model) => ({ slug: model.slug }));
-}
+export default function ModelDetailPage({ params }: ModelDetailPageProps) {
+  const models = getModels();
+  const engine = new V2ScoreEngine(models);
+  const snapshot = engine.getBySlug(params.slug);
 
-export default function ModelPage({ params }: { params: Params }) {
-  const model = getModelBySlug(params.slug);
-
-  if (!model) {
-    notFound();
+  if (!snapshot) {
+    return notFound();
   }
 
-  const rank = sortedModels.findIndex((entry) => entry.slug === model.slug) + 1;
-  const statuses = getModelStatuses(model, rank);
-  const scoreCards = getScoreCards(model);
-  const delta = getModelDelta(model);
+  const { model, metrics } = snapshot;
+  const evidence = getEvidence(model.slug);
+  const scores = getScores(model.slug);
+
+  const evidenceBuckets: Array<{ key: keyof NonNullable<typeof evidence>; label: string; target: number }>
+    = [
+      { key: "pricing", label: "Pricing", target: 1 },
+      { key: "safety", label: "Safety", target: 2 },
+      { key: "benchmarks", label: "Benchmarks", target: 2 },
+      { key: "technical", label: "Technical", target: 2 },
+      { key: "items", label: "Curated items", target: 4 }
+    ];
+
+  const transparencyItems = [
+    {
+      label: "Transparency score",
+      value: `${metrics.transparencyCompliance.transparencyScore.toFixed(0)}/100`,
+      ratio: metrics.transparencyCompliance.transparencyScore / 100
+    },
+    {
+      label: "Disclosure expectation",
+      value: `${metrics.transparencyCompliance.disclosureScore.toFixed(0)}/6`,
+      ratio: Math.min(1, metrics.transparencyCompliance.disclosureScore / 6)
+    },
+    {
+      label: "Compliance ratio",
+      value: `${(metrics.transparencyCompliance.ratio * 100).toFixed(0)}%`,
+      ratio: metrics.transparencyCompliance.ratio,
+      emphasis: true
+    }
+  ];
+
+  const ecosystemStats = [
+    {
+      label: "Ecosystem depth",
+      value: `${metrics.ecosystemDepth.depth.toFixed(1)} pts`,
+      helper: `${metrics.ecosystemDepth.evidenceSignals} evidence signals`
+    },
+    {
+      label: "Modality bonus",
+      value: `+${metrics.ecosystemDepth.modalityBonus.toFixed(1)}`,
+      helper: `${model.modalities?.length ?? (model.modality ? 1 : 0)} modalities`
+    },
+    {
+      label: "Coverage bonus",
+      value: `+${metrics.ecosystemDepth.coverageBonus.toFixed(1)}`,
+      helper: "Evidence breadth boost"
+    }
+  ];
+
+  const alertList: string[] = [];
+  if (metrics.transparencyCompliance.ratio < 0.8) {
+    alertList.push("Transparency below expectation — prioritize disclosure artifacts.");
+  }
+  if (metrics.trendVelocity.velocity < 0) {
+    alertList.push("Negative velocity — recent performance is trending down.");
+  }
+  const emptyBuckets = evidenceBuckets.filter((bucket) => (evidence?.[bucket.key]?.length ?? 0) === 0);
+  if (emptyBuckets.length > 0) {
+    alertList.push(
+      `Evidence gaps: ${emptyBuckets.map((bucket) => bucket.label.toLowerCase()).join(", ")}. Add source links to unblock scoring.`
+    );
+  }
+  if (metrics.weightedDelta.value < 0) {
+    alertList.push("Weighted delta is negative — stabilize volatility or adoption signals.");
+  }
 
   return (
-    <div className="space-y-6">
-      <Link href="/" className="text-xs text-accent">
-        ← Back to leaderboard
-      </Link>
-
-      <header className="flex flex-col gap-4 rounded-2xl border border-slate-800 bg-surface/80 p-5 lg:flex-row lg:items-end lg:justify-between">
-        <div className="space-y-3">
+    <div className="space-y-8">
+      <header className="space-y-2">
+        <p className="text-xs uppercase tracking-[0.3em] text-slate-500">aims-v2 internal</p>
+        <div className="flex flex-wrap items-end gap-3">
           <div>
-            <p className="text-xs uppercase tracking-wide text-slate-500">Vendor</p>
             <h1 className="text-3xl font-semibold text-slate-50">{model.name}</h1>
             <p className="text-sm text-slate-400">{model.vendor ?? model.provider}</p>
           </div>
-          {model.modalities && model.modalities.length > 0 && (
-            <div className="flex flex-wrap gap-2 text-[0.65rem]">
-              {model.modalities.map((modality) => (
-                <span
-                  key={modality}
-                  className="rounded-full bg-slate-800/70 px-3 py-1 font-semibold uppercase tracking-wide text-slate-300"
-                >
-                  {modality}
-                </span>
-              ))}
-            </div>
-          )}
-          <StatusPills statuses={statuses} size="md" />
-          {model.waiting && (
-            <p className="text-[0.7rem] text-amber-300">
-              Waiting on public evaluations. Scores will refresh once new evidence lands.
-            </p>
-          )}
-        </div>
-        <div className="text-right">
-          <p className="text-xs uppercase tracking-wide text-slate-500">Total score</p>
-          <p className="text-4xl font-semibold text-slate-50">{model.total.toFixed(1)}</p>
-          <p className="text-sm text-slate-400">
-            Δ {DELTA_WINDOW_DAYS}d {" "}
-            <span className={deltaColor(delta)}>{formatDelta(delta)}</span>
-          </p>
-          <p className="text-xs text-slate-500">Ranked #{rank}</p>
+          <span className="rounded-full border border-slate-800 bg-slate-900/80 px-3 py-1 text-xs uppercase tracking-wide text-slate-300">
+            {model.modality ?? model.modalities?.join(", ") ?? "unknown"}
+          </span>
         </div>
       </header>
 
-      <section className="rounded-2xl border border-slate-800 bg-surface/80 p-5">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-          Score breakdown
-        </h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {scoreCards.map((card) => (
-            <div key={card.label} className="rounded-xl bg-background/40 px-3 py-4">
-              <p className="text-[0.65rem] uppercase tracking-wide text-slate-500">
-                {card.label}
-              </p>
-              <p className="text-2xl font-semibold text-slate-50">{card.value}</p>
-              <p className="text-[0.7rem] text-slate-500">{card.helper}</p>
+      <SectionCard
+        title="Momentum + transparency"
+        description="Deterministic snapshot using aims-v2 weighted delta, velocity, and compliance ratios."
+      >
+        <div className="grid gap-4 md:grid-cols-3">
+          <MetricTile
+            label="Weighted Δ"
+            value={`${metrics.weightedDelta.value.toFixed(2)}`}
+            helper={`Raw Δ ${metrics.weightedDelta.rawDelta.toFixed(2)} · stability ×${metrics.weightedDelta.stabilityPenalty.toFixed(2)}`}
+            tone={metrics.weightedDelta.value >= 0 ? "positive" : "negative"}
+          />
+          <MetricTile
+            label="Trend velocity"
+            value={`${metrics.trendVelocity.velocity.toFixed(2)} /wk`}
+            helper={`Window ${metrics.trendVelocity.windowDays}d · Δ ${metrics.trendVelocity.delta.toFixed(1)}`}
+            tone={metrics.trendVelocity.velocity >= 0 ? "positive" : "negative"}
+          />
+          <MetricTile
+            label="Transparency compliance"
+            value={`${(metrics.transparencyCompliance.ratio * 100).toFixed(0)}%`}
+            helper={`Score ${metrics.transparencyCompliance.transparencyScore} vs disclosure ${metrics.transparencyCompliance.disclosureScore}`}
+            tone={metrics.transparencyCompliance.ratio >= 1 ? "positive" : "neutral"}
+          />
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        title="Evidence coverage"
+        description="Buckets follow the v2 evidence schema with deterministic ordering."
+      >
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {evidenceBuckets.map((bucket) => {
+            const count = evidence?.[bucket.key]?.length ?? 0;
+            const ratio = bucket.target > 0 ? Math.min(1, count / bucket.target) : 0;
+            return (
+              <div key={bucket.key} className="space-y-2 rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
+                <div className="flex items-center justify-between text-sm text-slate-300">
+                  <span className="font-semibold">{bucket.label}</span>
+                  <span className="rounded-full border border-slate-800 px-2 py-0.5 text-xs text-slate-400">{count} / {bucket.target}</span>
+                </div>
+                <RatioBar label="coverage" ratio={ratio} emphasis={ratio >= 1} />
+                <p className="text-xs text-slate-500">Targets set for alpha triage.</p>
+              </div>
+            );
+          })}
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        title="Transparency ratios"
+        description="Score vs disclosure expectation, rendered as deterministic bars."
+      >
+        <div className="grid gap-4 md:grid-cols-3">
+          {transparencyItems.map((item) => (
+            <div key={item.label} className="space-y-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold text-slate-100">{item.label}</p>
+                <span className="text-xs text-slate-500">{item.value}</span>
+              </div>
+              <RatioBar label="ratio" ratio={item.ratio} emphasis={item.emphasis} />
             </div>
           ))}
         </div>
-      </section>
+      </SectionCard>
 
-      {model.categories && (
-        <section className="rounded-2xl border border-slate-800 bg-surface/80 p-5">
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-            Capability coverage
-          </h2>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            {Object.entries(model.categories).map(([key, value]) => (
-              <div key={key} className="flex items-center justify-between rounded-xl bg-background/30 px-3 py-2 text-sm">
-                <span className="text-slate-300">{formatCategoryLabel(key)}</span>
-                <span className="font-semibold text-slate-50">{value == null ? "—" : value}</span>
-              </div>
-            ))}
+      <SectionCard
+        title="Ecosystem depth"
+        description="Blend of adoption, modality bonuses, and evidence signals."
+      >
+        <div className="grid gap-4 md:grid-cols-3">
+          {ecosystemStats.map((stat) => (
+            <div key={stat.label} className="space-y-2 rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
+              <p className="text-[0.7rem] uppercase tracking-wide text-slate-500">{stat.label}</p>
+              <p className="text-xl font-semibold text-slate-50">{stat.value}</p>
+              <p className="text-xs text-slate-500">{stat.helper}</p>
+            </div>
+          ))}
+          <div className="space-y-2 rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
+            <p className="text-[0.7rem] uppercase tracking-wide text-slate-500">Volatility + category mix</p>
+            <p className="text-xl font-semibold text-slate-50">{metrics.volatilityBucket}</p>
+            <p className="text-xs text-slate-500">Index {metrics.volatilityIndex.toFixed(2)}</p>
+            {scores?.performance ? (
+              <p className="text-xs text-slate-500">Performance score {scores.performance.toFixed(0)} /100</p>
+            ) : null}
           </div>
-        </section>
-      )}
-
-      <section className="rounded-2xl border border-slate-800 bg-surface/80 p-5">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-          30-day sparkline
-        </h2>
-        <div className="mt-3">
-          <HistorySparkline history={model.history} chartId={model.slug} />
         </div>
-        <p className="text-[0.65rem] text-slate-500">
-          Mock history shown for aims-v1 preview. Δ window {DELTA_WINDOW_DAYS} days.
-        </p>
-      </section>
+      </SectionCard>
 
-      <section className="rounded-2xl border border-slate-800 bg-surface/80 p-5">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-          Evidence grid
-        </h2>
-        <div className="mt-3">
-          <EvidenceSection evidence={model.evidence} />
-        </div>
-        <p className="text-[0.65rem] text-slate-500">
-          Placeholder links documented per scoring category. All data stays in local JSON.
-        </p>
-      </section>
+      <SectionCard
+        title="Backlog + risk alerts"
+        description="Deterministic ordering; empty state means no active risks."
+      >
+        {alertList.length === 0 ? (
+          <p className="rounded-2xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-sm text-slate-300">
+            No open alerts for this model.
+          </p>
+        ) : (
+          <ul className="space-y-2">
+            {alertList.map((alert) => (
+              <li
+                key={alert}
+                className="rounded-2xl border border-amber-700/60 bg-amber-900/20 px-4 py-3 text-sm text-amber-100"
+              >
+                {alert}
+              </li>
+            ))}
+          </ul>
+        )}
+      </SectionCard>
+
+      <div className="h-10" aria-hidden />
     </div>
   );
-}
-
-function deltaColor(delta: number) {
-  if (delta > 0) return "text-positive";
-  if (delta < 0) return "text-negative";
-  return "text-slate-300";
-}
-
-function getScoreCards(model: Model) {
-  return [
-    { label: "Performance", value: model.scores.performance, helper: "Benchmarks & eval suites" },
-    { label: "Safety", value: model.scores.safety, helper: "Alignment & red-teaming" },
-    { label: "Cost", value: model.scores.cost, helper: "Pricing & efficiency" },
-    { label: "Reliability", value: model.scores.reliability, helper: "Uptime & release cadence" },
-    { label: "Transparency", value: model.scores.transparency, helper: "Policies & reporting" },
-    { label: "Ecosystem", value: model.scores.ecosystem, helper: "Partners & tooling" },
-    { label: "Adoption", value: model.scores.adoption, helper: "Usage & interest" }
-  ];
-}
-
-function formatCategoryLabel(key: string) {
-  const labels: Record<string, string> = {
-    text: "Text / Chat",
-    coding: "Coding",
-    vision: "Vision",
-    image: "Image",
-    video: "Video"
-  };
-  return labels[key] ?? key;
 }

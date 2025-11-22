@@ -1,24 +1,24 @@
 import "./globals.css";
 import type { ReactNode } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 export const metadata = {
-  title: "AI Model Scoreboard",
-  description:
-    "Independent AI model rankings focused on transparent evidence, open metrics, and meaningful deltas."
+  title: "AIMS v2 prototype",
+  description: "Internal-only aims-v2 prototype surfaces.",
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function Layout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-background text-slate-100">
-        <div className="flex min-h-screen flex-col">
-          <Header />
-          <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-6 sm:px-6 lg:px-8">
-            {children}
+      <body className="min-h-screen bg-slate-950 text-slate-100">
+        <div className="min-h-screen">
+          <header className="border-b border-slate-800 bg-slate-900/60 px-4 py-4">
+            <div className="mx-auto max-w-5xl">
+              <h1 className="text-lg font-semibold tracking-tight">AIMS v2 prototype</h1>
+            </div>
+          </header>
+          <main className="px-4 py-8">
+            <div className="mx-auto max-w-5xl space-y-8">{children}</div>
           </main>
-          <Footer />
         </div>
       </body>
     </html>
