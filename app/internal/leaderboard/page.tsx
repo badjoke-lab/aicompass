@@ -61,7 +61,7 @@ function LeaderboardRow({ entry, rank }: { entry: V2ModelWithMetrics; rank: numb
       <td className="px-4 py-4">
         <div className="flex flex-col">
           <Link
-            href={`/v2/models/${entry.model.slug}`}
+            href={`/models/${entry.model.slug}`}
             className="font-semibold text-slate-100 underline-offset-4 hover:text-accent hover:underline"
           >
             {metrics.name}
