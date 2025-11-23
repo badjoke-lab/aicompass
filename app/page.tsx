@@ -1,9 +1,11 @@
-import { getSnapshot } from "@/lib/v3/snapshot";
+import { getHealth, getSnapshot } from "@/lib/v3/snapshot";
 
 export const dynamic = "force-dynamic";
 
 export default async function ScoresPage() {
   const snapshot = await getSnapshot();
+  const health = getHealth();
+  const snapshotAgeSeconds = health.snapshot.ageSeconds;
 
   return (
     <div className="space-y-10">
@@ -14,7 +16,9 @@ export default async function ScoresPage() {
           Scores are computed from live Hugging Face metadata. Downloads drive adoption, likes proxy ecosystem pull,
           and recent updates reward velocity. Data refreshes on every request with a short cache to protect the API.
         </p>
-        <p className="text-xs text-slate-500">Updated {new Date(snapshot.updatedAt).toLocaleString()}</p>
+        <p className="text-xs text-slate-500">
+          Last updated: {formatSnapshotAge(snapshotAgeSeconds)} · {new Date(snapshot.updatedAt).toLocaleString()}
+        </p>
       </header>
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -100,6 +104,29 @@ export default async function ScoresPage() {
 
 function formatNumber(value: number) {
   return Intl.NumberFormat("en-US", { notation: "compact" }).format(value);
+}
+
+function formatSnapshotAge(ageSeconds: number | null) {
+  if (ageSeconds == null) {
+    return "—";
+  }
+
+  if (ageSeconds < 60) {
+    return "Just now";
+  }
+
+  const minutes = Math.floor(ageSeconds / 60);
+  if (minutes < 60) {
+    return `${minutes} min ago`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) {
+    return `${hours} hr${hours === 1 ? "" : "s"} ago`;
+  }
+
+  const days = Math.floor(hours / 24);
+  return `${days} day${days === 1 ? "" : "s"} ago`;
 }
 
 function StatCard({ label, value, helper }: { label: string; value: string | number; helper: string }) {
