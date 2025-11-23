@@ -1,3 +1,7 @@
+import type { Metadata } from "next";
+
+import { buildPageMetadata } from "@/lib/metadata";
+
 const donationLinks = [
   {
     label: "Stripe Payment Link",
@@ -30,6 +34,13 @@ const wallets = [
     memo: "Shown for stablecoin supporters; swap with production wallet ID later.",
   },
 ];
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Donation",
+  description:
+    "Contribute to AI Model Scoreboard hosting, evaluation runs, and open reporting through direct and crypto options.",
+  path: "/donation",
+});
 
 export default function DonationPage() {
   return (

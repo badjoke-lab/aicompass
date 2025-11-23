@@ -160,13 +160,18 @@ function formatSnapshotAge(ageSeconds: number | null) {
     return "—";
   }
 
+  if (ageSeconds < 10) {
+    return "just now";
+  }
+
   if (ageSeconds < 60) {
-    return "Just now";
+    const seconds = Math.floor(ageSeconds);
+    return `${seconds} sec${seconds === 1 ? "" : "s"} ago`;
   }
 
   const minutes = Math.floor(ageSeconds / 60);
   if (minutes < 60) {
-    return `${minutes} min ago`;
+    return `${minutes} min${minutes === 1 ? "" : "s"} ago`;
   }
 
   const hours = Math.floor(minutes / 60);

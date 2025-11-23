@@ -1,46 +1,11 @@
 import "./globals.css";
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Header from "@/components/Header";
 import HealthIndicator from "@/components/HealthIndicator";
+import { baseMetadata } from "@/lib/metadata";
 
-export const metadata = {
-  metadataBase: new URL("https://ai-model-scoreboard.vercel.app"),
-  title: "AI Model Scoreboard",
-  description:
-    "Independent AI model rankings focused on transparent evidence, open metrics, and meaningful deltas.",
-  keywords: [
-    "AI leaderboard",
-    "model rankings",
-    "Hugging Face scores",
-    "open metrics",
-    "AI transparency",
-  ],
-  alternates: {
-    canonical: "/",
-  },
-  openGraph: {
-    title: "AI Model Scoreboard | Transparent AI evaluations",
-    description:
-      "Evidence-first AI model rankings with open metrics, transparent methods, and trustworthy benchmarks.",
-    url: "https://ai-model-scoreboard.vercel.app/",
-    siteName: "AI Model Scoreboard",
-    images: [
-      {
-        url: "/og.png",
-        width: 1200,
-        height: 630,
-        alt: "AI Model Scoreboard leaderboard preview",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "AI Model Scoreboard",
-    description:
-      "Evidence-first AI model rankings with open metrics, transparent methods, and trustworthy benchmarks.",
-    images: ["/og.png"],
-  },
-};
+export const metadata: Metadata = baseMetadata;
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -69,6 +34,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 </div>
                 <p className="text-[0.75rem] text-slate-600">
                   Data is aggregated from public sources; please verify before making critical decisions.
+                </p>
+                <p className="text-[0.75rem] text-slate-600">
+                  AI Model Scoreboard is informational only and does not provide investment, compliance, or security advice.
                 </p>
               </div>
             </div>
