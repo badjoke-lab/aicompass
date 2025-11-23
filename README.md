@@ -1,10 +1,12 @@
 # AI Model Scoreboard
 
-AI Model Scoreboard publishes an independent, evidence-first leaderboard for foundation models. It tracks seven transparent categories per model, surfaces 30-day movement, and links directly to the public artifacts that justify each score.
+AI Model Scoreboard (aims-v3) publishes a minimal leaderboard sourced directly from public Hugging Face metadata. Each refresh
+pulls real download/like counts and last-update timestamps, normalizes them, and rolls them into a deterministic composite
+score. No mock data or manual overrides are used.
 
 - Live site: https://ai-model-scoreboard.vercel.app/
-- Spec & docs: [docs/aims-v1-spec.md](docs/aims-v1-spec.md)
-- Public Methodology: https://ai-model-scoreboard.vercel.app/methodology
+- Snapshot API: `/api/snapshot` returns the same data the UI renders
+- Methodology: https://ai-model-scoreboard.vercel.app/methodology
 
 ## Getting started
 Requirements:
@@ -23,9 +25,12 @@ npm run lint
 npx tsc --noEmit
 ```
 
-## Donation story
-The `/donation` page keeps AI Model Scoreboard independent while production payment rails are finalized. It currently lists placeholder Stripe Payment Link and Ko-fi URLs plus temporary BTC / ETH / USDT wallets so supporters can bridge the gap. Reach out to hello@aimodelscoreboard.org for invoices, bank instructions, or verified wallet credentials.
+## Data sources (v3)
+- Hugging Face model metadata: downloads, likes, and `lastModified` timestamps are fetched per tracked repo.
+- Scores: min–max normalization across the live set plus fixed weights (adoption 45%, ecosystem 35%, velocity 20%).
+- Resilience: fetch attempts are retried with backoff and cached for a few minutes to reduce 500s.
 
-## Additional references
-- [docs/changelog.md](docs/changelog.md) – short release notes for aims-v1 foundation + UI work.
-- `/about`, `/methodology`, and `/donation` routes provide the public-friendly context for visitors and funders.
+## Donation story
+The `/donation` page keeps AI Model Scoreboard independent while production payment rails are finalized. It currently lists
+placeholder Stripe Payment Link and Ko-fi URLs plus temporary BTC / ETH / USDT wallets so supporters can bridge the gap. Reach
+out to hello@aimodelscoreboard.org for invoices, bank instructions, or verified wallet credentials.

@@ -1,170 +1,76 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import EvidenceSection from "@/components/EvidenceSection";
-import HistorySparkline from "@/components/HistorySparkline";
-import StatusPills from "@/components/StatusPills";
-import {
-  DELTA_WINDOW_DAYS,
-  formatDelta,
-  getModelBySlug,
-  getModelDelta,
-  getModelStatuses,
-  getModels,
-  getSortedModels
-} from "@/lib/models";
-import type { Model } from "@/types/model";
 
-const models = getModels();
-const sortedModels = getSortedModels(models);
+import { getSnapshot } from "@/lib/v3/snapshot";
 
-interface Params {
-  slug: string;
-}
+export const dynamic = "force-dynamic";
 
-export async function generateStaticParams() {
-  return models.map((model) => ({ slug: model.slug }));
-}
-
-export default function ModelPage({ params }: { params: Params }) {
-  const model = getModelBySlug(params.slug);
+export default async function ModelDetailPage({ params }: { params: { slug: string } }) {
+  const snapshot = await getSnapshot();
+  const model = snapshot.models.find((entry) => entry.slug === params.slug);
 
   if (!model) {
-    notFound();
+    return notFound();
   }
 
-  const rank = sortedModels.findIndex((entry) => entry.slug === model.slug) + 1;
-  const statuses = getModelStatuses(model, rank);
-  const scoreCards = getScoreCards(model);
-  const delta = getModelDelta(model);
-
   return (
-    <div className="space-y-6">
-      <Link href="/" className="text-xs text-accent">
-        ← Back to leaderboard
-      </Link>
-
-      <header className="flex flex-col gap-4 rounded-2xl border border-slate-800 bg-surface/80 p-5 lg:flex-row lg:items-end lg:justify-between">
-        <div className="space-y-3">
-          <div>
-            <p className="text-xs uppercase tracking-wide text-slate-500">Vendor</p>
-            <h1 className="text-3xl font-semibold text-slate-50">{model.name}</h1>
-            <p className="text-sm text-slate-400">{model.vendor ?? model.provider}</p>
-          </div>
-          {model.modalities && model.modalities.length > 0 && (
-            <div className="flex flex-wrap gap-2 text-[0.65rem]">
-              {model.modalities.map((modality) => (
-                <span
-                  key={modality}
-                  className="rounded-full bg-slate-800/70 px-3 py-1 font-semibold uppercase tracking-wide text-slate-300"
-                >
-                  {modality}
-                </span>
-              ))}
-            </div>
-          )}
-          <StatusPills statuses={statuses} size="md" />
-          {model.waiting && (
-            <p className="text-[0.7rem] text-amber-300">
-              Waiting on public evaluations. Scores will refresh once new evidence lands.
-            </p>
-          )}
-        </div>
-        <div className="text-right">
-          <p className="text-xs uppercase tracking-wide text-slate-500">Total score</p>
-          <p className="text-4xl font-semibold text-slate-50">{model.total.toFixed(1)}</p>
-          <p className="text-sm text-slate-400">
-            Δ {DELTA_WINDOW_DAYS}d {" "}
-            <span className={deltaColor(delta)}>{formatDelta(delta)}</span>
-          </p>
-          <p className="text-xs text-slate-500">Ranked #{rank}</p>
-        </div>
+    <div className="space-y-8">
+      <header className="space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">AIMS · v3</p>
+        <h1 className="text-3xl font-semibold text-slate-50 sm:text-4xl">{model.name}</h1>
+        <p className="text-sm text-slate-400">Provider: {model.provider}</p>
+        {model.focus && <p className="text-xs text-slate-500">Focus: {model.focus}</p>}
+        <p className="text-xs text-slate-500">
+          Source: <Link href={model.source} className="text-accent underline">Hugging Face</Link>
+        </p>
+        <p className="text-xs text-slate-500">Snapshot updated {new Date(snapshot.updatedAt).toLocaleString()}</p>
       </header>
 
-      <section className="rounded-2xl border border-slate-800 bg-surface/80 p-5">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-          Score breakdown
-        </h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {scoreCards.map((card) => (
-            <div key={card.label} className="rounded-xl bg-background/40 px-3 py-4">
-              <p className="text-[0.65rem] uppercase tracking-wide text-slate-500">
-                {card.label}
-              </p>
-              <p className="text-2xl font-semibold text-slate-50">{card.value}</p>
-              <p className="text-[0.7rem] text-slate-500">{card.helper}</p>
-            </div>
-          ))}
-        </div>
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <MetricCard label="Downloads" value={formatNumber(model.metrics.downloads)} helper="Cumulative" />
+        <MetricCard label="Likes" value={formatNumber(model.metrics.likes)} helper="Community interest" />
+        <MetricCard
+          label="Last modified"
+          value={model.metrics.lastModified ? new Date(model.metrics.lastModified).toLocaleDateString() : "Unknown"}
+          helper="UTC"
+        />
+        <MetricCard
+          label="Recency (days)"
+          value={model.metrics.recencyDays ?? "—"}
+          helper="Lower is fresher"
+        />
+        <MetricCard label="Adoption score" value={model.scores.adoption.toFixed(1)} helper="Weighted" />
+        <MetricCard label="Ecosystem score" value={model.scores.ecosystem.toFixed(1)} helper="Weighted" />
+        <MetricCard label="Velocity score" value={model.scores.velocity.toFixed(1)} helper="Weighted" />
+        <MetricCard label="Total score" value={model.scores.total.toFixed(1)} helper="Composite" />
       </section>
 
-      {model.categories && (
-        <section className="rounded-2xl border border-slate-800 bg-surface/80 p-5">
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-            Capability coverage
-          </h2>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            {Object.entries(model.categories).map(([key, value]) => (
-              <div key={key} className="flex items-center justify-between rounded-xl bg-background/30 px-3 py-2 text-sm">
-                <span className="text-slate-300">{formatCategoryLabel(key)}</span>
-                <span className="font-semibold text-slate-50">{value == null ? "—" : value}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <section className="rounded-2xl border border-slate-800 bg-surface/80 p-5">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-          30-day sparkline
-        </h2>
-        <div className="mt-3">
-          <HistorySparkline history={model.history} chartId={model.slug} />
-        </div>
-        <p className="text-[0.65rem] text-slate-500">
-          Mock history shown for aims-v1 preview. Δ window {DELTA_WINDOW_DAYS} days.
+      <section className="rounded-2xl border border-slate-800 bg-surface/80 p-4 shadow-xl sm:p-6">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-300">Methodology</h2>
+        <p className="mt-2 text-sm text-slate-400">
+          Scores come directly from live Hugging Face repository metadata. Downloads represent adoption, likes proxy ecosystem
+          engagement, and recent updates fuel velocity. Each dimension is scaled relative to peers in the snapshot and combined
+          using fixed weights.
         </p>
       </section>
 
-      <section className="rounded-2xl border border-slate-800 bg-surface/80 p-5">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-          Evidence grid
-        </h2>
-        <div className="mt-3">
-          <EvidenceSection evidence={model.evidence} />
-        </div>
-        <p className="text-[0.65rem] text-slate-500">
-          Placeholder links documented per scoring category. All data stays in local JSON.
-        </p>
-      </section>
+      <Link href="/" className="text-sm text-accent underline">
+        ← Back to leaderboard
+      </Link>
     </div>
   );
 }
 
-function deltaColor(delta: number) {
-  if (delta > 0) return "text-positive";
-  if (delta < 0) return "text-negative";
-  return "text-slate-300";
+function MetricCard({ label, value, helper }: { label: string; value: string | number; helper: string }) {
+  return (
+    <div className="rounded-xl border border-slate-800 bg-background/50 px-4 py-3">
+      <p className="text-[0.65rem] uppercase tracking-wide text-slate-500">{label}</p>
+      <p className="text-2xl font-semibold text-slate-50">{value}</p>
+      <p className="text-[0.7rem] text-slate-500">{helper}</p>
+    </div>
+  );
 }
 
-function getScoreCards(model: Model) {
-  return [
-    { label: "Performance", value: model.scores.performance, helper: "Benchmarks & eval suites" },
-    { label: "Safety", value: model.scores.safety, helper: "Alignment & red-teaming" },
-    { label: "Cost", value: model.scores.cost, helper: "Pricing & efficiency" },
-    { label: "Reliability", value: model.scores.reliability, helper: "Uptime & release cadence" },
-    { label: "Transparency", value: model.scores.transparency, helper: "Policies & reporting" },
-    { label: "Ecosystem", value: model.scores.ecosystem, helper: "Partners & tooling" },
-    { label: "Adoption", value: model.scores.adoption, helper: "Usage & interest" }
-  ];
-}
-
-function formatCategoryLabel(key: string) {
-  const labels: Record<string, string> = {
-    text: "Text / Chat",
-    coding: "Coding",
-    vision: "Vision",
-    image: "Image",
-    video: "Video"
-  };
-  return labels[key] ?? key;
+function formatNumber(value: number) {
+  return Intl.NumberFormat("en-US", { notation: "compact" }).format(value);
 }
