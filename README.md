@@ -6,6 +6,8 @@ score. No mock data or manual overrides are used.
 
 - Live site: https://ai-model-scoreboard.vercel.app/
 - Snapshot API: `/api/snapshot` returns the same data the UI renders
+- Health check: `/api/health` reports live fetch/cache/score status
+- Manual refresh: `/api/snapshot/refresh` recomputes the cache (used by cron)
 - Methodology: https://ai-model-scoreboard.vercel.app/methodology
 
 ## Getting started

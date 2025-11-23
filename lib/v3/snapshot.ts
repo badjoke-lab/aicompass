@@ -3,6 +3,18 @@ const HUGGING_FACE_API = `${HUGGING_FACE_ROOT}/api/models`;
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const SCORE_PRECISION = 1;
 
+export type HealthStatus = "ok" | "degraded" | "failed";
+
+export interface HealthPayload {
+  status: HealthStatus;
+  components: {
+    huggingFaceFetch: { status: "ok" | "failed"; lastError: string | null };
+    cache: { read: "ok" | "failed"; write: "ok" | "failed" };
+    scoreCompute: { status: "ok" | "failed"; lastError: string | null };
+  };
+  snapshot: { updatedAt: string | null; ageSeconds: number | null };
+}
+
 export interface ModelSource {
   id: string;
   displayName: string;
@@ -90,46 +102,89 @@ const SCORE_WEIGHTS: ScoreWeights = {
 
 let cachedSnapshot: Snapshot | null = null;
 let cachedAt = 0;
+let inflightSnapshot: Promise<Snapshot> | null = null;
+
+let lastFetchError: string | null = null;
+let lastFetchStatus: "ok" | "failed" = "ok";
+let lastCacheReadOk = true;
+let lastCacheWriteOk = true;
+let lastScoreComputeOk = true;
+let lastScoreComputeError: string | null = null;
 
 export async function getSnapshot(): Promise<Snapshot> {
   const now = Date.now();
   if (cachedSnapshot && now - cachedAt < CACHE_TTL_MS) {
+    lastCacheReadOk = true;
     return cachedSnapshot;
   }
 
-  const normalized = await Promise.all(MODEL_SOURCES.map((source) => fetchModel(source)));
-  const readyModels = normalized.filter((model) => model.status === "ready");
+  try {
+    return await refreshSnapshot();
+  } catch (error) {
+    if (cachedSnapshot) {
+      lastCacheReadOk = true;
+      return cachedSnapshot;
+    }
+    lastCacheReadOk = false;
+    throw error;
+  }
+}
 
-  const downloadRange = getRange(readyModels.map((model) => model.metrics.downloads));
-  const likeRange = getRange(readyModels.map((model) => model.metrics.likes));
-  const recencyRange = getRange(
-    readyModels
-      .map((model) => model.metrics.recencyDays)
-      .filter((days): days is number => days != null)
-  );
+export async function refreshSnapshot(): Promise<Snapshot> {
+  if (inflightSnapshot) {
+    return inflightSnapshot;
+  }
 
-  const scoredModels = normalized
-    .map((model) => scoreModel(model, { downloadRange, likeRange, recencyRange }))
-    .sort((a, b) => b.scores.total - a.scores.total);
+  inflightSnapshot = (async () => {
+    const now = Date.now();
+    try {
+      const snapshot = await buildSnapshot();
+      cachedSnapshot = snapshot;
+      cachedAt = now;
+      lastCacheWriteOk = true;
+      lastCacheReadOk = true;
+      return snapshot;
+    } catch (error) {
+      lastCacheWriteOk = false;
+      throw error;
+    } finally {
+      inflightSnapshot = null;
+    }
+  })();
 
-  const snapshot: Snapshot = {
-    updatedAt: new Date().toISOString(),
-    models: scoredModels,
-    metrics: {
-      downloadRange,
-      likeRange,
-      recencyRange,
-      sourceCount: MODEL_SOURCES.length,
-      readyCount: readyModels.length
+  return inflightSnapshot;
+}
+
+export function getHealth(): HealthPayload {
+  const hasSnapshot = Boolean(cachedSnapshot);
+  const fetchFailed = lastFetchStatus === "failed";
+  const cacheReadFailed = !lastCacheReadOk;
+  const cacheWriteFailed = !lastCacheWriteOk;
+  const scoreFailed = !lastScoreComputeOk;
+
+  let status: HealthStatus = "ok";
+  if (fetchFailed || cacheReadFailed || cacheWriteFailed || scoreFailed || !hasSnapshot) {
+    if (fetchFailed && hasSnapshot && !cacheReadFailed && !cacheWriteFailed && !scoreFailed) {
+      status = "degraded";
+    } else {
+      status = "failed";
+    }
+  }
+
+  const ageSeconds = cachedSnapshot ? Math.round((Date.now() - cachedAt) / 1000) : null;
+
+  return {
+    status,
+    components: {
+      huggingFaceFetch: { status: fetchFailed ? "failed" : "ok", lastError: lastFetchError },
+      cache: { read: cacheReadFailed ? "failed" : "ok", write: cacheWriteFailed ? "failed" : "ok" },
+      scoreCompute: { status: scoreFailed ? "failed" : "ok", lastError: lastScoreComputeError }
     },
-    scores: {
-      weights: SCORE_WEIGHTS
+    snapshot: {
+      updatedAt: cachedSnapshot?.updatedAt ?? null,
+      ageSeconds
     }
   };
-
-  cachedSnapshot = snapshot;
-  cachedAt = now;
-  return snapshot;
 }
 
 async function fetchModel(source: ModelSource): Promise<NormalizedModel> {
@@ -156,6 +211,57 @@ async function fetchModel(source: ModelSource): Promise<NormalizedModel> {
       source: HUGGING_FACE_ROOT,
       error: message
     };
+  }
+}
+
+async function buildSnapshot(): Promise<Snapshot> {
+  const normalized = await Promise.all(MODEL_SOURCES.map((source) => fetchModel(source)));
+
+  const fetchErrors = normalized
+    .filter((model) => model.status === "error" && model.error)
+    .map((model) => `${model.name}: ${model.error}`);
+
+  lastFetchStatus = fetchErrors.length > 0 ? "failed" : "ok";
+  lastFetchError = fetchErrors[0] ?? null;
+
+  try {
+    const readyModels = normalized.filter((model) => model.status === "ready");
+
+    const downloadRange = getRange(readyModels.map((model) => model.metrics.downloads));
+    const likeRange = getRange(readyModels.map((model) => model.metrics.likes));
+    const recencyRange = getRange(
+      readyModels
+        .map((model) => model.metrics.recencyDays)
+        .filter((days): days is number => days != null)
+    );
+
+    const scoredModels = normalized
+      .map((model) => scoreModel(model, { downloadRange, likeRange, recencyRange }))
+      .sort((a, b) => b.scores.total - a.scores.total);
+
+    const snapshot: Snapshot = {
+      updatedAt: new Date().toISOString(),
+      models: scoredModels,
+      metrics: {
+        downloadRange,
+        likeRange,
+        recencyRange,
+        sourceCount: MODEL_SOURCES.length,
+        readyCount: readyModels.length
+      },
+      scores: {
+        weights: SCORE_WEIGHTS
+      }
+    };
+
+    lastScoreComputeOk = true;
+    lastScoreComputeError = null;
+
+    return snapshot;
+  } catch (error) {
+    lastScoreComputeOk = false;
+    lastScoreComputeError = error instanceof Error ? error.message : "Unknown score error";
+    throw error;
   }
 }
 
