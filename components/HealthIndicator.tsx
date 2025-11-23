@@ -2,10 +2,17 @@
 
 import { useEffect, useState } from "react";
 
-type HealthStatus = "OK" | "DEGRADED" | "FAILED";
+type HealthBadge = "LIVE" | "STALE" | "ERROR" | "LOADING";
+
+interface HealthPayload {
+  status?: string;
+  snapshot?: { ageSeconds?: number | null };
+}
+
+const STALE_THRESHOLD_SECONDS = 6 * 60 * 60;
 
 export default function HealthIndicator() {
-  const [status, setStatus] = useState<HealthStatus | "LOADING">("LOADING");
+  const [status, setStatus] = useState<HealthBadge>("LOADING");
 
   useEffect(() => {
     let cancelled = false;
@@ -13,25 +20,36 @@ export default function HealthIndicator() {
     const loadHealth = async () => {
       try {
         const response = await fetch("/api/health", { cache: "no-store" });
-        const payload = (await response.json()) as { status?: string };
-        const next = payload.status?.toUpperCase();
-
-        if (!cancelled) {
-          if (next === "OK" || next === "DEGRADED" || next === "FAILED") {
-            setStatus(next);
-          } else {
-            setStatus("FAILED");
-          }
+        if (!response.ok) {
+          throw new Error("Health check failed");
         }
+
+        const payload = (await response.json()) as HealthPayload;
+        const healthStatus = payload.status?.toLowerCase();
+        const snapshotAgeSeconds = payload.snapshot?.ageSeconds ?? null;
+
+        if (cancelled) return;
+
+        if (healthStatus !== "ok") {
+          setStatus("ERROR");
+          return;
+        }
+
+        if (typeof snapshotAgeSeconds === "number") {
+          setStatus(snapshotAgeSeconds >= STALE_THRESHOLD_SECONDS ? "STALE" : "LIVE");
+          return;
+        }
+
+        setStatus("ERROR");
       } catch (error) {
         if (!cancelled) {
-          setStatus("FAILED");
+          setStatus("ERROR");
         }
       }
     };
 
     loadHealth();
-    const interval = setInterval(loadHealth, 60_000);
+    const interval = setInterval(loadHealth, 5 * 60_000);
 
     return () => {
       cancelled = true;
@@ -40,11 +58,11 @@ export default function HealthIndicator() {
   }, []);
 
   const color =
-    status === "OK"
+    status === "LIVE"
       ? "text-emerald-400"
-      : status === "DEGRADED"
+      : status === "STALE"
         ? "text-amber-300"
-        : status === "FAILED"
+        : status === "ERROR"
           ? "text-rose-400"
           : "text-slate-500";
 
