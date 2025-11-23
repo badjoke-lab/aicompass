@@ -9,21 +9,21 @@ export default async function ScoresPage() {
   const formattedSnapshotAge = formatSnapshotAge(snapshotAgeSeconds);
 
   return (
-    <div className="space-y-10">
-      <header className="space-y-4">
+    <div className="space-y-8">
+      <header className="space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">AIMS · v3</p>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1.5">
             <h1 className="text-3xl font-semibold text-slate-50 sm:text-4xl">Real-time AI model signals</h1>
             <p className="max-w-3xl text-sm text-slate-400">
               Scores are computed from live Hugging Face metadata. Downloads drive adoption, likes proxy ecosystem pull,
               and recent updates reward velocity. Data refreshes on every request with a short cache to protect the API.
             </p>
           </div>
-          <div className="flex items-center gap-2 self-start rounded-full border border-slate-800 bg-background/70 px-3 py-1 text-xs text-slate-300 shadow-sm sm:self-auto">
+          <div className="flex items-center gap-2 self-start rounded-full border border-slate-800 bg-background/70 px-3 py-1 text-xs text-slate-300 shadow-sm sm:self-auto sm:px-3.5 sm:py-1.5">
             <span className="flex h-2.5 w-2.5 items-center justify-center rounded-full bg-emerald-400/80" />
             <span className="font-semibold uppercase tracking-wide text-slate-200">Snapshot</span>
-            <span className="text-slate-400">{formattedSnapshotAge}</span>
+            <span className="text-slate-400 tabular-nums min-w-[7.5rem] text-right">{formattedSnapshotAge}</span>
           </div>
         </div>
         <div className="flex flex-col gap-1 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
@@ -49,7 +49,7 @@ export default async function ScoresPage() {
 
       <section className="rounded-2xl border border-slate-800 bg-surface/80 shadow-xl">
         <div className="flex flex-col gap-2 border-b border-slate-800 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <div>
+          <div className="space-y-0.5">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-300">Live snapshot</h2>
             <p className="text-xs text-slate-500">
               Hugging Face → normalize → weighted scores → render. Lower recency values mean fresher updates.
@@ -58,7 +58,7 @@ export default async function ScoresPage() {
           <div className="flex items-center gap-2 rounded-lg border border-slate-800/70 bg-background/70 px-3 py-2 text-[0.7rem] text-slate-300">
             <span className="h-1.5 w-1.5 rounded-full bg-accent" />
             <span className="font-semibold text-slate-200">Age</span>
-            <span className="text-slate-400">{formattedSnapshotAge}</span>
+            <span className="text-slate-400 tabular-nums min-w-[6.5rem] text-right">{formattedSnapshotAge}</span>
           </div>
         </div>
         <div className="overflow-x-auto">
