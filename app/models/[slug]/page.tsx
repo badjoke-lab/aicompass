@@ -1,9 +1,53 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getSnapshot } from "@/lib/v3/snapshot";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const snapshot = await getSnapshot();
+  const model = snapshot.models.find((entry) => entry.slug === params.slug);
+
+  if (!model) {
+    return {
+      title: "Model not found | AI Model Scoreboard",
+      description: "The requested model is not present in the current snapshot.",
+    };
+  }
+
+  const title = `${model.name} | AI Model Scoreboard`;
+  const description = `Live signals for ${model.name} by ${model.provider}. Downloads, likes, recency, and composite scores updated with each snapshot.`;
+  const url = `https://ai-model-scoreboard.vercel.app/models/${model.slug}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `/models/${model.slug}` },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: "AI Model Scoreboard",
+      type: "article",
+      images: [
+        {
+          url: "/og.png",
+          width: 1200,
+          height: 630,
+          alt: `${model.name} leaderboard placement`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/og.png"],
+    },
+  };
+}
 
 export default async function ModelDetailPage({ params }: { params: { slug: string } }) {
   const snapshot = await getSnapshot();

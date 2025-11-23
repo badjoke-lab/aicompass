@@ -70,13 +70,13 @@ export default function HealthIndicator() {
 
   return (
     <a
-      className={`flex items-center gap-2 text-xs font-semibold transition-colors ${color}`}
+      className={`flex items-center gap-2 text-xs font-semibold uppercase tracking-wide transition-colors ${color}`}
       href="/api/health"
       rel="noreferrer"
       target="_blank"
     >
       <span className="h-2 w-2 rounded-full bg-current" />
-      <span>Health: {label}</span>
+      <span className="tabular-nums min-w-[8rem] text-right">Health: {label}</span>
     </a>
   );
 }

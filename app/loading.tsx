@@ -8,7 +8,15 @@ export default function Loading() {
           <div className="h-4 w-full max-w-2xl rounded-lg bg-slate-800" />
           <div className="h-4 w-5/6 max-w-xl rounded-lg bg-slate-800" />
         </div>
-        <div className="h-3 w-40 rounded-full bg-slate-800" />
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="h-3 w-48 rounded-full bg-slate-800" />
+          <div className="h-8 w-40 rounded-full bg-slate-800" />
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div key={index} className="h-8 w-40 rounded-full bg-slate-800" />
+          ))}
+        </div>
       </header>
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
