@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { buildPageMetadata } from "@/lib/metadata";
 import { getSnapshot } from "@/lib/v3/snapshot";
 
 export const dynamic = "force-dynamic";
@@ -12,41 +13,24 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
   if (!model) {
     return {
-      title: "Model not found | AI Model Scoreboard",
-      description: "The requested model is not present in the current snapshot.",
+      ...buildPageMetadata({
+        title: "Model not found",
+        description: "The requested model is not present in the current snapshot.",
+        path: `/models/${params.slug}`,
+      }),
     };
   }
 
-  const title = `${model.name} | AI Model Scoreboard`;
+  const title = model.name;
   const description = `Live signals for ${model.name} by ${model.provider}. Downloads, likes, recency, and composite scores updated with each snapshot.`;
-  const url = `https://ai-model-scoreboard.vercel.app/models/${model.slug}`;
 
-  return {
+  return buildPageMetadata({
     title,
     description,
-    alternates: { canonical: `/models/${model.slug}` },
-    openGraph: {
-      title,
-      description,
-      url,
-      siteName: "AI Model Scoreboard",
-      type: "article",
-      images: [
-        {
-          url: "/og.png",
-          width: 1200,
-          height: 630,
-          alt: `${model.name} leaderboard placement`,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: ["/og.png"],
-    },
-  };
+    path: `/models/${model.slug}`,
+    openGraphType: "article",
+    imageAlt: `${model.name} leaderboard placement`,
+  });
 }
 
 export default async function ModelDetailPage({ params }: { params: { slug: string } }) {

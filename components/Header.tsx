@@ -7,7 +7,8 @@ const navItems = [
   { href: "/", label: "Scores" },
   { href: "/about", label: "About" },
   { href: "/methodology", label: "Methodology" },
-  { href: "/donation", label: "Donation" }
+  { href: "/donation", label: "Donation" },
+  { href: "/docs/changelog", label: "Changelog" },
 ];
 
 export default function Header() {

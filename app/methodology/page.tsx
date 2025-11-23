@@ -1,4 +1,13 @@
+import type { Metadata } from "next";
+
+import { buildPageMetadata } from "@/lib/metadata";
 import { SCORE_WEIGHTS } from "@/lib/v3/snapshot";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Methodology",
+  description: "Understand how AIMS v3 normalizes Hugging Face signals and combines them into composite scores.",
+  path: "/methodology",
+});
 
 export default function MethodologyPage() {
   return (
