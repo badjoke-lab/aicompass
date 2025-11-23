@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { getHealth, getSnapshot } from "@/lib/v3/snapshot";
 
 export const revalidate = 60;
@@ -9,26 +11,53 @@ export default async function ScoresPage() {
   const formattedSnapshotAge = formatSnapshotAge(snapshotAgeSeconds);
 
   return (
-    <div className="space-y-8">
-      <header className="space-y-3">
+    <div className="space-y-10">
+      <header className="space-y-4">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">AIMS · v3</p>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1.5">
-            <h1 className="text-3xl font-semibold text-slate-50 sm:text-4xl">Real-time AI model signals</h1>
-            <p className="max-w-3xl text-sm text-slate-400">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-semibold leading-tight text-slate-50 sm:text-4xl">Real-time AI model signals</h1>
+            <p className="max-w-3xl text-sm leading-relaxed text-slate-400">
               Scores are computed from live Hugging Face metadata. Downloads drive adoption, likes proxy ecosystem pull,
               and recent updates reward velocity. Data refreshes on every request with a short cache to protect the API.
             </p>
           </div>
-          <div className="flex items-center gap-2 self-start rounded-full border border-slate-800 bg-background/70 px-3 py-1 text-xs text-slate-300 shadow-sm sm:self-auto sm:px-3.5 sm:py-1.5">
+          <div className="flex items-center gap-3 self-start rounded-full border border-slate-800 bg-background/70 px-3 py-1.5 text-xs text-slate-300 shadow-sm ring-1 ring-slate-800/60 sm:self-auto sm:px-4">
             <span className="flex h-2.5 w-2.5 items-center justify-center rounded-full bg-emerald-400/80" />
-            <span className="font-semibold uppercase tracking-wide text-slate-200">Snapshot</span>
-            <span className="text-slate-400 tabular-nums min-w-[7.5rem] text-right">{formattedSnapshotAge}</span>
+            <div className="flex items-center gap-2 font-semibold uppercase tracking-wide text-slate-200">
+              <span>Snapshot</span>
+              <span className="tabular-nums min-w-[8.5rem] rounded px-2 py-0.5 text-center text-xs text-slate-300 ring-1 ring-slate-800/60">
+                {formattedSnapshotAge}
+              </span>
+            </div>
           </div>
         </div>
-        <div className="flex flex-col gap-1 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-          <p>Last updated: {new Date(snapshot.updatedAt).toLocaleString()}</p>
-          <p className="text-slate-400">Health: {health.status.toUpperCase()}</p>
+        <div className="flex flex-col gap-2 text-[0.8rem] text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-slate-400">Last updated: {new Date(snapshot.updatedAt).toLocaleString()}</p>
+          <div className="flex flex-wrap items-center gap-3 text-slate-400">
+            <span className="tabular-nums rounded-full border border-slate-800/70 bg-background/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-200">
+              Health: {health.status.toUpperCase()}
+            </span>
+            <a
+              href="https://github.com/ai-model-scoreboard/ai-model-scoreboard/tree/main/docs"
+              className="text-xs font-semibold uppercase tracking-wide text-accent underline-offset-4 hover:text-accent/80"
+              rel="noreferrer"
+              target="_blank"
+            >
+              View docs
+            </a>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-3 text-xs text-slate-400">
+          <DocLink href="https://github.com/ai-model-scoreboard/ai-model-scoreboard/blob/main/docs/v3-snapshot.md">
+            Snapshot pipeline
+          </DocLink>
+          <DocLink href="https://github.com/ai-model-scoreboard/ai-model-scoreboard/blob/main/docs/v3-status.md">
+            Refresh schedule
+          </DocLink>
+          <DocLink href="https://github.com/ai-model-scoreboard/ai-model-scoreboard/blob/main/docs/api.md">
+            API endpoints
+          </DocLink>
         </div>
       </header>
 
@@ -156,5 +185,19 @@ function StatCard({ label, value, helper }: { label: string; value: string | num
       <p className="text-2xl font-semibold text-slate-50">{value}</p>
       <p className="text-[0.7rem] text-slate-500">{helper}</p>
     </div>
+  );
+}
+
+function DocLink({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <a
+      href={href}
+      className="inline-flex items-center gap-2 rounded-full border border-slate-800/60 bg-background/60 px-3 py-1 font-semibold uppercase tracking-wide text-slate-200 underline-offset-4 transition-colors hover:text-accent"
+      rel="noreferrer"
+      target="_blank"
+    >
+      <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+      <span>{children}</span>
+    </a>
   );
 }
