@@ -7,6 +7,11 @@ export const metadata = {
   title: "AI Model Scoreboard",
   description:
     "Independent AI model rankings focused on transparent evidence, open metrics, and meaningful deltas.",
+  openGraph: {
+    title: "AI Model Scoreboard | Transparent AI evaluations",
+    description:
+      "Evidence-first AI model rankings with open metrics, transparent methods, and trustworthy benchmarks.",
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -25,8 +30,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 <div>© {new Date().getFullYear()} · Evidence-first · Open metrics · Community supported</div>
               </div>
               <div className="flex flex-wrap items-center gap-4">
-                <a className="text-slate-300 underline-offset-4 hover:text-accent" href="/support">
-                  Donate / Support
+                <a href="/support" className="text-slate-300 underline-offset-4 hover:text-accent">
+                  Support
                 </a>
                 <HealthIndicator />
               </div>
