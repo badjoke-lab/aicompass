@@ -1,13 +1,13 @@
 import "./globals.css";
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Header from "@/components/Header";
+import { baseMetadata } from "@/lib/metadata";
+import ReleaseBanner from "@/components/ReleaseBanner";
+import { shellClass } from "@/lib/layout";
 
-export const metadata = {
-  title: "AI Model Scoreboard",
-  description:
-    "Independent AI model rankings focused on transparent evidence, open metrics, and meaningful deltas."
-};
+export const metadata: Metadata = baseMetadata;
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -15,7 +15,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="min-h-screen bg-background text-slate-100">
         <div className="flex min-h-screen flex-col">
           <Header />
-          <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-6 sm:px-6 lg:px-8">
+          <ReleaseBanner />
+          <main className={`${shellClass} flex-1 flex flex-col py-10 sm:py-12`}>
             {children}
           </main>
           <Footer />

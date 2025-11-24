@@ -1,3 +1,7 @@
+import type { Metadata } from "next";
+
+import { buildPageMetadata } from "@/lib/metadata";
+
 const donationLinks = [
   {
     label: "Stripe Payment Link",
@@ -31,17 +35,22 @@ const wallets = [
   },
 ];
 
+export const metadata: Metadata = buildPageMetadata({
+  title: "Donation",
+  description:
+    "Contribute to AI Model Scoreboard hosting, evaluation runs, and open reporting through direct and crypto options.",
+  path: "/donation",
+});
+
 export default function DonationPage() {
   return (
     <div className="space-y-6">
-      <div className="space-y-3">
-        <h1 className="text-xl font-semibold text-slate-50 sm:text-2xl">
-          Support AI Model Scoreboard
-        </h1>
-        <p className="text-sm text-slate-400">
-          Donations keep the scoreboard vendor-neutral, cover hosting for data
-          snapshots, and let us commission independent evals when vendors stay
-          quiet. Every contribution goes straight to maintenance and research.
+      <div className="space-y-3" id="donate">
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Donate</p>
+        <h1 className="text-3xl font-semibold leading-tight text-slate-50 sm:text-4xl">Support AI Model Scoreboard</h1>
+        <p className="text-sm leading-relaxed text-slate-400">
+          Donations keep the scoreboard vendor-neutral, cover hosting for data snapshots, and let us commission independent
+          evals when vendors stay quiet. Every contribution goes straight to maintenance and research.
         </p>
       </div>
 

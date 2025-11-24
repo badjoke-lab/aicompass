@@ -1,170 +1,158 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import EvidenceSection from "@/components/EvidenceSection";
-import HistorySparkline from "@/components/HistorySparkline";
-import StatusPills from "@/components/StatusPills";
-import {
-  DELTA_WINDOW_DAYS,
-  formatDelta,
-  getModelBySlug,
-  getModelDelta,
-  getModelStatuses,
-  getModels,
-  getSortedModels
-} from "@/lib/models";
-import type { Model } from "@/types/model";
 
-const models = getModels();
-const sortedModels = getSortedModels(models);
+import { metaPillClass } from "@/lib/layout";
+import { buildPageMetadata } from "@/lib/metadata";
+import { formatCompactNumber, formatSnapshotAge, getHealthLabel } from "@/lib/presentation";
+import { getHealth, getSnapshot } from "@/lib/v3/snapshot";
 
-interface Params {
-  slug: string;
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  try {
+    const snapshot = await getSnapshot();
+    const model = snapshot.models.find((entry) => entry.slug === params.slug);
+
+    if (!model) {
+      return {
+        ...buildPageMetadata({
+          title: "Model not found",
+          description: "The requested model is not present in the current snapshot.",
+          path: `/models/${params.slug}`,
+        }),
+      };
+    }
+
+    const title = model.name;
+    const description = `Live signals for ${model.name} by ${model.provider}. Downloads, likes, recency, and composite scores updated with each snapshot.`;
+
+    return buildPageMetadata({
+      title,
+      description,
+      path: `/models/${model.slug}`,
+      openGraphType: "article",
+      imageAlt: `${model.name} leaderboard placement`,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Snapshot unavailable";
+    return buildPageMetadata({
+      title: "Model snapshot unavailable",
+      description: `Unable to load model metadata right now (${message}).`,
+      path: `/models/${params.slug}`,
+    });
+  }
 }
 
-export async function generateStaticParams() {
-  return models.map((model) => ({ slug: model.slug }));
-}
+export default async function ModelDetailPage({ params }: { params: { slug: string } }) {
+  let snapshotError: string | null = null;
+  let snapshot: Awaited<ReturnType<typeof getSnapshot>> | null = null;
 
-export default function ModelPage({ params }: { params: Params }) {
-  const model = getModelBySlug(params.slug);
-
-  if (!model) {
-    notFound();
+  try {
+    snapshot = await getSnapshot();
+  } catch (error) {
+    snapshotError = error instanceof Error ? error.message : "Unable to fetch snapshot.";
   }
 
-  const rank = sortedModels.findIndex((entry) => entry.slug === model.slug) + 1;
-  const statuses = getModelStatuses(model, rank);
-  const scoreCards = getScoreCards(model);
-  const delta = getModelDelta(model);
+  const model = snapshot?.models.find((entry) => entry.slug === params.slug);
+
+  if (!model) {
+    return notFound();
+  }
+
+  const health = getHealth();
+  const healthLabel = getHealthLabel(health.status);
+  const snapshotAgeLabel = formatSnapshotAge(health.snapshot.ageSeconds);
+  const updatedLabel = snapshot?.updatedAt ? new Date(snapshot.updatedAt).toLocaleString() : "Unavailable";
 
   return (
-    <div className="space-y-6">
-      <Link href="/" className="text-xs text-accent">
-        ← Back to leaderboard
-      </Link>
-
-      <header className="flex flex-col gap-4 rounded-2xl border border-slate-800 bg-surface/80 p-5 lg:flex-row lg:items-end lg:justify-between">
-        <div className="space-y-3">
-          <div>
-            <p className="text-xs uppercase tracking-wide text-slate-500">Vendor</p>
-            <h1 className="text-3xl font-semibold text-slate-50">{model.name}</h1>
-            <p className="text-sm text-slate-400">{model.vendor ?? model.provider}</p>
+    <div className="space-y-10">
+      <header className="space-y-4 sm:space-y-5">
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">AIMS · v3</p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-semibold leading-tight text-slate-50 sm:text-4xl">{model.name}</h1>
+            <p className="max-w-3xl text-sm leading-relaxed text-slate-400">Provider: {model.provider}</p>
+            {model.focus && <p className="text-xs text-slate-500">Focus: {model.focus}</p>}
           </div>
-          {model.modalities && model.modalities.length > 0 && (
-            <div className="flex flex-wrap gap-2 text-[0.65rem]">
-              {model.modalities.map((modality) => (
-                <span
-                  key={modality}
-                  className="rounded-full bg-slate-800/70 px-3 py-1 font-semibold uppercase tracking-wide text-slate-300"
-                >
-                  {modality}
-                </span>
-              ))}
-            </div>
-          )}
-          <StatusPills statuses={statuses} size="md" />
-          {model.waiting && (
-            <p className="text-[0.7rem] text-amber-300">
-              Waiting on public evaluations. Scores will refresh once new evidence lands.
-            </p>
-          )}
+          <div className="flex flex-wrap items-center gap-2 self-start rounded-full border border-slate-800 bg-background/70 px-3 py-1.5 text-[0.75rem] uppercase tracking-wide text-slate-300 shadow-sm ring-1 ring-slate-800/60 sm:self-auto">
+            <span className="h-2 w-2 rounded-full bg-accent" />
+            <a
+              href={model.source}
+              target="_blank"
+              rel="noreferrer"
+              className="text-slate-100 underline-offset-4 hover:text-accent"
+            >
+              View on Hugging Face
+            </a>
+          </div>
         </div>
-        <div className="text-right">
-          <p className="text-xs uppercase tracking-wide text-slate-500">Total score</p>
-          <p className="text-4xl font-semibold text-slate-50">{model.total.toFixed(1)}</p>
-          <p className="text-sm text-slate-400">
-            Δ {DELTA_WINDOW_DAYS}d {" "}
-            <span className={deltaColor(delta)}>{formatDelta(delta)}</span>
-          </p>
-          <p className="text-xs text-slate-500">Ranked #{rank}</p>
+        <div className="flex flex-wrap items-center gap-3 text-[0.8rem] text-slate-400">
+          <span className={metaPillClass}>Snapshot: {snapshotAgeLabel}</span>
+          <span className={metaPillClass}>Health: {healthLabel}</span>
+          <span className="text-slate-500">Last updated: {updatedLabel}</span>
         </div>
       </header>
 
-      <section className="rounded-2xl border border-slate-800 bg-surface/80 p-5">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-          Score breakdown
-        </h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {scoreCards.map((card) => (
-            <div key={card.label} className="rounded-xl bg-background/40 px-3 py-4">
-              <p className="text-[0.65rem] uppercase tracking-wide text-slate-500">
-                {card.label}
-              </p>
-              <p className="text-2xl font-semibold text-slate-50">{card.value}</p>
-              <p className="text-[0.7rem] text-slate-500">{card.helper}</p>
-            </div>
-          ))}
-        </div>
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <MetricCard
+          label="Downloads"
+          value={formatCompactNumber(model.metrics.downloads)}
+          helper="Cumulative"
+        />
+        <MetricCard
+          label="Likes"
+          value={formatCompactNumber(model.metrics.likes)}
+          helper="Community interest"
+        />
+        <MetricCard
+          label="Last modified"
+          value={model.metrics.lastModified ? new Date(model.metrics.lastModified).toLocaleDateString() : "Unknown"}
+          helper="UTC"
+        />
+        <MetricCard label="Recency (days)" value={model.metrics.recencyDays ?? "—"} helper="Lower is fresher" />
+        <MetricCard label="Adoption score" value={model.scores.adoption.toFixed(1)} helper="Weighted" />
+        <MetricCard label="Ecosystem score" value={model.scores.ecosystem.toFixed(1)} helper="Weighted" />
+        <MetricCard label="Velocity score" value={model.scores.velocity.toFixed(1)} helper="Weighted" />
+        <MetricCard label="Total score" value={model.scores.total.toFixed(1)} helper="Composite" />
       </section>
 
-      {model.categories && (
-        <section className="rounded-2xl border border-slate-800 bg-surface/80 p-5">
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-            Capability coverage
-          </h2>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            {Object.entries(model.categories).map(([key, value]) => (
-              <div key={key} className="flex items-center justify-between rounded-xl bg-background/30 px-3 py-2 text-sm">
-                <span className="text-slate-300">{formatCategoryLabel(key)}</span>
-                <span className="font-semibold text-slate-50">{value == null ? "—" : value}</span>
-              </div>
-            ))}
+      <section className="space-y-4 rounded-2xl border border-slate-800 bg-surface/80 p-4 shadow-xl sm:p-6">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-300">Methodology</h2>
+            <p className="text-xs text-slate-500">Signals, normalization, and fixed weighting for this snapshot.</p>
           </div>
-        </section>
-      )}
-
-      <section className="rounded-2xl border border-slate-800 bg-surface/80 p-5">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-          30-day sparkline
-        </h2>
-        <div className="mt-3">
-          <HistorySparkline history={model.history} chartId={model.slug} />
+          <Link href="/methodology" className="text-xs font-semibold uppercase tracking-wide text-accent underline-offset-4 hover:text-accent/80">
+            Read methodology
+          </Link>
         </div>
-        <p className="text-[0.65rem] text-slate-500">
-          Mock history shown for aims-v1 preview. Δ window {DELTA_WINDOW_DAYS} days.
-        </p>
+        <div className="space-y-2 text-sm text-slate-400">
+          <p>
+            Scores come directly from live Hugging Face repository metadata. Downloads represent adoption, likes proxy
+            ecosystem engagement, and recent updates fuel velocity. Each dimension is scaled relative to peers in the snapshot
+            and combined using fixed weights.
+          </p>
+          {snapshotError && (
+            <p className="text-amber-200">Snapshot degraded: {snapshotError}. Displaying cached or partial data.</p>
+          )}
+        </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-800 bg-surface/80 p-5">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-          Evidence grid
-        </h2>
-        <div className="mt-3">
-          <EvidenceSection evidence={model.evidence} />
-        </div>
-        <p className="text-[0.65rem] text-slate-500">
-          Placeholder links documented per scoring category. All data stays in local JSON.
-        </p>
-      </section>
+      <Link href="/" className="text-sm font-semibold text-accent underline">
+        ← Back to leaderboard
+      </Link>
     </div>
   );
 }
 
-function deltaColor(delta: number) {
-  if (delta > 0) return "text-positive";
-  if (delta < 0) return "text-negative";
-  return "text-slate-300";
+function MetricCard({ label, value, helper }: { label: string; value: string | number; helper: string }) {
+  return (
+    <div className="rounded-xl border border-slate-800 bg-background/50 px-4 py-3">
+      <p className="text-[0.65rem] uppercase tracking-wide text-slate-500">{label}</p>
+      <p className="text-2xl font-semibold text-slate-50">{value}</p>
+      <p className="text-[0.7rem] text-slate-500">{helper}</p>
+    </div>
+  );
 }
 
-function getScoreCards(model: Model) {
-  return [
-    { label: "Performance", value: model.scores.performance, helper: "Benchmarks & eval suites" },
-    { label: "Safety", value: model.scores.safety, helper: "Alignment & red-teaming" },
-    { label: "Cost", value: model.scores.cost, helper: "Pricing & efficiency" },
-    { label: "Reliability", value: model.scores.reliability, helper: "Uptime & release cadence" },
-    { label: "Transparency", value: model.scores.transparency, helper: "Policies & reporting" },
-    { label: "Ecosystem", value: model.scores.ecosystem, helper: "Partners & tooling" },
-    { label: "Adoption", value: model.scores.adoption, helper: "Usage & interest" }
-  ];
-}
-
-function formatCategoryLabel(key: string) {
-  const labels: Record<string, string> = {
-    text: "Text / Chat",
-    coding: "Coding",
-    vision: "Vision",
-    image: "Image",
-    video: "Video"
-  };
-  return labels[key] ?? key;
-}
