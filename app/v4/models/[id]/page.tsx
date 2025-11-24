@@ -1,14 +1,14 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getMockModels, getModelById } from '../../data/mockModels';
-import { computeDelta30d } from '../../lib/utils';
+import { MOCK_MODELS } from '../../lib/mockModels';
+import { calcDelta30d, getModelById } from '../../lib/utils';
 
 interface ModelPageProps {
   params: { id: string };
 }
 
 export function generateStaticParams() {
-  return getMockModels().map((model) => ({ id: model.id }));
+  return MOCK_MODELS.map((model) => ({ id: model.id }));
 }
 
 export default function ModelDetailPage({ params }: ModelPageProps) {
@@ -18,16 +18,16 @@ export default function ModelDetailPage({ params }: ModelPageProps) {
     return notFound();
   }
 
-  const delta = computeDelta30d(model);
+  const delta = calcDelta30d(model);
   const formattedDelta = `${delta >= 0 ? '+' : ''}${delta.toFixed(1)}`;
 
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between gap-4">
         <div className="space-y-1">
-          <p className="text-sm text-slate-300">{model.vendor}</p>
+          <p className="text-sm text-slate-300">{model.vendor.name}</p>
           <h2 className="text-3xl font-semibold">{model.name}</h2>
-          <p className="text-sm text-slate-400 capitalize">Modality: {model.modality}</p>
+          <p className="text-sm text-slate-400">Modality: {model.modality.join(', ')}</p>
         </div>
         <Link
           href="/v4"
@@ -40,7 +40,7 @@ export default function ModelDetailPage({ params }: ModelPageProps) {
       <div className="grid gap-6 md:grid-cols-3">
         <div className="rounded-lg border border-slate-800 bg-slate-900/60 p-4">
           <p className="text-xs uppercase tracking-wide text-slate-400">Total</p>
-          <p className="text-4xl font-bold text-emerald-200">{model.totalScore.toFixed(1)}</p>
+          <p className="text-4xl font-bold text-emerald-200">{model.total.toFixed(1)}</p>
           <p className="text-sm text-slate-300">30d delta: {formattedDelta}</p>
         </div>
         <div className="md:col-span-2 rounded-lg border border-slate-800 bg-slate-900/60 p-4">
@@ -60,21 +60,20 @@ export default function ModelDetailPage({ params }: ModelPageProps) {
         <p className="text-xs uppercase tracking-wide text-slate-400">Evidence</p>
         <ul className="mt-4 space-y-3">
           {model.evidence.map((item) => (
-            <li key={`${item.label}-${item.date}`} className="flex items-start gap-3">
-              <span className="rounded bg-slate-800 px-2 py-1 text-xs uppercase tracking-wide text-slate-300">
-                {item.sourceType}
-              </span>
-              <div>
-                <a
-                  href={item.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-semibold text-emerald-200 hover:underline"
-                >
-                  {item.label}
-                </a>
-                <p className="text-xs text-slate-400">{item.date}</p>
-              </div>
+            <li key={`${item.label}-${item.updatedAt}`} className="space-y-1">
+              <a
+                href={item.url}
+                target="_blank"
+                rel="noreferrer"
+                className="font-semibold text-emerald-200 hover:underline"
+              >
+                {item.label}
+              </a>
+              <p className="text-xs text-slate-400">Updated: {item.updatedAt}</p>
+              {item.note && <p className="text-sm text-slate-200">{item.note}</p>}
+              {typeof item.score === 'number' && (
+                <p className="text-xs text-slate-300">Score: {item.score}</p>
+              )}
             </li>
           ))}
         </ul>

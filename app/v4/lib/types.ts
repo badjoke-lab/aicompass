@@ -1,29 +1,41 @@
-export type Modality = 'text' | 'image' | 'audio' | 'video' | 'multimodal';
+export type Modality = "text" | "image" | "audio" | "video" | "multimodal";
 
-export type Subscores = Record<string, number>;
+export type Evidence = {
+  label: string; // e.g. "MMLU", "HumanEval"
+  url: string; // source link
+  score?: number; // optional raw score
+  note?: string;
+  updatedAt: string; // ISO
+};
 
-export interface EvidenceItem {
-  label: string;
-  url: string;
-  sourceType: string;
-  date: string; // ISO string
-}
+export type Subscores = {
+  reasoning: number; // 0-100
+  coding: number;
+  math: number;
+  multimodal: number;
+  safety: number;
+};
 
-export interface HistoryEntry {
-  date: string; // ISO string
-  totalScore: number;
+export type HistoryPoint = {
+  date: string; // ISO day
+  total: number;
   subscores: Subscores;
-}
+};
 
-export interface Model {
-  id: string;
-  name: string;
-  vendor: string;
-  modality: Modality;
-  subscores: Subscores;
-  totalScore: number;
-  evidence: EvidenceItem[];
-  history: HistoryEntry[];
-}
+export type Vendor = {
+  id: string; // "openai" etc
+  name: string; // display
+};
 
-export type SortDirection = 'asc' | 'desc';
+export type ModelV4 = {
+  id: string; // "gpt-5"
+  name: string; // "GPT-5"
+  vendor: Vendor;
+  modality: Modality[];
+  total: number; // 0-100
+  subscores: Subscores; // 0-100 each
+  evidence: Evidence[];
+  history30d: HistoryPoint[]; // last 30d points (can be sparse)
+  updatedAt: string;
+  tags?: string[];
+};

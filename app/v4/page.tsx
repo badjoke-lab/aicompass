@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import { getMockModels } from './data/mockModels';
-import { sortModels } from './lib/utils';
+import { MOCK_MODELS } from './lib/mockModels';
+import { sortByTotal } from './lib/utils';
 
-const subscoresToShow = ['reasoning', 'coding', 'safety'];
+const subscoresToShow = ['reasoning', 'coding', 'math', 'multimodal', 'safety'] as const;
 
 export default function V4HomePage() {
-  const models = sortModels(getMockModels(), 'totalScore', 'desc');
+  const models = sortByTotal(MOCK_MODELS);
 
   return (
     <section className="space-y-6">
@@ -38,12 +38,12 @@ export default function V4HomePage() {
                     {model.name}
                   </Link>
                 </td>
-                <td className="px-4 py-3 text-slate-200">{model.vendor}</td>
-                <td className="px-4 py-3 text-slate-300 capitalize">{model.modality}</td>
-                <td className="px-4 py-3 text-right font-semibold">{model.totalScore.toFixed(0)}</td>
+                <td className="px-4 py-3 text-slate-200">{model.vendor.name}</td>
+                <td className="px-4 py-3 text-slate-300 capitalize">{model.modality.join(', ')}</td>
+                <td className="px-4 py-3 text-right font-semibold">{model.total.toFixed(0)}</td>
                 {subscoresToShow.map((score) => (
                   <td key={score} className="px-4 py-3 text-right text-slate-200">
-                    {model.subscores[score]?.toFixed(0) ?? '—'}
+                    {model.subscores[score].toFixed(0)}
                   </td>
                 ))}
               </tr>
