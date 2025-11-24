@@ -11,9 +11,9 @@ const changelogEntries = [
       "Public launch of the v3 scoreboard with refreshed layouts, launch notes, and documentation for the snapshot pipeline.",
     highlights: [
       "Homepage polish with clearer snapshot age, card spacing, and table rhythm for readability.",
-      "Lightweight loading skeletons and short revalidation windows to keep responses stable while Hugging Face data refreshes.",
-      "Footer and navigation alignment, plus Support and Donate anchors to guide contributors.",
-      "Launch notes published alongside docs covering the pipeline, API endpoints, and soft launch caveats.",
+      "Lightweight loading skeletons and short cache windows to keep responses stable while Hugging Face data refreshes.",
+      "Footer and navigation alignment, plus Support and Donate anchors that guide contributors.",
+      "Launch notes published alongside docs covering the pipeline, API endpoints, and soft-launch caveats.",
     ],
     links: [
       {

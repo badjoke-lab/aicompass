@@ -66,7 +66,16 @@ export default function HealthIndicator() {
           ? "text-rose-400"
           : "text-slate-500";
 
-  const label = status === "LOADING" ? "Checking" : status;
+  const label =
+    status === "LOADING"
+      ? "Checking"
+      : status === "LIVE"
+        ? "Live"
+        : status === "STALE"
+          ? "Stale"
+          : status === "ERROR"
+            ? "Error"
+            : "Unknown";
 
   return (
     <a
@@ -74,8 +83,10 @@ export default function HealthIndicator() {
       href="/api/health"
       rel="noreferrer"
       target="_blank"
+      aria-label={`Health status: ${label}`}
+      aria-live="polite"
     >
-      <span className="h-2 w-2 rounded-full bg-current" />
+      <span className="h-2 w-2 rounded-full bg-current" aria-hidden />
       <span className="tabular-nums min-w-[8rem] text-right">Health: {label}</span>
     </a>
   );

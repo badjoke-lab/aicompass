@@ -5,7 +5,7 @@ import { SCORE_WEIGHTS } from "@/lib/v3/snapshot";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Methodology",
-  description: "Understand how AIMS v3 normalizes Hugging Face signals and combines them into composite scores.",
+  description: "Understand how AIMS v3 normalizes Hugging Face signals and combines them into transparent composite scores.",
   path: "/methodology",
 });
 

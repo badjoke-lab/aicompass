@@ -5,7 +5,7 @@ import { buildPageMetadata } from "@/lib/metadata";
 export const metadata: Metadata = buildPageMetadata({
   title: "About",
   description:
-    "Learn how AI Model Scoreboard benchmarks models with transparent signals, reproducible methods, and public evidence.",
+    "Learn how AI Model Scoreboard benchmarks models with transparent signals, reproducible methods, and public evidence for every ranking.",
   path: "/about",
 });
 

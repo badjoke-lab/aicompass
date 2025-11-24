@@ -15,10 +15,13 @@ export default function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="border-b border-slate-800 bg-background/80 backdrop-blur">
+    <header className="border-b border-slate-800 bg-background/80 backdrop-blur" aria-label="Site header">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-xs font-bold text-white">
+        <Link href="/" className="flex items-center gap-2" aria-label="AI Model Scoreboard home">
+          <div
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-xs font-bold text-white"
+            aria-hidden
+          >
             🧮
           </div>
           <div className="leading-tight">
@@ -31,7 +34,7 @@ export default function Header() {
           </div>
         </Link>
 
-        <nav className="flex items-center gap-4 text-sm">
+        <nav className="flex items-center gap-4 text-sm" aria-label="Primary navigation">
           {navItems.map((item) => {
             const active =
               item.href === "/"
@@ -46,6 +49,7 @@ export default function Header() {
                     ? "text-slate-50"
                     : "text-slate-400 hover:text-slate-200"
                 }`}
+                aria-label={item.label}
               >
                 {item.label}
               </Link>
@@ -54,6 +58,7 @@ export default function Header() {
           <Link
             href="/donation"
             className="rounded-full border border-accent bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-accent hover:bg-accent/20"
+            aria-label="Donate to AI Model Scoreboard"
           >
             Donate
           </Link>
