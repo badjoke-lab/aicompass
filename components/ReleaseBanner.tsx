@@ -31,10 +31,18 @@ export default function ReleaseBanner() {
           <p className="text-xs font-semibold uppercase tracking-[0.25em]">Launch</p>
           <p className="text-sm font-semibold text-accent">v3 is live — read the launch notes and recent deltas.</p>
           <div className="flex flex-wrap gap-3 text-[0.85rem]">
-            <Link href="/docs/changelog" className="underline underline-offset-4 hover:text-accent/80">
+            <Link
+              aria-label="Open changelog and launch notes"
+              href="/docs/changelog"
+              className="underline underline-offset-4 hover:text-accent/80"
+            >
               Changelog & Launch notes
             </Link>
-            <Link href="/support" className="underline underline-offset-4 hover:text-accent/80">
+            <Link
+              aria-label="Share feedback on AI Model Scoreboard"
+              href="/support"
+              className="underline underline-offset-4 hover:text-accent/80"
+            >
               Share feedback
             </Link>
           </div>
@@ -42,6 +50,7 @@ export default function ReleaseBanner() {
         <button
           type="button"
           onClick={handleDismiss}
+          aria-label="Dismiss release banner"
           className="self-start rounded-full border border-accent/40 px-3 py-1 text-xs font-semibold uppercase tracking-wide hover:bg-accent/10"
         >
           Dismiss

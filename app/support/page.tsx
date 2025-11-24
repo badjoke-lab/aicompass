@@ -7,7 +7,7 @@ export const revalidate = 60;
 export const metadata: Metadata = buildPageMetadata({
   title: "Support",
   description:
-    "Support the AI Model Scoreboard with feedback, outreach, or contributions that keep the leaderboard independent.",
+    "Support the AI Model Scoreboard with feedback, outreach, or contributions that keep the leaderboard independent and trustworthy.",
   path: "/support",
 });
 
@@ -21,8 +21,8 @@ export default function SupportPage() {
       <div className="space-y-4 text-sm leading-relaxed text-slate-400">
         <p className="max-w-2xl text-slate-300">
           The AI Model Scoreboard is an independent, community-supported effort focused on transparent evidence, open metrics,
-          and meaningful deltas. Your contributions help us cover hosting, evaluation runs, and the shared resources that keep
-          the project trustworthy and accessible.
+          and meaningful deltas. Your contributions cover hosting, evaluation runs, and the shared resources that keep the
+          project trustworthy and accessible.
         </p>
         <div className="space-y-2">
           <p className="font-semibold text-slate-200">Ways to help</p>
@@ -34,8 +34,8 @@ export default function SupportPage() {
           </ul>
         </div>
         <p className="max-w-2xl text-slate-300">
-          If you prefer to share feedback or collaborate, feel free to reach out — every note helps us prioritize the tools and
-          benchmarks that matter most to the community.
+          If you prefer to share feedback or collaborate, reach out — every note helps prioritize the tools and benchmarks that
+          matter most to the community.
         </p>
       </div>
     </div>

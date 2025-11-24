@@ -8,12 +8,12 @@ const changelogEntries = [
     version: "v3.1 public release",
     date: "2024",
     summary:
-      "Public launch of the v3 scoreboard with refreshed layouts, launch notes, and documentation for the snapshot pipeline.",
+      "Public launch of the v3 scoreboard with refreshed layouts, clarified copy, and documented snapshot pipelines.",
     highlights: [
-      "Homepage polish with clearer snapshot age, card spacing, and table rhythm for readability.",
+      "Homepage polish with clearer snapshot age, tighter card spacing, and steadier table rhythm for readability.",
       "Lightweight loading skeletons and short revalidation windows to keep responses stable while Hugging Face data refreshes.",
-      "Footer and navigation alignment, plus Support and Donate anchors to guide contributors.",
-      "Launch notes published alongside docs covering the pipeline, API endpoints, and soft launch caveats.",
+      "Aligned navigation and footer links, plus support and donation anchors for contributors.",
+      "Launch notes alongside docs covering the pipeline, API endpoints, and soft launch caveats.",
     ],
     links: [
       {
@@ -30,7 +30,7 @@ const changelogEntries = [
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Changelog",
-  description: "Track AI Model Scoreboard releases, launch notes, and public documentation links.",
+  description: "Follow AI Model Scoreboard releases, launch notes, and public documentation links.",
   path: "/docs/changelog",
   openGraphType: "article",
 });
