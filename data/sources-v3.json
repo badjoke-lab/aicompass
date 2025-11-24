@@ -1,0 +1,17 @@
+[
+  { "id": "meta-llama/Meta-Llama-3-70B", "displayName": "Llama 3 70B", "provider": "Meta", "focus": "General" },
+  { "id": "meta-llama/Meta-Llama-3-8B", "displayName": "Llama 3 8B", "provider": "Meta", "focus": "General" },
+  { "id": "mistralai/Mixtral-8x7B-Instruct-v0.1", "displayName": "Mixtral 8x7B Instruct", "provider": "Mistral", "focus": "Mixture-of-Experts" },
+  { "id": "mistralai/Mistral-7B-Instruct-v0.2", "displayName": "Mistral 7B Instruct", "provider": "Mistral", "focus": "Instruction" },
+  { "id": "Qwen/Qwen2.5-14B-Instruct", "displayName": "Qwen2.5 14B", "provider": "Alibaba Qwen", "focus": "Multilingual" },
+  { "id": "Qwen/Qwen2.5-7B-Instruct", "displayName": "Qwen2.5 7B", "provider": "Alibaba Qwen", "focus": "Multilingual" },
+  { "id": "google/gemma-2-27b-it", "displayName": "Gemma 2 27B IT", "provider": "Google", "focus": "Instruction" },
+  { "id": "google/gemma-2-9b-it", "displayName": "Gemma 2 9B IT", "provider": "Google", "focus": "Instruction" },
+  { "id": "microsoft/Phi-3-medium-4k-instruct", "displayName": "Phi-3 Medium", "provider": "Microsoft", "focus": "Instruction" },
+  { "id": "microsoft/Phi-3-mini-4k-instruct", "displayName": "Phi-3 Mini", "provider": "Microsoft", "focus": "Lightweight" },
+  { "id": "01-ai/Yi-1.5-34B-Chat", "displayName": "Yi 1.5 34B", "provider": "01.AI", "focus": "Chat" },
+  { "id": "01-ai/Yi-1.5-9B-Chat", "displayName": "Yi 1.5 9B", "provider": "01.AI", "focus": "Chat" },
+  { "id": "deepseek-ai/DeepSeek-Coder-V2-Instruct", "displayName": "DeepSeek Coder V2", "provider": "DeepSeek", "focus": "Code" },
+  { "id": "bigcode/starcoder2-7b", "displayName": "StarCoder2 7B", "provider": "BigCode", "focus": "Code" },
+  { "id": "tiiuae/falcon-11B", "displayName": "Falcon 11B", "provider": "TII", "focus": "General" }
+]

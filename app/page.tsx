@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
@@ -124,12 +125,17 @@ export default async function ScoresPage() {
         <div className="overflow-x-auto">
           {snapshotError && (
             <div className="border-b border-slate-800 bg-slate-900/40 px-4 py-3 text-sm text-amber-200">
-              Snapshot degraded: {snapshotError}. Showing the most recent cached data.
+              Snapshot unavailable: {snapshotError}.
+              {snapshot
+                ? " Showing the most recent cached data."
+                : " Unable to load the live leaderboard; please try again soon."}
             </div>
           )}
           {models.length === 0 ? (
             <div className="px-4 py-6 text-sm text-slate-400">
-              No snapshot data is available right now. The Hugging Face feed may be temporarily unreachable or still warming up.
+              {snapshotError
+                ? "Snapshot data is unavailable right now. The Hugging Face feed may be temporarily unreachable or still warming up."
+                : "No snapshot data is available right now. The Hugging Face feed may be temporarily unreachable or still warming up."}
               Please check back soon.
             </div>
           ) : (
@@ -151,12 +157,17 @@ export default async function ScoresPage() {
                 {models.map((model, index) => (
                   <tr key={model.id} className="border-t border-slate-800/70 bg-background/30 hover:bg-background/60">
                     <td className="px-3 py-4 align-top text-right text-slate-500 sm:py-3 sm:align-middle">{index + 1}</td>
-                    <td className="px-3 py-4 align-top sm:py-3 sm:align-middle">
-                      <div className="space-y-1">
-                        <div className="font-semibold text-slate-50">{model.name}</div>
-                        <p className="text-xs text-slate-400">{model.provider}</p>
-                        {model.focus && <p className="text-[0.65rem] text-slate-500">{model.focus}</p>}
-                        <p className="text-[0.65rem] text-slate-500">{model.source}</p>
+                  <td className="px-3 py-4 align-top sm:py-3 sm:align-middle">
+                    <div className="space-y-1">
+                      <Link
+                        href={`/models/${model.slug}`}
+                        className="font-semibold text-slate-50 underline-offset-4 hover:text-accent hover:underline"
+                      >
+                        {model.name}
+                      </Link>
+                      <p className="text-xs text-slate-400">{model.provider}</p>
+                      {model.focus && <p className="text-[0.65rem] text-slate-500">{model.focus}</p>}
+                      <p className="text-[0.65rem] text-slate-500">{model.source}</p>
                         {model.status === "error" && (
                           <p className="text-[0.65rem] text-amber-300">Fetch error: {model.error}</p>
                         )}
