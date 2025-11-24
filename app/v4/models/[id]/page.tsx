@@ -1,10 +1,14 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getModelById } from '../../data/mockModels';
+import { getMockModels, getModelById } from '../../data/mockModels';
 import { computeDelta30d } from '../../lib/utils';
 
 interface ModelPageProps {
   params: { id: string };
+}
+
+export function generateStaticParams() {
+  return getMockModels().map((model) => ({ id: model.id }));
 }
 
 export default function ModelDetailPage({ params }: ModelPageProps) {
