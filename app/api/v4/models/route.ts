@@ -1,14 +1,14 @@
 import { safeJSON, withError } from "@/lib/v4/http";
-import type { SnapshotResponse } from "@/lib/v4/types";
+import type { ModelListResponse } from "@/lib/v4/types";
 
 export const revalidate = 0;
 
 export async function GET(): Promise<Response> {
   return withError(() =>
-    safeJSON<SnapshotResponse>({
+    safeJSON<ModelListResponse>({
       status: "ok",
-      updated: null,
-      models: [],
+      providers: [],
+      total: 0,
     })
   );
 }
