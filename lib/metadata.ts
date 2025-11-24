@@ -66,7 +66,7 @@ export function buildPageMetadata({
   return {
     title: fullTitle,
     description,
-    alternates: { canonical: path },
+    alternates: { canonical: url },
     openGraph: {
       title: fullTitle,
       description,

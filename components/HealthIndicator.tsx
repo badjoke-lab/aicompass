@@ -84,7 +84,7 @@ export default function HealthIndicator() {
       aria-label={`API health status: ${label}`}
     >
       <span className="h-2 w-2 rounded-full bg-current" />
-      <span className="tabular-nums min-w-[8rem] text-right">Health: {label}</span>
+      <span className="tabular-nums min-w-[8rem] shrink-0 text-right">Health: {label}</span>
     </a>
   );
 }

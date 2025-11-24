@@ -66,7 +66,7 @@ export default async function ScoresPage() {
         <div className="flex flex-col gap-2 text-[0.8rem] text-slate-500 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-slate-400">Last updated: {updatedAtLabel}</p>
           <div className="flex flex-wrap items-center gap-3 text-slate-400">
-            <span className="tabular-nums rounded-full border border-slate-800/70 bg-background/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-200">
+            <span className="tabular-nums min-w-[8rem] rounded-full border border-slate-800/70 bg-background/60 px-3 py-1 text-center text-xs font-semibold uppercase tracking-wide text-slate-200">
               Health: {healthLabel}
             </span>
             <a
