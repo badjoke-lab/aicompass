@@ -13,13 +13,13 @@ export const metadata: Metadata = buildPageMetadata({
 
 export default function SupportPage() {
   return (
-    <div className="space-y-6">
-      <header className="space-y-2">
+    <div className="space-y-10">
+      <header className="space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Support</p>
-        <h1 className="text-2xl font-semibold text-slate-50 sm:text-3xl">Support AIMS</h1>
+        <h1 className="text-3xl font-semibold leading-tight text-slate-50 sm:text-4xl">Support AIMS</h1>
       </header>
-      <div className="space-y-4 text-sm text-slate-400">
-        <p className="max-w-2xl">
+      <div className="space-y-4 text-sm leading-relaxed text-slate-400">
+        <p className="max-w-2xl text-slate-300">
           The AI Model Scoreboard is an independent, community-supported effort focused on transparent evidence, open metrics,
           and meaningful deltas. Your contributions help us cover hosting, evaluation runs, and the shared resources that keep
           the project trustworthy and accessible.
@@ -33,7 +33,7 @@ export default function SupportPage() {
             <li>Introduce collaborators who can contribute benchmarks or reliability checks.</li>
           </ul>
         </div>
-        <p className="max-w-2xl">
+        <p className="max-w-2xl text-slate-300">
           If you prefer to share feedback or collaborate, feel free to reach out — every note helps us prioritize the tools and
           benchmarks that matter most to the community.
         </p>

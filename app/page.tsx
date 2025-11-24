@@ -1,6 +1,14 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import { DEFAULT_DESCRIPTION, buildPageMetadata } from "@/lib/metadata";
 import { getHealth, getSnapshot } from "@/lib/v3/snapshot";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Scores",
+  description: DEFAULT_DESCRIPTION,
+  path: "/",
+});
 
 export const revalidate = 60;
 

@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import Header from "@/components/Header";
 import HealthIndicator from "@/components/HealthIndicator";
 import { baseMetadata } from "@/lib/metadata";
+import ReleaseBanner from "@/components/ReleaseBanner";
 
 export const metadata: Metadata = baseMetadata;
 
@@ -13,7 +14,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="min-h-screen bg-background text-slate-100">
         <div className="flex min-h-screen flex-col">
           <Header />
-          <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-5 sm:px-6 lg:px-8">
+          <ReleaseBanner />
+          <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-8 sm:px-6 lg:px-10">
             {children}
           </main>
           <footer className="border-t border-slate-800 bg-background/80">
@@ -23,15 +25,27 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 <div>© {new Date().getFullYear()} · Evidence-first · Open metrics · Community supported</div>
               </div>
               <div className="flex flex-col gap-2 text-right sm:items-end">
-                <div className="flex flex-wrap items-center justify-end gap-3 text-slate-400 sm:justify-end">
+                <nav className="flex flex-wrap items-center justify-end gap-3 text-slate-400 sm:justify-end">
                   <a
                     href="/support"
                     className="text-slate-300 underline-offset-4 hover:text-accent"
                   >
                     Support
                   </a>
+                  <a
+                    href="/donation"
+                    className="text-slate-300 underline-offset-4 hover:text-accent"
+                  >
+                    Donate
+                  </a>
+                  <a
+                    href="/docs/changelog"
+                    className="text-slate-300 underline-offset-4 hover:text-accent"
+                  >
+                    Changelog
+                  </a>
                   <HealthIndicator />
-                </div>
+                </nav>
                 <p className="text-[0.75rem] text-slate-600">
                   Data is aggregated from public sources; please verify before making critical decisions.
                 </p>

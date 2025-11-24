@@ -42,10 +42,10 @@ export default async function ModelDetailPage({ params }: { params: { slug: stri
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <header className="space-y-3">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">AIMS · v3</p>
-        <h1 className="text-3xl font-semibold text-slate-50 sm:text-4xl">{model.name}</h1>
+        <h1 className="text-3xl font-semibold leading-tight text-slate-50 sm:text-4xl">{model.name}</h1>
         <p className="text-sm text-slate-400">Provider: {model.provider}</p>
         {model.focus && <p className="text-xs text-slate-500">Focus: {model.focus}</p>}
         <p className="text-xs text-slate-500">
