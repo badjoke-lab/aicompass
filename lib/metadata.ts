@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 const SITE_NAME = "AI Model Scoreboard";
 const SITE_URL = "https://ai-model-scoreboard.vercel.app";
 const DEFAULT_DESCRIPTION =
-  "Independent AI model rankings focused on transparent evidence, open metrics, and meaningful deltas.";
+  "Transparent AI model rankings built from live Hugging Face signals: downloads, likes, and release cadence.";
 const DEFAULT_IMAGE = "/og.png";
 
 interface BuildMetadataOptions {
@@ -31,7 +31,7 @@ export const baseMetadata: Metadata = {
   openGraph: {
     title: `${SITE_NAME} | Transparent AI evaluations`,
     description:
-      "Evidence-first AI model rankings with open metrics, transparent methods, and trustworthy benchmarks.",
+      "Evidence-first AI model rankings with open metrics, transparent methods, and trustworthy benchmarks updated in real time.",
     url: `${SITE_URL}/`,
     siteName: SITE_NAME,
     images: [
@@ -47,7 +47,7 @@ export const baseMetadata: Metadata = {
     card: "summary_large_image",
     title: SITE_NAME,
     description:
-      "Evidence-first AI model rankings with open metrics, transparent methods, and trustworthy benchmarks.",
+      "Evidence-first AI model rankings with open metrics, transparent methods, and trustworthy benchmarks updated in real time.",
     images: [DEFAULT_IMAGE],
   },
 };
