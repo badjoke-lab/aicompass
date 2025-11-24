@@ -16,7 +16,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <div className="flex min-h-screen flex-col">
           <Header />
           <ReleaseBanner />
-          <main className={`${shellClass} flex-1 flex flex-col py-8`}>
+          <main className={`${shellClass} flex-1 flex flex-col py-10 sm:py-12`}>
             {children}
           </main>
           <Footer />

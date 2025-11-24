@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import { DEFAULT_DESCRIPTION, buildPageMetadata } from "@/lib/metadata";
+import { metaPillClass } from "@/lib/layout";
+import { formatCompactNumber, formatSnapshotAge, getHealthLabel } from "@/lib/presentation";
 import { getHealth, getSnapshot } from "@/lib/v3/snapshot";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -25,7 +27,7 @@ export default async function ScoresPage() {
   const health = getHealth();
   const snapshotAgeSeconds = health.snapshot.ageSeconds;
   const formattedSnapshotAge = formatSnapshotAge(snapshotAgeSeconds);
-  const healthLabel = health.status === "ok" ? "Healthy" : "Degraded";
+  const healthLabel = getHealthLabel(health.status);
 
   const metrics = snapshot?.metrics ?? {
     sourceCount: 0,
@@ -57,7 +59,7 @@ export default async function ScoresPage() {
             <span className="flex h-2.5 w-2.5 items-center justify-center rounded-full bg-emerald-400/80" />
             <div className="flex flex-wrap items-center gap-2 font-semibold uppercase tracking-wide text-slate-200 sm:flex-nowrap">
               <span className="whitespace-nowrap">Snapshot</span>
-              <span className="tabular-nums rounded px-2 py-0.5 text-center text-xs text-slate-300 ring-1 ring-slate-800/60 sm:min-w-[8rem]">
+              <span className="sm:min-w-0 tabular-nums rounded px-2 py-0.5 text-center text-xs text-slate-300 ring-1 ring-slate-800/60">
                 {formattedSnapshotAge}
               </span>
             </div>
@@ -66,9 +68,7 @@ export default async function ScoresPage() {
         <div className="flex flex-col gap-2 text-[0.8rem] text-slate-500 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-slate-400">Last updated: {updatedAtLabel}</p>
           <div className="flex flex-wrap items-center gap-3 text-slate-400">
-            <span className="tabular-nums min-w-[8rem] rounded-full border border-slate-800/70 bg-background/60 px-3 py-1 text-center text-xs font-semibold uppercase tracking-wide text-slate-200">
-              Health: {healthLabel}
-            </span>
+            <span className={metaPillClass}>Health: {healthLabel}</span>
             <a
               href="https://github.com/ai-model-scoreboard/ai-model-scoreboard/tree/main/docs"
               className="text-xs font-semibold uppercase tracking-wide text-accent underline-offset-4 hover:text-accent/80"
@@ -163,10 +163,10 @@ export default async function ScoresPage() {
                       </div>
                     </td>
                     <td className="px-3 py-4 text-right tabular-nums text-slate-100 sm:py-3">
-                      {formatNumber(model.metrics.downloads ?? 0)}
+                      {formatCompactNumber(model.metrics.downloads ?? 0)}
                     </td>
                     <td className="px-3 py-4 text-right tabular-nums text-slate-100 sm:py-3">
-                      {formatNumber(model.metrics.likes ?? 0)}
+                      {formatCompactNumber(model.metrics.likes ?? 0)}
                     </td>
                     <td className="px-3 py-4 text-right tabular-nums text-slate-100 sm:py-3">
                       {model.metrics.recencyDays ?? "—"}
@@ -196,38 +196,6 @@ export default async function ScoresPage() {
       </section>
     </div>
   );
-}
-
-function formatNumber(value: number) {
-  return Intl.NumberFormat("en-US", { notation: "compact" }).format(value);
-}
-
-function formatSnapshotAge(ageSeconds: number | null) {
-  if (ageSeconds == null) {
-    return "—";
-  }
-
-  if (ageSeconds < 10) {
-    return "just updated";
-  }
-
-  if (ageSeconds < 60) {
-    const seconds = Math.floor(ageSeconds);
-    return `${seconds} sec${seconds === 1 ? "" : "s"} ago`;
-  }
-
-  const minutes = Math.floor(ageSeconds / 60);
-  if (minutes < 60) {
-    return `${minutes} min${minutes === 1 ? "" : "s"} ago`;
-  }
-
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) {
-    return `${hours} hr${hours === 1 ? "" : "s"} ago`;
-  }
-
-  const days = Math.floor(hours / 24);
-  return `${days} day${days === 1 ? "" : "s"} ago`;
 }
 
 function StatCard({ label, value, helper }: { label: string; value: string | number; helper: string }) {
