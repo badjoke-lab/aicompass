@@ -8,34 +8,51 @@ import { getSnapshot } from "@/lib/v3/snapshot";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const snapshot = await getSnapshot();
-  const model = snapshot.models.find((entry) => entry.slug === params.slug);
+  try {
+    const snapshot = await getSnapshot();
+    const model = snapshot.models.find((entry) => entry.slug === params.slug);
 
-  if (!model) {
-    return {
-      ...buildPageMetadata({
-        title: "Model not found",
-        description: "The requested model is not present in the current snapshot.",
-        path: `/models/${params.slug}`,
-      }),
-    };
+    if (!model) {
+      return {
+        ...buildPageMetadata({
+          title: "Model not found",
+          description: "The requested model is not present in the current snapshot.",
+          path: `/models/${params.slug}`,
+        }),
+      };
+    }
+
+    const title = model.name;
+    const description = `Live signals for ${model.name} by ${model.provider}. Downloads, likes, recency, and composite scores updated with each snapshot.`;
+
+    return buildPageMetadata({
+      title,
+      description,
+      path: `/models/${model.slug}`,
+      openGraphType: "article",
+      imageAlt: `${model.name} leaderboard placement`,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Snapshot unavailable";
+    return buildPageMetadata({
+      title: "Model snapshot unavailable",
+      description: `Unable to load model metadata right now (${message}).`,
+      path: `/models/${params.slug}`,
+    });
   }
-
-  const title = model.name;
-  const description = `Live signals for ${model.name} by ${model.provider}. Downloads, likes, recency, and composite scores updated with each snapshot.`;
-
-  return buildPageMetadata({
-    title,
-    description,
-    path: `/models/${model.slug}`,
-    openGraphType: "article",
-    imageAlt: `${model.name} leaderboard placement`,
-  });
 }
 
 export default async function ModelDetailPage({ params }: { params: { slug: string } }) {
-  const snapshot = await getSnapshot();
-  const model = snapshot.models.find((entry) => entry.slug === params.slug);
+  let snapshotError: string | null = null;
+  let snapshot: Awaited<ReturnType<typeof getSnapshot>> | null = null;
+
+  try {
+    snapshot = await getSnapshot();
+  } catch (error) {
+    snapshotError = error instanceof Error ? error.message : "Unable to fetch snapshot.";
+  }
+
+  const model = snapshot?.models.find((entry) => entry.slug === params.slug);
 
   if (!model) {
     return notFound();
@@ -51,7 +68,9 @@ export default async function ModelDetailPage({ params }: { params: { slug: stri
         <p className="text-xs text-slate-500">
           Source: <Link href={model.source} className="text-accent underline">Hugging Face</Link>
         </p>
-        <p className="text-xs text-slate-500">Snapshot updated {new Date(snapshot.updatedAt).toLocaleString()}</p>
+        <p className="text-xs text-slate-500">
+          Snapshot updated {snapshot?.updatedAt ? new Date(snapshot.updatedAt).toLocaleString() : "Unavailable"}
+        </p>
       </header>
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -75,11 +94,16 @@ export default async function ModelDetailPage({ params }: { params: { slug: stri
 
       <section className="rounded-2xl border border-slate-800 bg-surface/80 p-4 shadow-xl sm:p-6">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-300">Methodology</h2>
-        <p className="mt-2 text-sm text-slate-400">
-          Scores come directly from live Hugging Face repository metadata. Downloads represent adoption, likes proxy ecosystem
-          engagement, and recent updates fuel velocity. Each dimension is scaled relative to peers in the snapshot and combined
-          using fixed weights.
-        </p>
+        <div className="mt-2 space-y-2 text-sm text-slate-400">
+          <p>
+            Scores come directly from live Hugging Face repository metadata. Downloads represent adoption, likes proxy
+            ecosystem engagement, and recent updates fuel velocity. Each dimension is scaled relative to peers in the snapshot
+            and combined using fixed weights.
+          </p>
+          {snapshotError && (
+            <p className="text-amber-200">Snapshot degraded: {snapshotError}. Displaying cached or partial data.</p>
+          )}
+        </div>
       </section>
 
       <Link href="/" className="text-sm text-accent underline">

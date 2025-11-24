@@ -13,10 +13,31 @@ export const metadata: Metadata = buildPageMetadata({
 export const revalidate = 60;
 
 export default async function ScoresPage() {
-  const snapshot = await getSnapshot();
+  let snapshot: Awaited<ReturnType<typeof getSnapshot>> | null = null;
+  let snapshotError: string | null = null;
+
+  try {
+    snapshot = await getSnapshot();
+  } catch (error) {
+    snapshotError = error instanceof Error ? error.message : "Unable to fetch snapshot.";
+  }
+
   const health = getHealth();
   const snapshotAgeSeconds = health.snapshot.ageSeconds;
   const formattedSnapshotAge = formatSnapshotAge(snapshotAgeSeconds);
+
+  const metrics = snapshot?.metrics ?? {
+    sourceCount: 0,
+    readyCount: 0,
+    downloadRange: { min: 0, max: 0 },
+    likeRange: { min: 0, max: 0 },
+    recencyRange: { min: 0, max: 0 },
+  };
+
+  const models = snapshot?.models ?? [];
+  const updatedAtLabel = snapshot?.updatedAt
+    ? new Date(snapshot.updatedAt).toLocaleString()
+    : "Unavailable";
 
   return (
     <div className="space-y-10">
@@ -41,7 +62,7 @@ export default async function ScoresPage() {
           </div>
         </div>
         <div className="flex flex-col gap-2 text-[0.8rem] text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-slate-400">Last updated: {new Date(snapshot.updatedAt).toLocaleString()}</p>
+          <p className="text-slate-400">Last updated: {updatedAtLabel}</p>
           <div className="flex flex-wrap items-center gap-3 text-slate-400">
             <span className="tabular-nums rounded-full border border-slate-800/70 bg-background/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-200">
               Health: {health.status.toUpperCase()}
@@ -70,16 +91,16 @@ export default async function ScoresPage() {
       </header>
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Sources tracked" value={snapshot.metrics.sourceCount} helper="Hugging Face repos" />
-        <StatCard label="Healthy responses" value={snapshot.metrics.readyCount} helper="Fetches that returned data" />
+        <StatCard label="Sources tracked" value={metrics.sourceCount} helper="Hugging Face repos" />
+        <StatCard label="Healthy responses" value={metrics.readyCount} helper="Fetches that returned data" />
         <StatCard
           label="Adoption weight"
-          value={(snapshot.scores.weights.adoption * 100).toFixed(0)}
+          value={((snapshot?.scores.weights.adoption ?? 0.45) * 100).toFixed(0)}
           helper="Scaled downloads"
         />
         <StatCard
           label="Velocity weight"
-          value={(snapshot.scores.weights.velocity * 100).toFixed(0)}
+          value={((snapshot?.scores.weights.velocity ?? 0.2) * 100).toFixed(0)}
           helper="Favors recent updates"
         />
       </section>
@@ -99,60 +120,72 @@ export default async function ScoresPage() {
           </div>
         </div>
         <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
-            <thead className="bg-background/60 text-[0.65rem] uppercase tracking-wide text-slate-400">
-              <tr>
-                <th className="px-3 py-3 text-left">#</th>
-                <th className="px-3 py-3 text-left">Model</th>
-                <th className="px-3 py-3 text-right">Downloads</th>
-                <th className="px-3 py-3 text-right">Likes</th>
-                <th className="px-3 py-3 text-right">Recency (days)</th>
-                <th className="px-3 py-3 text-right">Adoption</th>
-                <th className="px-3 py-3 text-right">Ecosystem</th>
-                <th className="px-3 py-3 text-right">Velocity</th>
-                <th className="px-3 py-3 text-right">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {snapshot.models.map((model, index) => (
-                <tr key={model.id} className="border-t border-slate-800/70 bg-background/30 hover:bg-background/60">
-                  <td className="px-3 py-4 align-top text-right text-slate-500 sm:py-3 sm:align-middle">{index + 1}</td>
-                  <td className="px-3 py-4 align-top sm:py-3 sm:align-middle">
-                    <div className="space-y-1">
-                      <div className="font-semibold text-slate-50">{model.name}</div>
-                      <p className="text-xs text-slate-400">{model.provider}</p>
-                      {model.focus && <p className="text-[0.65rem] text-slate-500">{model.focus}</p>}
-                      <p className="text-[0.65rem] text-slate-500">{model.source}</p>
-                      {model.status === "error" && (
-                        <p className="text-[0.65rem] text-amber-300">Fetch error: {model.error}</p>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-3 py-4 text-right tabular-nums text-slate-100 sm:py-3">
-                    {formatNumber(model.metrics.downloads)}
-                  </td>
-                  <td className="px-3 py-4 text-right tabular-nums text-slate-100 sm:py-3">
-                    {formatNumber(model.metrics.likes)}
-                  </td>
-                  <td className="px-3 py-4 text-right tabular-nums text-slate-100 sm:py-3">
-                    {model.metrics.recencyDays ?? "—"}
-                  </td>
-                  <td className="px-3 py-4 text-right font-semibold text-slate-50 sm:py-3">
-                    {model.scores.adoption.toFixed(1)}
-                  </td>
-                  <td className="px-3 py-4 text-right font-semibold text-slate-50 sm:py-3">
-                    {model.scores.ecosystem.toFixed(1)}
-                  </td>
-                  <td className="px-3 py-4 text-right font-semibold text-slate-50 sm:py-3">
-                    {model.scores.velocity.toFixed(1)}
-                  </td>
-                  <td className="px-3 py-4 text-right font-semibold text-accent sm:py-3">
-                    {model.scores.total.toFixed(1)}
-                  </td>
+          {snapshotError && (
+            <div className="border-b border-slate-800 bg-slate-900/40 px-4 py-3 text-sm text-amber-200">
+              Snapshot degraded: {snapshotError}. Showing cached or empty data.
+            </div>
+          )}
+          {models.length === 0 ? (
+            <div className="px-4 py-6 text-sm text-slate-400">
+              No snapshot data is available right now. The Hugging Face feed may be temporarily unreachable or still warming up.
+              Please check back soon.
+            </div>
+          ) : (
+            <table className="min-w-full text-sm">
+              <thead className="bg-background/60 text-[0.65rem] uppercase tracking-wide text-slate-400">
+                <tr>
+                  <th className="px-3 py-3 text-left">#</th>
+                  <th className="px-3 py-3 text-left">Model</th>
+                  <th className="px-3 py-3 text-right">Downloads</th>
+                  <th className="px-3 py-3 text-right">Likes</th>
+                  <th className="px-3 py-3 text-right">Recency (days)</th>
+                  <th className="px-3 py-3 text-right">Adoption</th>
+                  <th className="px-3 py-3 text-right">Ecosystem</th>
+                  <th className="px-3 py-3 text-right">Velocity</th>
+                  <th className="px-3 py-3 text-right">Total</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {models.map((model, index) => (
+                  <tr key={model.id} className="border-t border-slate-800/70 bg-background/30 hover:bg-background/60">
+                    <td className="px-3 py-4 align-top text-right text-slate-500 sm:py-3 sm:align-middle">{index + 1}</td>
+                    <td className="px-3 py-4 align-top sm:py-3 sm:align-middle">
+                      <div className="space-y-1">
+                        <div className="font-semibold text-slate-50">{model.name}</div>
+                        <p className="text-xs text-slate-400">{model.provider}</p>
+                        {model.focus && <p className="text-[0.65rem] text-slate-500">{model.focus}</p>}
+                        <p className="text-[0.65rem] text-slate-500">{model.source}</p>
+                        {model.status === "error" && (
+                          <p className="text-[0.65rem] text-amber-300">Fetch error: {model.error}</p>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-3 py-4 text-right tabular-nums text-slate-100 sm:py-3">
+                      {formatNumber(model.metrics.downloads ?? 0)}
+                    </td>
+                    <td className="px-3 py-4 text-right tabular-nums text-slate-100 sm:py-3">
+                      {formatNumber(model.metrics.likes ?? 0)}
+                    </td>
+                    <td className="px-3 py-4 text-right tabular-nums text-slate-100 sm:py-3">
+                      {model.metrics.recencyDays ?? "—"}
+                    </td>
+                    <td className="px-3 py-4 text-right font-semibold text-slate-50 sm:py-3">
+                      {model.scores.adoption?.toFixed?.(1) ?? "0.0"}
+                    </td>
+                    <td className="px-3 py-4 text-right font-semibold text-slate-50 sm:py-3">
+                      {model.scores.ecosystem?.toFixed?.(1) ?? "0.0"}
+                    </td>
+                    <td className="px-3 py-4 text-right font-semibold text-slate-50 sm:py-3">
+                      {model.scores.velocity?.toFixed?.(1) ?? "0.0"}
+                    </td>
+                    <td className="px-3 py-4 text-right font-semibold text-accent sm:py-3">
+                      {model.scores.total?.toFixed?.(1) ?? "0.0"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </section>
     </div>
