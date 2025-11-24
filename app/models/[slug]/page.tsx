@@ -58,19 +58,31 @@ export default async function ModelDetailPage({ params }: { params: { slug: stri
     return notFound();
   }
 
+  const updatedLabel = snapshot?.updatedAt ? new Date(snapshot.updatedAt).toLocaleString() : "Unavailable";
+
   return (
     <div className="space-y-10">
-      <header className="space-y-3">
+      <header className="space-y-4 sm:space-y-5">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">AIMS · v3</p>
-        <h1 className="text-3xl font-semibold leading-tight text-slate-50 sm:text-4xl">{model.name}</h1>
-        <p className="text-sm text-slate-400">Provider: {model.provider}</p>
-        {model.focus && <p className="text-xs text-slate-500">Focus: {model.focus}</p>}
-        <p className="text-xs text-slate-500">
-          Source: <Link href={model.source} className="text-accent underline">Hugging Face</Link>
-        </p>
-        <p className="text-xs text-slate-500">
-          Snapshot updated {snapshot?.updatedAt ? new Date(snapshot.updatedAt).toLocaleString() : "Unavailable"}
-        </p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-semibold leading-tight text-slate-50 sm:text-4xl">{model.name}</h1>
+            <p className="text-sm text-slate-400">Provider: {model.provider}</p>
+            {model.focus && <p className="text-xs text-slate-500">Focus: {model.focus}</p>}
+            <p className="text-xs text-slate-500">Snapshot updated {updatedLabel}</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 self-start rounded-full border border-slate-800 bg-background/70 px-3 py-1.5 text-[0.75rem] uppercase tracking-wide text-slate-300 shadow-sm ring-1 ring-slate-800/60 sm:self-auto">
+            <span className="h-2 w-2 rounded-full bg-accent" />
+            <a
+              href={model.source}
+              target="_blank"
+              rel="noreferrer"
+              className="text-slate-100 underline-offset-4 hover:text-accent"
+            >
+              View on Hugging Face
+            </a>
+          </div>
+        </div>
       </header>
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -81,20 +93,24 @@ export default async function ModelDetailPage({ params }: { params: { slug: stri
           value={model.metrics.lastModified ? new Date(model.metrics.lastModified).toLocaleDateString() : "Unknown"}
           helper="UTC"
         />
-        <MetricCard
-          label="Recency (days)"
-          value={model.metrics.recencyDays ?? "—"}
-          helper="Lower is fresher"
-        />
+        <MetricCard label="Recency (days)" value={model.metrics.recencyDays ?? "—"} helper="Lower is fresher" />
         <MetricCard label="Adoption score" value={model.scores.adoption.toFixed(1)} helper="Weighted" />
         <MetricCard label="Ecosystem score" value={model.scores.ecosystem.toFixed(1)} helper="Weighted" />
         <MetricCard label="Velocity score" value={model.scores.velocity.toFixed(1)} helper="Weighted" />
         <MetricCard label="Total score" value={model.scores.total.toFixed(1)} helper="Composite" />
       </section>
 
-      <section className="rounded-2xl border border-slate-800 bg-surface/80 p-4 shadow-xl sm:p-6">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-300">Methodology</h2>
-        <div className="mt-2 space-y-2 text-sm text-slate-400">
+      <section className="space-y-4 rounded-2xl border border-slate-800 bg-surface/80 p-4 shadow-xl sm:p-6">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-300">Methodology</h2>
+            <p className="text-xs text-slate-500">Signals, normalization, and fixed weighting for this snapshot.</p>
+          </div>
+          <Link href="/methodology" className="text-xs font-semibold uppercase tracking-wide text-accent underline-offset-4 hover:text-accent/80">
+            Read methodology
+          </Link>
+        </div>
+        <div className="space-y-2 text-sm text-slate-400">
           <p>
             Scores come directly from live Hugging Face repository metadata. Downloads represent adoption, likes proxy
             ecosystem engagement, and recent updates fuel velocity. Each dimension is scaled relative to peers in the snapshot
@@ -106,7 +122,7 @@ export default async function ModelDetailPage({ params }: { params: { slug: stri
         </div>
       </section>
 
-      <Link href="/" className="text-sm text-accent underline">
+      <Link href="/" className="text-sm font-semibold text-accent underline">
         ← Back to leaderboard
       </Link>
     </div>

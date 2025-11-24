@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { shellClass } from "@/lib/layout";
+
 const DISMISS_KEY = "aims-v3-banner-dismissed";
 
 export default function ReleaseBanner() {
@@ -26,9 +28,11 @@ export default function ReleaseBanner() {
 
   return (
     <div className="border-b border-accent/40 bg-accent/10 text-accent">
-      <div className="mx-auto flex max-w-6xl flex-col gap-2 px-[15px] py-[11px] text-sm sm:flex-row sm:items-center sm:justify-between sm:px-[22px] lg:px-[34px]">
+      <div
+        className={`${shellClass} flex flex-col gap-2 py-3 text-sm sm:flex-row sm:items-center sm:justify-between`}
+      >
         <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em]">Launch</p>
+          <p className="text-[0.7rem] font-semibold uppercase tracking-[0.25em]">Launch</p>
           <p className="text-sm font-semibold text-accent">v3 is live — read the launch notes and recent deltas.</p>
           <div className="flex flex-wrap gap-3 text-[0.85rem]">
             <Link href="/docs/changelog" className="underline underline-offset-4 hover:text-accent/80">
@@ -42,7 +46,7 @@ export default function ReleaseBanner() {
         <button
           type="button"
           onClick={handleDismiss}
-          className="self-start rounded-full border border-accent/40 px-3 py-1 text-xs font-semibold uppercase tracking-wide hover:bg-accent/10"
+          className="self-start rounded-full border border-accent/40 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.15em] hover:bg-accent/10"
         >
           Dismiss
         </button>
