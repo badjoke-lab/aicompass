@@ -25,6 +25,7 @@ export default async function ScoresPage() {
   const health = getHealth();
   const snapshotAgeSeconds = health.snapshot.ageSeconds;
   const formattedSnapshotAge = formatSnapshotAge(snapshotAgeSeconds);
+  const healthLabel = health.status === "ok" ? "Healthy" : "Degraded";
 
   const metrics = snapshot?.metrics ?? {
     sourceCount: 0,
@@ -41,7 +42,7 @@ export default async function ScoresPage() {
 
   return (
     <div className="space-y-10">
-      <header className="space-y-4">
+      <header className="space-y-4 sm:space-y-5">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">AIMS · v3</p>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
           <div className="space-y-2">
@@ -51,11 +52,11 @@ export default async function ScoresPage() {
               and recent updates reward velocity. Data refreshes on every request with a short cache to protect the API.
             </p>
           </div>
-          <div className="flex items-center gap-3 self-start rounded-full border border-slate-800 bg-background/70 px-3 py-1.5 text-xs text-slate-300 shadow-sm ring-1 ring-slate-800/60 sm:self-auto sm:px-4">
+          <div className="flex flex-wrap items-center gap-2 self-start rounded-full border border-slate-800 bg-background/70 px-3 py-1.5 text-xs text-slate-300 shadow-sm ring-1 ring-slate-800/60 sm:self-auto sm:flex-nowrap sm:px-4">
             <span className="flex h-2.5 w-2.5 items-center justify-center rounded-full bg-emerald-400/80" />
-            <div className="flex items-center gap-2 font-semibold uppercase tracking-wide text-slate-200">
-              <span>Snapshot</span>
-              <span className="tabular-nums min-w-[8.5rem] rounded px-2 py-0.5 text-center text-xs text-slate-300 ring-1 ring-slate-800/60">
+            <div className="flex flex-wrap items-center gap-2 font-semibold uppercase tracking-wide text-slate-200 sm:flex-nowrap">
+              <span className="whitespace-nowrap">Snapshot</span>
+              <span className="tabular-nums rounded px-2 py-0.5 text-center text-xs text-slate-300 ring-1 ring-slate-800/60 sm:min-w-[8rem]">
                 {formattedSnapshotAge}
               </span>
             </div>
@@ -65,7 +66,7 @@ export default async function ScoresPage() {
           <p className="text-slate-400">Last updated: {updatedAtLabel}</p>
           <div className="flex flex-wrap items-center gap-3 text-slate-400">
             <span className="tabular-nums rounded-full border border-slate-800/70 bg-background/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-200">
-              Health: {health.status.toUpperCase()}
+              Health: {healthLabel}
             </span>
             <a
               href="https://github.com/ai-model-scoreboard/ai-model-scoreboard/tree/main/docs"
@@ -113,16 +114,16 @@ export default async function ScoresPage() {
               Hugging Face → normalize → weighted scores → render. Lower recency values mean fresher updates.
             </p>
           </div>
-          <div className="flex items-center gap-2 rounded-lg border border-slate-800/70 bg-background/70 px-3 py-2 text-[0.7rem] text-slate-300">
+          <div className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-800/70 bg-background/70 px-3 py-2 text-[0.7rem] text-slate-300 sm:flex-nowrap">
             <span className="h-1.5 w-1.5 rounded-full bg-accent" />
             <span className="font-semibold text-slate-200">Age</span>
-            <span className="text-slate-400 tabular-nums min-w-[6.5rem] text-right">{formattedSnapshotAge}</span>
+            <span className="text-slate-400 tabular-nums rounded px-2 py-0.5 text-left sm:min-w-[6.5rem] sm:text-right">{formattedSnapshotAge}</span>
           </div>
         </div>
         <div className="overflow-x-auto">
           {snapshotError && (
             <div className="border-b border-slate-800 bg-slate-900/40 px-4 py-3 text-sm text-amber-200">
-              Snapshot degraded: {snapshotError}. Showing cached or empty data.
+              Snapshot degraded: {snapshotError}. Showing the most recent cached data.
             </div>
           )}
           {models.length === 0 ? (
@@ -202,7 +203,7 @@ function formatSnapshotAge(ageSeconds: number | null) {
   }
 
   if (ageSeconds < 10) {
-    return "just now";
+    return "just updated";
   }
 
   if (ageSeconds < 60) {

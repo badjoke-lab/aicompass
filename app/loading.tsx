@@ -1,7 +1,7 @@
 export default function Loading() {
   return (
-    <div className="space-y-10 animate-pulse">
-      <header className="space-y-4">
+    <div className="space-y-10 animate-pulse min-h-screen">
+      <header className="space-y-4 sm:space-y-5">
         <div className="h-3 w-24 rounded-full bg-slate-800" />
         <div className="space-y-2">
           <div className="h-8 w-2/3 rounded-lg bg-slate-800" />
@@ -32,7 +32,7 @@ export default function Loading() {
         ))}
       </section>
 
-      <section className="rounded-2xl border border-slate-800 bg-surface/80 shadow-xl">
+      <section className="rounded-2xl border border-slate-800 bg-surface/80 shadow-xl min-h-[420px]">
         <div className="border-b border-slate-800 px-4 py-3 sm:px-6">
           <div className="h-4 w-28 rounded bg-slate-800" />
           <div className="mt-2 h-3 w-52 rounded bg-slate-800" />
@@ -41,7 +41,7 @@ export default function Loading() {
           {Array.from({ length: 4 }).map((_, index) => (
             <div
               key={index}
-              className="flex flex-col gap-2 rounded-xl border border-slate-800/60 bg-background/50 p-3 sm:flex-row sm:items-center sm:justify-between"
+              className="flex min-h-[92px] flex-col gap-2 rounded-xl border border-slate-800/60 bg-background/50 p-3 sm:min-h-[76px] sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="space-y-2">
                 <div className="h-4 w-40 rounded bg-slate-800" />

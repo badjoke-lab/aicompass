@@ -20,9 +20,8 @@ export default function SupportPage() {
       </header>
       <div className="space-y-4 text-sm leading-relaxed text-slate-400">
         <p className="max-w-2xl text-slate-300">
-          The AI Model Scoreboard is an independent, community-supported effort focused on transparent evidence, open metrics,
-          and meaningful deltas. Your contributions help us cover hosting, evaluation runs, and the shared resources that keep
-          the project trustworthy and accessible.
+          The AI Model Scoreboard stays independent through community support: open feedback, transparent metrics, and shared
+          resources that keep the leaderboard trustworthy and accessible.
         </p>
         <div className="space-y-2">
           <p className="font-semibold text-slate-200">Ways to help</p>
