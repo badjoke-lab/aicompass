@@ -1,9 +1,14 @@
-import { createJsonResponse } from "../../utils";
-import { refreshSnapshot } from "@/lib/v4/snapshot";
+import { safeJSON } from "@/lib/v4/http";
+import { V4SnapshotResponse } from "@/lib/v4/types";
 
 export const revalidate = 0;
 
 export async function GET() {
-  const snapshot = await refreshSnapshot();
-  return createJsonResponse(snapshot);
+  const payload: V4SnapshotResponse = {
+    status: "ok",
+    updated: new Date().toISOString(),
+    models: [],
+  };
+
+  return safeJSON(payload);
 }

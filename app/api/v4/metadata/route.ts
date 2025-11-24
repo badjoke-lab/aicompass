@@ -1,4 +1,4 @@
-import { createJsonResponse } from "../utils";
+import { safeJSON } from "@/lib/v4/http";
 import { buildCanonicalMetadata, mergeMetadata } from "@/lib/v4/metadata";
 import { V4_CONFIG } from "@/lib/v4/config";
 
@@ -10,7 +10,7 @@ export async function GET() {
   );
   const metadata = mergeMetadata(entries);
 
-  return createJsonResponse({
+  return safeJSON({
     version: "v4-metadata",
     metadata,
   });
