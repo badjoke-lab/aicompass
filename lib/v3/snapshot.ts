@@ -1,3 +1,5 @@
+import sourceConfig from "@/data/sources-v3.json";
+
 const HUGGING_FACE_ROOT = "https://huggingface.co";
 const HUGGING_FACE_API = `${HUGGING_FACE_ROOT}/api/models`;
 const CACHE_TTL_MS = 5 * 60 * 1000;
@@ -86,13 +88,30 @@ interface Range {
   max: number;
 }
 
-const MODEL_SOURCES: ModelSource[] = [
+const DEMO_MODEL_SOURCES: ModelSource[] = [
   { id: "meta-llama/Meta-Llama-3-8B", displayName: "Llama 3 8B", provider: "Meta", focus: "General" },
   { id: "mistralai/Mistral-7B-Instruct-v0.2", displayName: "Mistral 7B Instruct", provider: "Mistral", focus: "Instruction" },
   { id: "Qwen/Qwen2.5-7B-Instruct", displayName: "Qwen2.5 7B", provider: "Alibaba Qwen", focus: "Multilingual" },
   { id: "google/gemma-2-9b-it", displayName: "Gemma 2 9B IT", provider: "Google", focus: "Instruction" },
   { id: "microsoft/Phi-3-mini-4k-instruct", displayName: "Phi-3 Mini", provider: "Microsoft", focus: "Lightweight" }
 ];
+
+function loadModelSources(): ModelSource[] {
+  const parsedSources = Array.isArray(sourceConfig) ? sourceConfig : [];
+
+  if (parsedSources.length > 0) {
+    return parsedSources;
+  }
+
+  if (process.env.NODE_ENV === "development") {
+    console.warn("Falling back to demo model sources; source config is empty.");
+    return DEMO_MODEL_SOURCES;
+  }
+
+  throw new Error("No model sources configured for the snapshot pipeline.");
+}
+
+const MODEL_SOURCES: ModelSource[] = loadModelSources();
 
 const SCORE_WEIGHTS: ScoreWeights = {
   adoption: 0.45,
