@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { metaPillClass } from "@/lib/layout";
 import { buildPageMetadata } from "@/lib/metadata";
-import { getSnapshot } from "@/lib/v3/snapshot";
+import { formatCompactNumber, formatSnapshotAge, getHealthLabel } from "@/lib/presentation";
+import { getHealth, getSnapshot } from "@/lib/v3/snapshot";
 
 export const dynamic = "force-dynamic";
 
@@ -58,6 +60,9 @@ export default async function ModelDetailPage({ params }: { params: { slug: stri
     return notFound();
   }
 
+  const health = getHealth();
+  const healthLabel = getHealthLabel(health.status);
+  const snapshotAgeLabel = formatSnapshotAge(health.snapshot.ageSeconds);
   const updatedLabel = snapshot?.updatedAt ? new Date(snapshot.updatedAt).toLocaleString() : "Unavailable";
 
   return (
@@ -67,9 +72,8 @@ export default async function ModelDetailPage({ params }: { params: { slug: stri
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1">
             <h1 className="text-3xl font-semibold leading-tight text-slate-50 sm:text-4xl">{model.name}</h1>
-            <p className="text-sm text-slate-400">Provider: {model.provider}</p>
+            <p className="max-w-3xl text-sm leading-relaxed text-slate-400">Provider: {model.provider}</p>
             {model.focus && <p className="text-xs text-slate-500">Focus: {model.focus}</p>}
-            <p className="text-xs text-slate-500">Snapshot updated {updatedLabel}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2 self-start rounded-full border border-slate-800 bg-background/70 px-3 py-1.5 text-[0.75rem] uppercase tracking-wide text-slate-300 shadow-sm ring-1 ring-slate-800/60 sm:self-auto">
             <span className="h-2 w-2 rounded-full bg-accent" />
@@ -83,11 +87,24 @@ export default async function ModelDetailPage({ params }: { params: { slug: stri
             </a>
           </div>
         </div>
+        <div className="flex flex-wrap items-center gap-3 text-[0.8rem] text-slate-400">
+          <span className={metaPillClass}>Snapshot: {snapshotAgeLabel}</span>
+          <span className={metaPillClass}>Health: {healthLabel}</span>
+          <span className="text-slate-500">Last updated: {updatedLabel}</span>
+        </div>
       </header>
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <MetricCard label="Downloads" value={formatNumber(model.metrics.downloads)} helper="Cumulative" />
-        <MetricCard label="Likes" value={formatNumber(model.metrics.likes)} helper="Community interest" />
+        <MetricCard
+          label="Downloads"
+          value={formatCompactNumber(model.metrics.downloads)}
+          helper="Cumulative"
+        />
+        <MetricCard
+          label="Likes"
+          value={formatCompactNumber(model.metrics.likes)}
+          helper="Community interest"
+        />
         <MetricCard
           label="Last modified"
           value={model.metrics.lastModified ? new Date(model.metrics.lastModified).toLocaleDateString() : "Unknown"}
@@ -139,6 +156,3 @@ function MetricCard({ label, value, helper }: { label: string; value: string | n
   );
 }
 
-function formatNumber(value: number) {
-  return Intl.NumberFormat("en-US", { notation: "compact" }).format(value);
-}

@@ -35,6 +35,21 @@ export default function DocsIndexPage() {
           <p className="text-sm text-slate-400">Snapshot pipeline, API, and operational notes.</p>
         </a>
       </div>
+
+      <div className="flex flex-wrap gap-3 text-sm text-accent">
+        <Link
+          href="/support"
+          className="rounded-full border border-slate-800/80 bg-surface px-3 py-1 font-semibold underline-offset-4 hover:border-accent"
+        >
+          Support the project
+        </Link>
+        <Link
+          href="/donation"
+          className="rounded-full border border-slate-800/80 bg-surface px-3 py-1 font-semibold underline-offset-4 hover:border-accent"
+        >
+          Donate
+        </Link>
+      </div>
     </div>
   );
 }

@@ -6,9 +6,15 @@ export const revalidate = 0;
 export async function GET() {
   try {
     const snapshot = await getSnapshot();
-    return NextResponse.json(snapshot, { status: 200 });
+    return NextResponse.json(snapshot, {
+      status: 200,
+      headers: { "X-Robots-Tag": "noindex, nofollow" },
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json(
+      { error: message },
+      { status: 500, headers: { "X-Robots-Tag": "noindex, nofollow" } }
+    );
   }
 }

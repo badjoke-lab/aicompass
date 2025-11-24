@@ -5,7 +5,7 @@ import { buildPageMetadata } from "@/lib/metadata";
 
 const changelogEntries = [
   {
-    version: "v3.1 public release",
+    version: "v3.0.1 public release",
     date: "2024",
     summary:
       "Public launch of the v3 scoreboard with refreshed layouts, launch notes, and documentation for the snapshot pipeline.",
@@ -43,7 +43,8 @@ export default function ChangelogPage() {
         <h1 className="text-3xl font-semibold leading-tight text-slate-50 sm:text-4xl">Changelog</h1>
         <p className="max-w-2xl text-sm leading-relaxed text-slate-400">
           Release notes and deltas for the public AI Model Scoreboard. Each entry links back to the source documentation so you
-          can verify the changes and constraints for the current version.
+          can verify the changes and constraints for the current version. The changelog route stays stable for v3 while we
+          plan the upcoming v4 cycle.
         </p>
       </header>
 
@@ -87,6 +88,33 @@ export default function ChangelogPage() {
           </article>
         ))}
       </div>
+
+      <section className="space-y-3 rounded-2xl border border-slate-800 bg-background/60 p-5 shadow-lg">
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-base font-semibold text-slate-100">Related links</h2>
+          <p className="text-xs uppercase tracking-wide text-slate-500">Stay in the v3 shell</p>
+        </div>
+        <div className="flex flex-wrap gap-3 text-sm text-accent">
+          <Link
+            href="/methodology"
+            className="rounded-full border border-slate-800/80 bg-surface px-3 py-1 font-semibold underline-offset-4 hover:border-accent"
+          >
+            Methodology
+          </Link>
+          <Link
+            href="/support"
+            className="rounded-full border border-slate-800/80 bg-surface px-3 py-1 font-semibold underline-offset-4 hover:border-accent"
+          >
+            Support the project
+          </Link>
+          <Link
+            href="/donation"
+            className="rounded-full border border-slate-800/80 bg-surface px-3 py-1 font-semibold underline-offset-4 hover:border-accent"
+          >
+            Donate
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }

@@ -26,7 +26,7 @@ export const baseMetadata: Metadata = {
     "AI transparency",
   ],
   alternates: {
-    canonical: "/",
+    canonical: SITE_URL,
   },
   openGraph: {
     title: `${SITE_NAME} | Transparent AI evaluations`,
