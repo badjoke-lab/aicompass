@@ -15,3 +15,9 @@ AI Model Scoreboard (AIMS) surfaces near-real-time signals about widely used ope
 3. **Scoring**: Adoption, ecosystem, and velocity scores are scaled relative to the cohort ranges and combined using fixed weights. Total score sorts the leaderboard.
 4. **Snapshot cache**: The computed snapshot is cached in memory. Subsequent requests reuse it until the TTL expires or a rebuild is triggered by cache miss.
 5. **Presentation**: The homepage and model detail pages render the cached snapshot. Health reporting shares the snapshot age to verify staleness thresholds.
+
+## Future plans (v4 draft)
+These documents outline non-binding v4 planning artifacts and may change before implementation:
+- [V4 roadmap](future/roadmap-v4.md)
+- [V4 technical spec](future/spec-v4.md)
+- [V4 task queue](future/tasks-v4.md)
