@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 const SITE_NAME = "AI Model Scoreboard";
 const SITE_URL = "https://ai-model-scoreboard.vercel.app";
 const DEFAULT_DESCRIPTION =
-  "Independent AI model rankings focused on transparent evidence, open metrics, and meaningful deltas.";
+  "Evidence-first AI model rankings with live Hugging Face signals, transparent weights, and public documentation.";
 const DEFAULT_IMAGE = "/og.png";
 
 interface BuildMetadataOptions {
@@ -29,9 +29,9 @@ export const baseMetadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: `${SITE_NAME} | Transparent AI evaluations`,
+    title: `${SITE_NAME} | Transparent AI signals`,
     description:
-      "Evidence-first AI model rankings with open metrics, transparent methods, and trustworthy benchmarks.",
+      "Independent AI model leaderboard with reproducible signals, open methodology, and evidence-backed deltas.",
     url: `${SITE_URL}/`,
     siteName: SITE_NAME,
     images: [
@@ -47,7 +47,7 @@ export const baseMetadata: Metadata = {
     card: "summary_large_image",
     title: SITE_NAME,
     description:
-      "Evidence-first AI model rankings with open metrics, transparent methods, and trustworthy benchmarks.",
+      "Independent AI model leaderboard with reproducible signals, open methodology, and evidence-backed deltas.",
     images: [DEFAULT_IMAGE],
   },
 };
@@ -61,7 +61,7 @@ export function buildPageMetadata({
 }: BuildMetadataOptions): Metadata {
   const fullTitle = `${title} | ${SITE_NAME}`;
   const url = `${SITE_URL}${path}`;
-  const alt = imageAlt ?? `${title} preview`;
+  const alt = imageAlt ?? `${title} preview from AI Model Scoreboard`;
 
   return {
     title: fullTitle,

@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     }
 
     const title = model.name;
-    const description = `Live signals for ${model.name} by ${model.provider}. Downloads, likes, recency, and composite scores updated with each snapshot.`;
+    const description = `Live signals for ${model.name} by ${model.provider}. Downloads, likes, recency, and composite scores refresh with every snapshot.`;
 
     return buildPageMetadata({
       title,

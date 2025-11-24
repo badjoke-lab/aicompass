@@ -10,7 +10,7 @@ export default function Loading() {
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="h-3 w-48 rounded-full bg-slate-800" />
-          <div className="h-8 w-40 rounded-full bg-slate-800" />
+          <div className="h-8 w-48 rounded-full bg-slate-800" />
         </div>
         <div className="flex flex-wrap gap-2">
           {Array.from({ length: 3 }).map((_, index) => (
