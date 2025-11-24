@@ -1,49 +1,23 @@
-import { Model, SortDirection } from './types';
+import { MOCK_MODELS } from "./mockModels";
+import { ModelV4 } from "./types";
 
-export function computeTotal(model: Pick<Model, 'subscores'>): number {
-  return Object.values(model.subscores).reduce((sum, value) => sum + value, 0);
+export function getModelById(id: string): ModelV4 | undefined {
+  return MOCK_MODELS.find((model) => model.id === id);
 }
 
-export function computeDelta30d(model: Pick<Model, 'history'>): number {
-  if (!model.history.length) return 0;
+export function sortByTotal(models: ModelV4[]): ModelV4[] {
+  return [...models].sort((a, b) => b.total - a.total);
+}
 
-  const sorted = [...model.history].sort(
+export function calcDelta30d(model: ModelV4): number {
+  if (!model.history30d.length) return 0;
+
+  const sortedHistory = [...model.history30d].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   );
-  const latest = sorted[sorted.length - 1];
-  const cutoff = new Date(latest.date);
-  cutoff.setDate(cutoff.getDate() - 30);
 
-  let previous = sorted[0];
-  for (const entry of sorted) {
-    if (new Date(entry.date) <= cutoff) {
-      previous = entry;
-    } else {
-      break;
-    }
-  }
+  const first = sortedHistory[0];
+  const last = sortedHistory[sortedHistory.length - 1];
 
-  return latest.totalScore - previous.totalScore;
-}
-
-export function sortModels(
-  models: Model[],
-  key: keyof Model | 'total',
-  direction: SortDirection = 'asc',
-): Model[] {
-  const multiplier = direction === 'asc' ? 1 : -1;
-  const sortableKey = key === 'total' ? 'totalScore' : key;
-
-  return [...models].sort((a, b) => {
-    const valueA = a[sortableKey as keyof Model];
-    const valueB = b[sortableKey as keyof Model];
-
-    if (typeof valueA === 'number' && typeof valueB === 'number') {
-      return (valueA - valueB) * multiplier;
-    }
-
-    const stringA = String(valueA).toLowerCase();
-    const stringB = String(valueB).toLowerCase();
-    return stringA.localeCompare(stringB) * multiplier;
-  });
+  return last.total - first.total;
 }
