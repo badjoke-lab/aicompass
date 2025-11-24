@@ -42,14 +42,15 @@ export default async function ScoresPage() {
 
   return (
     <div className="space-y-10">
-      <header className="space-y-4 sm:space-y-5">
+      <header className="space-y-6">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">AIMS · v3</p>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-          <div className="space-y-2">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+          <div className="space-y-3">
             <h1 className="text-3xl font-semibold leading-tight text-slate-50 sm:text-4xl">Real-time AI model signals</h1>
             <p className="max-w-3xl text-sm leading-relaxed text-slate-400">
               Scores are computed from live Hugging Face metadata. Downloads drive adoption, likes proxy ecosystem pull,
-              and recent updates reward velocity. Data refreshes on every request with a short cache to protect the API.
+              and recent updates reward velocity. Data refreshes on every request with short caching to protect the API while
+              avoiding layout drift.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2 self-start rounded-full border border-slate-800 bg-background/70 px-3 py-1.5 text-xs text-slate-300 shadow-sm ring-1 ring-slate-800/60 sm:self-auto sm:flex-nowrap sm:px-4">
@@ -83,7 +84,7 @@ export default async function ScoresPage() {
             Snapshot pipeline
           </DocLink>
           <DocLink href="https://github.com/ai-model-scoreboard/ai-model-scoreboard/blob/main/docs/v3-status.md">
-            Refresh schedule
+            Refresh cadence
           </DocLink>
           <DocLink href="https://github.com/ai-model-scoreboard/ai-model-scoreboard/blob/main/docs/api.md">
             API endpoints
@@ -187,6 +188,10 @@ export default async function ScoresPage() {
               </tbody>
             </table>
           )}
+        </div>
+        <div className="border-t border-slate-800/70 px-4 py-3 text-[0.75rem] text-slate-500 sm:px-6">
+          Downloads and likes are pulled directly from Hugging Face. Recency is days since last commit; lower values indicate
+          fresher updates. Scores are recalculated on every snapshot using fixed weights.
         </div>
       </section>
     </div>
