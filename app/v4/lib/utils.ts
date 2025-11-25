@@ -1,57 +1,37 @@
-import { MOCK_MODELS } from "./mockModels";
-import { ModelV4 } from "./types";
+import type { V4Model, V4SubscoreKey } from "./types";
 
-export function getModelById(id: string): ModelV4 | undefined {
-  return MOCK_MODELS.find((model) => model.id === id);
-}
+export type SortKey = "total-desc" | `${V4SubscoreKey}-desc`;
 
-export function sortByTotal(models: ModelV4[]): ModelV4[] {
-  return [...models].sort((a, b) => b.total - a.total);
-}
-
-export type SortKey =
-  | "total-desc"
-  | "reasoning-desc"
-  | "coding-desc"
-  | "math-desc"
-  | "multimodal-desc"
-  | "safety-desc";
-
-export function sortModels(models: ModelV4[], key: SortKey): ModelV4[] {
-  const m = [...models];
-  const by = (fn: (x: ModelV4) => number) => m.sort((a, b) => fn(b) - fn(a));
-  switch (key) {
-    case "reasoning-desc":
-      return by((x) => x.subscores.reasoning);
-    case "coding-desc":
-      return by((x) => x.subscores.coding);
-    case "math-desc":
-      return by((x) => x.subscores.math);
-    case "multimodal-desc":
-      return by((x) => x.subscores.multimodal);
-    case "safety-desc":
-      return by((x) => x.subscores.safety);
-    default:
-      return by((x) => x.total);
+export function sortModels(models: V4Model[], key: SortKey): V4Model[] {
+  const sorted = [...models];
+  if (key === "total-desc") {
+    return sorted.sort((a, b) => b.total - a.total);
   }
+
+  const field = key.replace("-desc", "") as V4SubscoreKey;
+  return sorted.sort((a, b) => b.subscores[field] - a.subscores[field]);
 }
 
-export function calcDelta30(history?: ModelV4["history"]) {
-  if (!history || history.length < 2) return null;
+export function calcDelta30(history?: V4Model["history"]) {
+  if (!history || history.length === 0) return null;
+  if (history.length === 1) {
+    return { total: 0, subscores: history[0].subscores };
+  }
+
   const latest = history[history.length - 1];
-  const past =
-    history.find((h) => {
-      const d = new Date(latest.date).getTime() - new Date(h.date).getTime();
-      return d >= 1000 * 60 * 60 * 24 * 30;
+  const target =
+    history.find((point) => {
+      const days = (new Date(latest.date).getTime() - new Date(point.date).getTime()) / (1000 * 60 * 60 * 24);
+      return days >= 30;
     }) || history[0];
+
   return {
-    total: latest.total - past.total,
+    total: latest.total - target.total,
     subscores: {
-      reasoning: latest.subscores.reasoning - past.subscores.reasoning,
-      coding: latest.subscores.coding - past.subscores.coding,
-      math: latest.subscores.math - past.subscores.math,
-      multimodal: latest.subscores.multimodal - past.subscores.multimodal,
-      safety: latest.subscores.safety - past.subscores.safety,
+      evidence: latest.subscores.evidence - target.subscores.evidence,
+      velocity: latest.subscores.velocity - target.subscores.velocity,
+      adoption: latest.subscores.adoption - target.subscores.adoption,
+      stability: latest.subscores.stability - target.subscores.stability,
     },
   };
 }

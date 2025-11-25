@@ -7,11 +7,10 @@ type Props = {
 
 const OPTIONS: { value: SortKey; label: string }[] = [
   { value: "total-desc", label: "Total" },
-  { value: "reasoning-desc", label: "Reasoning" },
-  { value: "coding-desc", label: "Coding" },
-  { value: "math-desc", label: "Math" },
-  { value: "multimodal-desc", label: "Multimodal" },
-  { value: "safety-desc", label: "Safety" },
+  { value: "evidence-desc", label: "Evidence" },
+  { value: "velocity-desc", label: "Velocity" },
+  { value: "adoption-desc", label: "Adoption" },
+  { value: "stability-desc", label: "Stability" },
 ];
 
 export default function SortSelect({ value, onChange }: Props) {
