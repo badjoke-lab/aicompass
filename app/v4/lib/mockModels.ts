@@ -36,7 +36,7 @@ export const MOCK_MODELS: ModelV4[] = [
         updatedAt: "2024-07-10",
       },
     ],
-    history30d: [
+    history: [
       {
         date: "2024-06-25",
         total: 93,
@@ -83,7 +83,7 @@ export const MOCK_MODELS: ModelV4[] = [
         updatedAt: "2024-07-15",
       },
     ],
-    history30d: [
+    history: [
       {
         date: "2024-06-23",
         total: 90,
@@ -124,7 +124,7 @@ export const MOCK_MODELS: ModelV4[] = [
         updatedAt: "2024-07-02",
       },
     ],
-    history30d: [
+    history: [
       {
         date: "2024-06-26",
         total: 82,
@@ -166,7 +166,7 @@ export const MOCK_MODELS: ModelV4[] = [
         updatedAt: "2024-07-08",
       },
     ],
-    history30d: [
+    history: [
       {
         date: "2024-06-24",
         total: 74,
@@ -206,7 +206,7 @@ export const MOCK_MODELS: ModelV4[] = [
         updatedAt: "2024-07-01",
       },
     ],
-    history30d: [
+    history: [
       {
         date: "2024-06-23",
         total: 71,
@@ -247,7 +247,7 @@ export const MOCK_MODELS: ModelV4[] = [
         updatedAt: "2024-07-02",
       },
     ],
-    history30d: [
+    history: [
       {
         date: "2024-06-21",
         total: 73,

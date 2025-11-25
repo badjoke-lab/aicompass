@@ -35,7 +35,7 @@ export type ModelV4 = {
   total: number; // 0-100
   subscores: Subscores; // 0-100 each
   evidence: Evidence[];
-  history30d: HistoryPoint[]; // last 30d points (can be sparse)
+  history?: HistoryPoint[]; // history points (can be sparse)
   updatedAt: string;
   tags?: string[];
 };
