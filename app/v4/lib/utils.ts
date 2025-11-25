@@ -36,15 +36,22 @@ export function sortModels(models: ModelV4[], key: SortKey): ModelV4[] {
   }
 }
 
-export function calcDelta30d(model: ModelV4): number {
-  if (!model.history30d.length) return 0;
-
-  const sortedHistory = [...model.history30d].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-  );
-
-  const first = sortedHistory[0];
-  const last = sortedHistory[sortedHistory.length - 1];
-
-  return last.total - first.total;
+export function calcDelta30(history?: ModelV4["history"]) {
+  if (!history || history.length < 2) return null;
+  const latest = history[history.length - 1];
+  const past =
+    history.find((h) => {
+      const d = new Date(latest.date).getTime() - new Date(h.date).getTime();
+      return d >= 1000 * 60 * 60 * 24 * 30;
+    }) || history[0];
+  return {
+    total: latest.total - past.total,
+    subscores: {
+      reasoning: latest.subscores.reasoning - past.subscores.reasoning,
+      coding: latest.subscores.coding - past.subscores.coding,
+      math: latest.subscores.math - past.subscores.math,
+      multimodal: latest.subscores.multimodal - past.subscores.multimodal,
+      safety: latest.subscores.safety - past.subscores.safety,
+    },
+  };
 }
