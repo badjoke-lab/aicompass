@@ -27,6 +27,9 @@ export default function Footer() {
             <Link className="text-slate-300 underline-offset-4 hover:text-accent" href="/docs/changelog">
               Changelog
             </Link>
+            <Link className="text-slate-400 underline-offset-4 hover:text-accent" href="/v4">
+              v4 preview
+            </Link>
             <HealthIndicator />
           </nav>
           <p className="text-[0.75rem] leading-relaxed text-slate-600">

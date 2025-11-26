@@ -1,9 +1,10 @@
-import { mockModels, type V4Model } from "../data/mockModels";
+import { mockModels } from "../data/mockModels";
+import type { V4Model } from "./types";
 
 export function getV4Models(): V4Model[] {
   return mockModels;
 }
 
-export function getV4Model(id: string): V4Model | undefined {
-  return mockModels.find((model) => model.id === id);
+export function getV4Model(slug: string): V4Model | undefined {
+  return mockModels.find((model) => model.slug === slug);
 }
