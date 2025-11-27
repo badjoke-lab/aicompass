@@ -1,6 +1,6 @@
 import type { V4ModelScore } from "../types";
 
-export type SortKey = "total-desc" | "reasoning-desc" | "coding-desc" | "chat-desc" | "safety-desc";
+export type SortKey = "total-desc";
 
 export function sortModels(models: V4ModelScore[], key: SortKey): V4ModelScore[] {
   const sorted = [...models];
@@ -8,6 +8,5 @@ export function sortModels(models: V4ModelScore[], key: SortKey): V4ModelScore[]
     return sorted.sort((a, b) => b.total - a.total);
   }
 
-  const field = key.replace("-desc", "") as keyof V4ModelScore["subscores"];
-  return sorted.sort((a, b) => b.subscores[field] - a.subscores[field]);
+  return sorted;
 }
