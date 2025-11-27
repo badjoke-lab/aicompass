@@ -7,7 +7,6 @@ type Props = {
 
 const OPTIONS: { value: SortKey; label: string }[] = [
   { value: "total-desc", label: "Total" },
-  { value: "evidence-desc", label: "Evidence" },
   { value: "velocity-desc", label: "Velocity" },
   { value: "adoption-desc", label: "Adoption" },
   { value: "stability-desc", label: "Stability" },
