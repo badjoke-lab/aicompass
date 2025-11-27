@@ -1,10 +1,11 @@
 import Link from "next/link";
 
+import { computeLeaderboard } from "./data/compute";
 import { getV4Models } from "./lib/getV4Models";
 import { sortModels } from "./lib/utils";
 
 export default function V4HomePage() {
-  const models = sortModels(getV4Models(), "total-desc");
+  const models = sortModels(computeLeaderboard(getV4Models()), "total-desc");
 
   return (
     <div className="space-y-6">
@@ -25,10 +26,11 @@ export default function V4HomePage() {
               <th className="px-3 py-3 text-left">Vendor</th>
               <th className="px-3 py-3 text-left">Modality</th>
               <th className="px-3 py-3 text-right">Total</th>
-              <th className="px-3 py-3 text-right">Evidence</th>
-              <th className="px-3 py-3 text-right">Velocity</th>
-              <th className="px-3 py-3 text-right">Adoption</th>
-              <th className="px-3 py-3 text-right">Stability</th>
+              <th className="px-3 py-3 text-right">Δ30d</th>
+              <th className="px-3 py-3 text-right">Reasoning</th>
+              <th className="px-3 py-3 text-right">Coding</th>
+              <th className="px-3 py-3 text-right">Chat</th>
+              <th className="px-3 py-3 text-right">Safety</th>
             </tr>
           </thead>
           <tbody>
@@ -46,10 +48,18 @@ export default function V4HomePage() {
                 <td className="px-3 py-4 text-slate-200 sm:py-3">{model.vendor}</td>
                 <td className="px-3 py-4 text-slate-300 sm:py-3">{model.modality.join(", ")}</td>
                 <td className="px-3 py-4 text-right font-semibold text-accent sm:py-3">{model.total}</td>
-                <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.subscores.evidence}</td>
-                <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.subscores.velocity}</td>
-                <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.subscores.adoption}</td>
-                <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.subscores.stability}</td>
+                <td
+                  className={`px-3 py-4 text-right sm:py-3 ${
+                    model.delta30d >= 0 ? "text-emerald-400" : "text-amber-300"
+                  }`}
+                >
+                  {model.delta30d >= 0 ? "+" : ""}
+                  {model.delta30d}
+                </td>
+                <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.subscores.reasoning}</td>
+                <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.subscores.coding}</td>
+                <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.subscores.chat}</td>
+                <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.subscores.safety}</td>
               </tr>
             ))}
           </tbody>
