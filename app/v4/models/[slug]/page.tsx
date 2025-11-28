@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 
 import { getV4Model } from "../../lib/getV4Models";
-import { calcDelta30 } from "../../lib/utils";
 
 interface V4ModelPageProps {
   params: { slug: string };
@@ -14,81 +13,46 @@ export default function V4ModelDetailPage({ params }: V4ModelPageProps) {
     notFound();
   }
 
-  const delta = calcDelta30(model.history);
-
   return (
     <article className="space-y-7">
       <header className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">AIMS · v4</p>
         <h1 className="text-3xl font-semibold leading-tight text-slate-50 sm:text-4xl">{model.name}</h1>
-        <p className="text-sm text-slate-400">{model.vendor} · {model.modality.join(", ")}</p>
-        <p className="max-w-3xl text-sm leading-relaxed text-slate-300">{model.summary}</p>
+        <p className="text-sm text-slate-400">{model.vendor} · {model.modality}</p>
+        <p className="max-w-3xl text-sm leading-relaxed text-slate-300">
+          Early view of computed v4 scoring using mock history and evidence inputs.
+        </p>
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="rounded-xl border border-slate-800 bg-background/70 p-4 shadow">
           <p className="text-xs uppercase tracking-wide text-slate-400">Total</p>
-          <p className="text-4xl font-semibold text-accent">{model.total}</p>
-          <p className="text-xs text-slate-500">Updated {new Date(model.updatedAt).toLocaleDateString()}</p>
-          {delta && (
-            <p className="text-xs font-semibold text-emerald-400">
-              30d change: {delta.total >= 0 ? "+" : ""}
-              {delta.total}
-            </p>
-          )}
+          <p className="text-4xl font-semibold text-accent">{model.total.toFixed(1)}</p>
+          <p className="text-xs text-slate-500">Latest history point {model.history[model.history.length - 1].date}</p>
+          <p className={`text-xs font-semibold ${model.delta30d >= 0 ? "text-emerald-400" : "text-amber-300"}`}>
+            30d change: {model.delta30d >= 0 ? "+" : ""}
+            {model.delta30d.toFixed(1)}
+          </p>
         </div>
         <div className="rounded-xl border border-slate-800 bg-background/70 p-4 shadow">
           <p className="text-xs uppercase tracking-wide text-slate-400">Subscores</p>
           <ul className="space-y-2 text-sm text-slate-200">
-            <li className="flex items-center justify-between"><span>Evidence</span><span>{model.subscores.evidence}</span></li>
-            <li className="flex items-center justify-between"><span>Velocity</span><span>{model.subscores.velocity}</span></li>
-            <li className="flex items-center justify-between"><span>Adoption</span><span>{model.subscores.adoption}</span></li>
-            <li className="flex items-center justify-between"><span>Stability</span><span>{model.subscores.stability}</span></li>
+            <li className="flex items-center justify-between"><span>Popularity</span><span>{model.popularity}</span></li>
+            <li className="flex items-center justify-between"><span>Recency</span><span>{model.recency}</span></li>
+            <li className="flex items-center justify-between"><span>Credibility</span><span>{model.credibility}</span></li>
           </ul>
         </div>
         <div className="rounded-xl border border-slate-800 bg-background/70 p-4 shadow">
           <p className="text-xs uppercase tracking-wide text-slate-400">30-day change</p>
-          {delta ? (
-            <ul className="space-y-1 text-sm text-slate-200">
-              <li className="flex items-center justify-between">
-                <span>Total</span>
-                <span className={delta.total >= 0 ? "text-emerald-400" : "text-amber-300"}>
-                  {delta.total >= 0 ? "+" : ""}
-                  {delta.total}
-                </span>
-              </li>
-              <li className="flex items-center justify-between">
-                <span>Evidence</span>
-                <span className={delta.subscores.evidence >= 0 ? "text-emerald-400" : "text-amber-300"}>
-                  {delta.subscores.evidence >= 0 ? "+" : ""}
-                  {delta.subscores.evidence}
-                </span>
-              </li>
-              <li className="flex items-center justify-between">
-                <span>Velocity</span>
-                <span className={delta.subscores.velocity >= 0 ? "text-emerald-400" : "text-amber-300"}>
-                  {delta.subscores.velocity >= 0 ? "+" : ""}
-                  {delta.subscores.velocity}
-                </span>
-              </li>
-              <li className="flex items-center justify-between">
-                <span>Adoption</span>
-                <span className={delta.subscores.adoption >= 0 ? "text-emerald-400" : "text-amber-300"}>
-                  {delta.subscores.adoption >= 0 ? "+" : ""}
-                  {delta.subscores.adoption}
-                </span>
-              </li>
-              <li className="flex items-center justify-between">
-                <span>Stability</span>
-                <span className={delta.subscores.stability >= 0 ? "text-emerald-400" : "text-amber-300"}>
-                  {delta.subscores.stability >= 0 ? "+" : ""}
-                  {delta.subscores.stability}
-                </span>
-              </li>
-            </ul>
-          ) : (
-            <p className="text-sm text-slate-500">Insufficient history for a 30-day delta.</p>
-          )}
+          <ul className="space-y-1 text-sm text-slate-200">
+            <li className="flex items-center justify-between">
+              <span>Total</span>
+              <span className={model.delta30d >= 0 ? "text-emerald-400" : "text-amber-300"}>
+                {model.delta30d >= 0 ? "+" : ""}
+                {model.delta30d.toFixed(1)}
+              </span>
+            </li>
+          </ul>
         </div>
       </section>
 
@@ -96,17 +60,24 @@ export default function V4ModelDetailPage({ params }: V4ModelPageProps) {
         <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-300">Evidence</h2>
         <ul className="space-y-3 text-sm text-slate-200">
           {model.evidence.map((item) => (
-            <li key={item.label} className="rounded-lg border border-slate-800/80 bg-background/60 p-3">
+            <li key={item.id} className="rounded-lg border border-slate-800/80 bg-background/60 p-3">
               <div className="flex items-center justify-between gap-3">
-                <div className="font-semibold text-slate-50">{item.label}</div>
-                {item.url && (
-                  <a className="text-accent underline-offset-4 hover:underline" href={item.url} rel="noreferrer" target="_blank">
-                    View source
-                  </a>
-                )}
+                <div className="font-semibold text-slate-50">{item.source}</div>
+                <span className="text-xs text-slate-400">Score {item.value}</span>
               </div>
-              {item.summary && <p className="text-xs text-slate-400">{item.summary}</p>}
-              {item.lastUpdated && <p className="text-[0.7rem] text-slate-500">Updated {item.lastUpdated}</p>}
+              {item.note && <p className="text-xs text-slate-400">{item.note}</p>}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="space-y-3 rounded-xl border border-slate-800 bg-background/70 p-4 shadow">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-300">History</h2>
+        <ul className="space-y-2 text-sm text-slate-200">
+          {model.history.map((point) => (
+            <li key={point.date} className="flex items-center justify-between rounded-lg border border-slate-800/80 bg-background/60 p-3">
+              <span>{point.date}</span>
+              <span className="font-semibold text-accent">{point.score}</span>
             </li>
           ))}
         </ul>

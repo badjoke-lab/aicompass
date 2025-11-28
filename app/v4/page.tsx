@@ -25,10 +25,10 @@ export default function V4HomePage() {
               <th className="px-3 py-3 text-left">Vendor</th>
               <th className="px-3 py-3 text-left">Modality</th>
               <th className="px-3 py-3 text-right">Total</th>
-              <th className="px-3 py-3 text-right">Evidence</th>
-              <th className="px-3 py-3 text-right">Velocity</th>
-              <th className="px-3 py-3 text-right">Adoption</th>
-              <th className="px-3 py-3 text-right">Stability</th>
+              <th className="px-3 py-3 text-right">Popularity</th>
+              <th className="px-3 py-3 text-right">Recency</th>
+              <th className="px-3 py-3 text-right">Credibility</th>
+              <th className="px-3 py-3 text-right">30d Δ</th>
             </tr>
           </thead>
           <tbody>
@@ -44,12 +44,19 @@ export default function V4HomePage() {
                   </Link>
                 </td>
                 <td className="px-3 py-4 text-slate-200 sm:py-3">{model.vendor}</td>
-                <td className="px-3 py-4 text-slate-300 sm:py-3">{model.modality.join(", ")}</td>
-                <td className="px-3 py-4 text-right font-semibold text-accent sm:py-3">{model.total}</td>
-                <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.subscores.evidence}</td>
-                <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.subscores.velocity}</td>
-                <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.subscores.adoption}</td>
-                <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.subscores.stability}</td>
+                <td className="px-3 py-4 text-slate-300 sm:py-3">{model.modality}</td>
+                <td className="px-3 py-4 text-right font-semibold text-accent sm:py-3">{model.total.toFixed(1)}</td>
+                <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.popularity}</td>
+                <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.recency}</td>
+                <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.credibility}</td>
+                <td
+                  className={`px-3 py-4 text-right sm:py-3 ${
+                    model.delta30d >= 0 ? "text-emerald-400" : "text-amber-300"
+                  }`}
+                >
+                  {model.delta30d >= 0 ? "+" : ""}
+                  {model.delta30d.toFixed(1)}
+                </td>
               </tr>
             ))}
           </tbody>

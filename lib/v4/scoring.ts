@@ -1,56 +1,80 @@
-import { V4_SCORE_INPUT_FIXTURE } from "./config";
+import { V4ModelSeed, V4ModelWithSlug } from "../../types/v4";
+import { calculateCredibilityFromEvidence } from "./evidence";
+import { calculateDelta, sortHistory } from "./history";
 
-export interface ScoreInput {
-  modelId: string;
-  metric: string;
-  value: number;
-  metadata?: Record<string, unknown>;
+const VENDOR_WEIGHTS: Record<string, number> = {
+  Starlance: 1.06,
+  Northwind: 1.02,
+  "Signal Foundry": 0.98,
+};
+
+const MODALITY_WEIGHTS: Record<string, number> = {
+  text: 1,
+  vision: 1.05,
+  audio: 0.97,
+  video: 1.04,
+  multimodal: 1.08,
+};
+
+function clampScore(value: number): number {
+  return Math.max(0, Math.min(100, Math.round(value)));
 }
 
-export interface NormalizedScoreInput extends ScoreInput {
-  weight: number;
-  context: string;
+export function getVendorWeight(vendor: string): number {
+  return VENDOR_WEIGHTS[vendor] ?? 1;
 }
 
-export interface ScoreOutput {
-  modelId: string;
-  metric: string;
-  score: number;
-  details: Record<string, unknown>;
+export function getModalityWeight(modality: string): number {
+  return MODALITY_WEIGHTS[modality] ?? 1;
 }
 
-// Normalize arbitrary input into a consistent shape. Defaults are intentionally
-// conservative to avoid overstating scores while the algorithm is stubbed.
-export function normalizeInputs(inputs: ScoreInput[]): NormalizedScoreInput[] {
-  return inputs.map((input) => ({
-    ...input,
-    weight: 1,
-    context: input.metadata?.context?.toString?.() ?? "baseline",
-  }));
+export function calculateSubscores(seed: V4ModelSeed) {
+  const vendorWeight = getVendorWeight(seed.vendor);
+  const modalityWeight = getModalityWeight(seed.modality);
+
+  const popularity = clampScore(seed.popularity * vendorWeight);
+
+  const orderedHistory = sortHistory(seed.history);
+  const latestHistoryScore = orderedHistory[orderedHistory.length - 1]?.score;
+  const recencyBaseline = latestHistoryScore ?? seed.recency;
+  const recency = clampScore((seed.recency * 0.6 + recencyBaseline * 0.4) * modalityWeight);
+
+  const credibilityFromEvidence = calculateCredibilityFromEvidence(
+    seed.credibility,
+    seed.evidence
+  );
+  const credibility = clampScore(credibilityFromEvidence * vendorWeight);
+
+  return { popularity, recency, credibility };
 }
 
-// Placeholder scoring routine. In the future this will incorporate weighting,
-// calibration curves, and benchmarking rules. For now we simply echo the value.
-export function calculateScores(
-  inputs: NormalizedScoreInput[]
-): ScoreOutput[] {
-  return inputs.map((input) => ({
-    modelId: input.modelId,
-    metric: input.metric,
-    score: input.value,
-    details: {
-      weight: input.weight,
-      context: input.context,
-      note: "v4 scoring placeholder",
-    },
-  }));
+export function calculateTotalScore(subscores: {
+  popularity: number;
+  recency: number;
+  credibility: number;
+}): number {
+  const rawTotal =
+    subscores.popularity * 0.4 + subscores.recency * 0.3 + subscores.credibility * 0.3;
+
+  return Math.round(rawTotal * 10) / 10;
 }
 
-// Convenience helper that threads together the full scoring pipeline from raw
-// input to normalized representation and final score objects.
-export function runScoringPipeline(
-  inputs: ScoreInput[] = V4_SCORE_INPUT_FIXTURE
-): ScoreOutput[] {
-  const normalized = normalizeInputs(inputs);
-  return calculateScores(normalized);
+export function scoreModel(seed: V4ModelSeed): V4ModelWithSlug {
+  const subscores = calculateSubscores(seed);
+  const delta30d = calculateDelta(seed.history, 30);
+  const total = calculateTotalScore(subscores);
+
+  return {
+    ...seed,
+    popularity: subscores.popularity,
+    recency: subscores.recency,
+    credibility: subscores.credibility,
+    total,
+    delta30d,
+    history: sortHistory(seed.history),
+  };
+}
+
+export function scoreModels(seeds: V4ModelSeed[]): V4ModelWithSlug[] {
+  return seeds.map(scoreModel);
 }
