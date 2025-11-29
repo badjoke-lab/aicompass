@@ -1,6 +1,6 @@
 import { V4_CONFIG, V4_SCORE_INPUT_FIXTURE } from "./config";
 import { buildCanonicalMetadata, mergeMetadata } from "./metadata";
-import { runScoringPipeline, ScoreOutput } from "./scoring";
+import { ScoreOutput, runFixtureScoringPipeline } from "./scoring";
 
 export interface SnapshotRunOptions {
   refresh?: boolean;
@@ -25,7 +25,7 @@ export interface SnapshotResponse {
 export async function buildSnapshot(
   options: SnapshotRunOptions = {}
 ): Promise<SnapshotResponse> {
-  const scores = runScoringPipeline(V4_SCORE_INPUT_FIXTURE);
+  const scores = runFixtureScoringPipeline(V4_SCORE_INPUT_FIXTURE);
 
   // In a future iteration we will aggregate metadata from external sources. For
   // now we simulate the merge logic with a single placeholder source.

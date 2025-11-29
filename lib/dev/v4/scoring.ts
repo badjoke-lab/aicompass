@@ -1,4 +1,6 @@
 import { V4_SCORE_INPUT_FIXTURE } from "./config";
+import { computeLeaderboard } from "./compute";
+import { V4ModelComputed, V4ModelInput } from "./types";
 
 export interface ScoreInput {
   modelId: string;
@@ -19,8 +21,6 @@ export interface ScoreOutput {
   details: Record<string, unknown>;
 }
 
-// Normalize arbitrary input into a consistent shape. Defaults are intentionally
-// conservative to avoid overstating scores while the algorithm is stubbed.
 export function normalizeInputs(inputs: ScoreInput[]): NormalizedScoreInput[] {
   return inputs.map((input) => ({
     ...input,
@@ -29,11 +29,7 @@ export function normalizeInputs(inputs: ScoreInput[]): NormalizedScoreInput[] {
   }));
 }
 
-// Placeholder scoring routine. In the future this will incorporate weighting,
-// calibration curves, and benchmarking rules. For now we simply echo the value.
-export function calculateScores(
-  inputs: NormalizedScoreInput[]
-): ScoreOutput[] {
+export function calculateScores(inputs: NormalizedScoreInput[]): ScoreOutput[] {
   return inputs.map((input) => ({
     modelId: input.modelId,
     metric: input.metric,
@@ -46,11 +42,13 @@ export function calculateScores(
   }));
 }
 
-// Convenience helper that threads together the full scoring pipeline from raw
-// input to normalized representation and final score objects.
-export function runScoringPipeline(
+export function runFixtureScoringPipeline(
   inputs: ScoreInput[] = V4_SCORE_INPUT_FIXTURE
 ): ScoreOutput[] {
   const normalized = normalizeInputs(inputs);
   return calculateScores(normalized);
+}
+
+export function runScoringPipeline(models: V4ModelInput[]): V4ModelComputed[] {
+  return computeLeaderboard(models);
 }
