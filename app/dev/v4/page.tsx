@@ -1,19 +1,17 @@
 import Link from "next/link";
 
-import { computeLeaderboard } from "./data/compute";
-import { getV4Models } from "./lib/getV4Models";
 import { sortModels } from "./lib/utils";
+import type { V4ModelScore } from "./types";
 
-export default function V4HomePage() {
-  const models = sortModels(computeLeaderboard(getV4Models()), "total-desc");
+export default async function V4HomePage() {
+  const data = await fetch("/dev/api/v4/snapshot").then((response) => response.json());
+  const models = sortModels((data?.models as V4ModelScore[] | undefined) ?? [], "total-desc");
 
   return (
     <div className="space-y-6">
       <header className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">AIMS · v4 dev</p>
-        <h1 className="text-3xl font-semibold leading-tight text-slate-50 sm:text-4xl">
-          AI Model Scoreboard v4 (dev)
-        </h1>
+        <h1 className="text-3xl font-semibold leading-tight text-slate-50 sm:text-4xl">AI Model Scoreboard v4 (dev)</h1>
         <p className="max-w-3xl text-sm leading-relaxed text-slate-400">
           Stable mock leaderboard using the v4 data model. This area is isolated from v3 and ready for iterative
           polishing.
@@ -38,10 +36,7 @@ export default function V4HomePage() {
           </thead>
           <tbody>
             {models.map((model, index) => (
-              <tr
-                key={model.id}
-                className="border-t border-slate-800/70 bg-background/30 transition hover:bg-background/60"
-              >
+              <tr key={model.id} className="border-t border-slate-800/70 bg-background/30 transition hover:bg-background/60">
                 <td className="px-3 py-4 text-right text-slate-500 sm:py-3">{index + 1}</td>
                 <td className="px-3 py-4 font-semibold text-slate-50 sm:py-3">
                   <Link className="text-accent hover:text-accent/80" href={`/dev/v4/model/${model.slug}`}>
@@ -53,11 +48,11 @@ export default function V4HomePage() {
                 <td className="px-3 py-4 text-right font-semibold text-accent sm:py-3">{model.total}</td>
                 <td
                   className={`px-3 py-4 text-right sm:py-3 ${
-                    model.delta30d >= 0 ? "text-emerald-400" : "text-amber-300"
+                    model.delta30d.total >= 0 ? "text-emerald-400" : "text-amber-300"
                   }`}
                 >
-                  {model.delta30d >= 0 ? "+" : ""}
-                  {model.delta30d}
+                  {model.delta30d.total >= 0 ? "+" : ""}
+                  {model.delta30d.total}
                 </td>
                 <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.subscores.reasoning}</td>
                 <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.subscores.coding}</td>
@@ -67,6 +62,9 @@ export default function V4HomePage() {
             ))}
           </tbody>
         </table>
+        {models.length === 0 && (
+          <div className="p-4 text-center text-sm text-slate-400">No models available. Check back soon.</div>
+        )}
       </div>
     </div>
   );

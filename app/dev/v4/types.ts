@@ -1,33 +1,14 @@
-export type V4Modality = "text" | "image" | "audio" | "video" | "vision" | "multimodal";
+import type {
+  ScoringResponse,
+  SnapshotResponse,
+  V4DeltaBreakdown,
+  V4Evidence,
+  V4ModelComputed,
+  V4ModelInput,
+  V4Modality,
+  V4Status,
+  V4Subscores,
+} from "@/lib/dev/v4/types";
 
-export type V4Evidence = {
-  title: string;
-  url?: string;
-  date?: string;
-  summary?: string;
-};
-
-export type V4Subscores = {
-  reasoning: number;
-  coding: number;
-  chat: number;
-  safety: number;
-};
-
-export interface V4ModelInput {
-  id: string;
-  slug: string;
-  name: string;
-  vendor: string;
-  modality: V4Modality[];
-  summary: string;
-  subscores: V4Subscores;
-  evidence: V4Evidence[];
-  updatedAt: string;
-  tags?: string[];
-}
-
-export interface V4ModelScore extends V4ModelInput {
-  total: number;
-  delta30d: number;
-}
+export type { ScoringResponse, SnapshotResponse, V4DeltaBreakdown, V4Evidence, V4ModelInput, V4Modality, V4Status, V4Subscores };
+export type V4ModelScore = V4ModelComputed;

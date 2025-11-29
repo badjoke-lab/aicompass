@@ -1,57 +1,55 @@
-export type V4Status = "ok" | "error";
+export type V4Modality = "text" | "image" | "audio" | "video" | "vision" | "multimodal";
 
-export interface V4ErrorResponse {
-  status: "error";
-  message: string;
-}
+export type V4Evidence = {
+  title: string;
+  url?: string;
+  date?: string;
+  summary?: string;
+};
 
-export interface SnapshotModelScore {
-  metric: string;
-  score: number;
-  details?: Record<string, unknown>;
-}
+export type V4Subscores = {
+  reasoning: number;
+  coding: number;
+  chat: number;
+  safety: number;
+};
 
-export interface SnapshotModelMetadata {
-  provider: string;
-  focus?: string;
-  source?: string;
-}
-
-export interface SnapshotModelMetrics {
-  downloads?: number;
-  likes?: number;
-  lastModified?: string | null;
-  recencyDays?: number | null;
-}
-
-export interface SnapshotModel {
+export interface V4ModelInput {
   id: string;
   slug: string;
   name: string;
-  metadata: SnapshotModelMetadata;
-  metrics?: SnapshotModelMetrics;
-  scores?: SnapshotModelScore[];
-  status?: "ready" | "error";
-  error?: string | null;
+  vendor: string;
+  modality: V4Modality[];
+  summary: string;
+  subscores: V4Subscores;
+  evidence: V4Evidence[];
+  updatedAt: string;
+  tags?: string[];
+}
+
+export type V4DeltaBreakdown = {
+  total: number;
+  reasoning: number;
+  coding: number;
+  chat: number;
+  safety: number;
+};
+
+export interface V4ModelComputed extends V4ModelInput {
+  total: number;
+  delta30d: V4DeltaBreakdown;
+  updated: string;
 }
 
 export interface SnapshotResponse {
   status: "ok";
   updated: string | null;
-  models: SnapshotModel[];
+  models: V4ModelComputed[];
 }
 
-export interface ModelProviderSummary {
-  id: string;
-  name: string;
-  modelCount?: number;
-  focusAreas?: string[];
-}
-
-export interface ModelListResponse {
+export interface ScoringResponse {
   status: "ok";
-  providers: ModelProviderSummary[];
-  total: number;
+  models: V4ModelComputed[];
 }
 
-export type V4Response = SnapshotResponse | ModelListResponse | V4ErrorResponse;
+export type V4Status = SnapshotResponse["status"];

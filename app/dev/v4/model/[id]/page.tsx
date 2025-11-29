@@ -1,20 +1,20 @@
 import { notFound } from "next/navigation";
 
-import { computeModelScore } from "../../data/compute";
-import { getV4Model } from "../../lib/getV4Models";
+import type { V4ModelScore } from "../../types";
 
 interface V4ModelPageProps {
   params: { id: string };
 }
 
-export default function V4ModelDetailPage({ params }: V4ModelPageProps) {
-  const modelInput = getV4Model(params.id);
+export default async function V4ModelDetailPage({ params }: V4ModelPageProps) {
+  const data = await fetch(`/dev/api/v4/scoring?id=${params.id}`).then((response) => response.json());
+  const model = (data?.models as V4ModelScore[] | undefined)?.find(
+    (entry) => entry.id === params.id || entry.slug === params.id
+  );
 
-  if (!modelInput) {
+  if (!model) {
     notFound();
   }
-
-  const model = computeModelScore(modelInput);
 
   return (
     <article className="space-y-7">
@@ -29,10 +29,10 @@ export default function V4ModelDetailPage({ params }: V4ModelPageProps) {
         <div className="rounded-xl border border-slate-800 bg-background/70 p-4 shadow">
           <p className="text-xs uppercase tracking-wide text-slate-400">Total</p>
           <p className="text-4xl font-semibold text-accent">{model.total}</p>
-          <p className="text-xs text-slate-500">Updated {new Date(model.updatedAt).toLocaleDateString()}</p>
-          <p className={`text-xs font-semibold ${model.delta30d >= 0 ? "text-emerald-400" : "text-amber-300"}`}>
-            30d change: {model.delta30d >= 0 ? "+" : ""}
-            {model.delta30d}
+          <p className="text-xs text-slate-500">Updated {new Date(model.updated).toLocaleDateString()}</p>
+          <p className={`text-xs font-semibold ${model.delta30d.total >= 0 ? "text-emerald-400" : "text-amber-300"}`}>
+            30d change: {model.delta30d.total >= 0 ? "+" : ""}
+            {model.delta30d.total}
           </p>
         </div>
         <div className="rounded-xl border border-slate-800 bg-background/70 p-4 shadow">
@@ -49,26 +49,38 @@ export default function V4ModelDetailPage({ params }: V4ModelPageProps) {
           <ul className="space-y-1 text-sm text-slate-200">
             <li className="flex items-center justify-between">
               <span>Total</span>
-              <span className={model.delta30d >= 0 ? "text-emerald-400" : "text-amber-300"}>
-                {model.delta30d >= 0 ? "+" : ""}
-                {model.delta30d}
+              <span className={model.delta30d.total >= 0 ? "text-emerald-400" : "text-amber-300"}>
+                {model.delta30d.total >= 0 ? "+" : ""}
+                {model.delta30d.total}
               </span>
             </li>
             <li className="flex items-center justify-between">
               <span>Reasoning</span>
-              <span className="text-emerald-400">+{(model.subscores.reasoning * 0.02).toFixed(1)}</span>
+              <span className={model.delta30d.reasoning >= 0 ? "text-emerald-400" : "text-amber-300"}>
+                {model.delta30d.reasoning >= 0 ? "+" : ""}
+                {model.delta30d.reasoning}
+              </span>
             </li>
             <li className="flex items-center justify-between">
               <span>Coding</span>
-              <span className="text-emerald-400">+{(model.subscores.coding * 0.02).toFixed(1)}</span>
+              <span className={model.delta30d.coding >= 0 ? "text-emerald-400" : "text-amber-300"}>
+                {model.delta30d.coding >= 0 ? "+" : ""}
+                {model.delta30d.coding}
+              </span>
             </li>
             <li className="flex items-center justify-between">
               <span>Chat</span>
-              <span className="text-emerald-400">+{(model.subscores.chat * 0.02).toFixed(1)}</span>
+              <span className={model.delta30d.chat >= 0 ? "text-emerald-400" : "text-amber-300"}>
+                {model.delta30d.chat >= 0 ? "+" : ""}
+                {model.delta30d.chat}
+              </span>
             </li>
             <li className="flex items-center justify-between">
               <span>Safety</span>
-              <span className="text-amber-300">-{(model.subscores.safety * 0.01).toFixed(1)}</span>
+              <span className={model.delta30d.safety >= 0 ? "text-emerald-400" : "text-amber-300"}>
+                {model.delta30d.safety >= 0 ? "+" : ""}
+                {model.delta30d.safety}
+              </span>
             </li>
           </ul>
         </div>
