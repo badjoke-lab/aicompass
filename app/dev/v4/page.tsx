@@ -3,8 +3,17 @@ import Link from "next/link";
 import { sortModels } from "./lib/utils";
 import type { V4ModelScore } from "./types";
 
+export const dynamic = "force-dynamic";
+
+const origin =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
 export default async function V4HomePage() {
-  const data = await fetch("/dev/api/v4/snapshot").then((response) => response.json());
+  const snapshotUrl = new URL("/dev/api/v4/snapshot", origin);
+  const data = await fetch(snapshotUrl, { next: { revalidate: 0 } }).then((response) =>
+    response.json()
+  );
   const models = sortModels((data?.models as V4ModelScore[] | undefined) ?? [], "total-desc");
 
   return (

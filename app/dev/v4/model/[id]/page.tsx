@@ -2,12 +2,21 @@ import { notFound } from "next/navigation";
 
 import type { V4ModelScore } from "../../types";
 
+export const dynamic = "force-dynamic";
+
+const origin =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
 interface V4ModelPageProps {
   params: { id: string };
 }
 
 export default async function V4ModelDetailPage({ params }: V4ModelPageProps) {
-  const data = await fetch(`/dev/api/v4/scoring?id=${params.id}`).then((response) => response.json());
+  const scoringUrl = new URL(`/dev/api/v4/scoring?id=${params.id}`, origin);
+  const data = await fetch(scoringUrl, { next: { revalidate: 0 } }).then((response) =>
+    response.json()
+  );
   const model = (data?.models as V4ModelScore[] | undefined)?.find(
     (entry) => entry.id === params.id || entry.slug === params.id
   );

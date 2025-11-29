@@ -1,3 +1,10 @@
+export type V4Status = "ok" | "error";
+
+export interface V4ErrorResponse {
+  status: "error";
+  message: string;
+}
+
 export type V4Modality = "text" | "image" | "audio" | "video" | "vision" | "multimodal";
 
 export type V4Evidence = {
@@ -52,4 +59,4 @@ export interface ScoringResponse {
   models: V4ModelComputed[];
 }
 
-export type V4Status = SnapshotResponse["status"];
+export type V4Response = SnapshotResponse | ScoringResponse | V4ErrorResponse;
