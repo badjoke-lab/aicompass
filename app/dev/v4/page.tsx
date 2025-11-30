@@ -11,10 +11,14 @@ const origin =
 
 export default async function V4HomePage() {
   const snapshotUrl = new URL("/dev/api/v4/snapshot", origin);
-  const data = await fetch(snapshotUrl, { next: { revalidate: 0 } }).then((response) =>
-    response.json()
-  );
-  const models = sortModels((data?.models as V4ModelScore[] | undefined) ?? [], "total-desc");
+  const data = await fetch(snapshotUrl, { next: { revalidate: 0 } })
+    .then((response) => response.json())
+    .catch(() => ({ status: "error" }));
+
+  const isOk = data?.status === "ok";
+  const models = isOk
+    ? sortModels((data?.models as V4ModelScore[] | undefined) ?? [], "total-desc")
+    : [];
 
   return (
     <div className="space-y-6">
@@ -71,7 +75,10 @@ export default async function V4HomePage() {
             ))}
           </tbody>
         </table>
-        {models.length === 0 && (
+        {!isOk && (
+          <div className="p-4 text-center text-sm text-amber-200">Something went wrong.</div>
+        )}
+        {isOk && models.length === 0 && (
           <div className="p-4 text-center text-sm text-slate-400">No models available. Check back soon.</div>
         )}
       </div>

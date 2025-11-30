@@ -48,6 +48,14 @@ export interface V4ModelComputed extends V4ModelInput {
   updated: string;
 }
 
+export type V4Model = V4ModelComputed;
+
+export interface V4Snapshot {
+  status: V4Status;
+  updated: string | null;
+  models: V4ModelComputed[];
+}
+
 export interface SnapshotResponse {
   status: "ok";
   updated: string | null;
