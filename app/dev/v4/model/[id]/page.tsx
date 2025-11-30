@@ -13,13 +13,17 @@ interface V4ModelPageProps {
 }
 
 export default async function V4ModelDetailPage({ params }: V4ModelPageProps) {
-  const scoringUrl = new URL(`/dev/api/v4/scoring?id=${params.id}`, origin);
-  const data = await fetch(scoringUrl, { next: { revalidate: 0 } }).then((response) =>
-    response.json()
-  );
-  const model = (data?.models as V4ModelScore[] | undefined)?.find(
-    (entry) => entry.id === params.id || entry.slug === params.id
-  );
+  const scoringUrl = new URL(`/dev/api/v4/model/${params.id}`, origin);
+  const data = await fetch(scoringUrl, { next: { revalidate: 0 } })
+    .then((response) => response.json())
+    .catch(() => ({ status: "error" }));
+
+  const model =
+    data?.status === "ok"
+      ? (data?.models as V4ModelScore[] | undefined)?.find(
+          (entry) => entry.id === params.id || entry.slug === params.id
+        )
+      : undefined;
 
   if (!model) {
     notFound();
