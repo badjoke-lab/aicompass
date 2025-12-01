@@ -1,23 +1,31 @@
 import Link from "next/link";
 
+import { DEV_V4_API_BASE } from "@/lib/v4/config";
+
 import { sortModels } from "./lib/utils";
-import type { V4ModelScore } from "./types";
+import type { SnapshotResponse, V4ModelScore } from "./types";
 
 export const dynamic = "force-dynamic";
 
-const origin =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+async function fetchSnapshot(): Promise<SnapshotResponse | null> {
+  try {
+    const response = await fetch(`${DEV_V4_API_BASE}/snapshot`, { cache: "no-store" });
+    if (!response.ok) return null;
+
+    const payload = (await response.json()) as SnapshotResponse;
+    return payload?.status === "ok" ? payload : null;
+  } catch (error) {
+    console.error("Failed to load v4 snapshot", error);
+    return null;
+  }
+}
 
 export default async function V4HomePage() {
-  const snapshotUrl = new URL("/dev/api/v4/snapshot", origin);
-  const data = await fetch(snapshotUrl, { next: { revalidate: 0 } })
-    .then((response) => response.json())
-    .catch(() => ({ status: "error" }));
+  const snapshot = await fetchSnapshot();
 
-  const isOk = data?.status === "ok";
+  const isOk = snapshot?.status === "ok";
   const models = isOk
-    ? sortModels((data?.models as V4ModelScore[] | undefined) ?? [], "total-desc")
+    ? sortModels((snapshot?.models as V4ModelScore[] | undefined) ?? [], "total-desc")
     : [];
 
   return (
@@ -76,7 +84,7 @@ export default async function V4HomePage() {
           </tbody>
         </table>
         {!isOk && (
-          <div className="p-4 text-center text-sm text-amber-200">Something went wrong.</div>
+          <div className="p-4 text-center text-sm text-amber-200">Unable to load leaderboard data.</div>
         )}
         {isOk && models.length === 0 && (
           <div className="p-4 text-center text-sm text-slate-400">No models available. Check back soon.</div>
