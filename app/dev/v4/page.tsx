@@ -1,27 +1,13 @@
 import Link from "next/link";
 
-import { DEV_V4_API_BASE } from "@/lib/v4/config";
-
+import { fetchDevV4Snapshot } from "./lib/fetchers";
 import { sortModels } from "./lib/utils";
-import type { SnapshotResponse, V4ModelScore } from "./types";
+import type { V4ModelScore } from "./types";
 
 export const dynamic = "force-dynamic";
 
-async function fetchSnapshot(): Promise<SnapshotResponse | null> {
-  try {
-    const response = await fetch(`${DEV_V4_API_BASE}/snapshot`, { cache: "no-store" });
-    if (!response.ok) return null;
-
-    const payload = (await response.json()) as SnapshotResponse;
-    return payload?.status === "ok" ? payload : null;
-  } catch (error) {
-    console.error("Failed to load v4 snapshot", error);
-    return null;
-  }
-}
-
 export default async function V4HomePage() {
-  const snapshot = await fetchSnapshot();
+  const snapshot = await fetchDevV4Snapshot();
 
   const isOk = snapshot?.status === "ok";
   const models = isOk
