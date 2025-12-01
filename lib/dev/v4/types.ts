@@ -34,13 +34,13 @@ export interface V4ModelInput {
   tags?: string[];
 }
 
-export type V4DeltaBreakdown = {
+export interface V4DeltaBreakdown {
   total: number;
   reasoning: number;
   coding: number;
   chat: number;
   safety: number;
-};
+}
 
 export interface V4ModelComputed extends V4ModelInput {
   total: number;

@@ -2,6 +2,8 @@
 // so the snapshot, scoring, and metadata helpers can stay in sync even as the
 // implementation evolves.
 
+export const DEV_V4_API_BASE = "/dev/api/v4";
+
 export type CacheStrategy = "memory-first" | "edge-revalidate" | "static";
 
 export interface DataSource {
