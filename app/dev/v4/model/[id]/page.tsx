@@ -1,38 +1,18 @@
-import { DEV_V4_API_BASE } from "@/lib/v4/config";
+import { fetchDevV4Evidence, fetchDevV4Model, withDeltaFallback } from "../../lib/fetchers";
 
-import type { ScoringResponse, V4ModelScore } from "../../types";
+import type { V4Evidence } from "../../types";
 
 export const dynamic = "force-dynamic";
-
-const DELTA_FALLBACK = {
-  total: 0,
-  reasoning: 0,
-  coding: 0,
-  chat: 0,
-  safety: 0,
-};
-
-async function fetchModel(id: string): Promise<V4ModelScore | null> {
-  try {
-    const response = await fetch(`${DEV_V4_API_BASE}/model/${id}`, { cache: "no-store" });
-    if (!response.ok) return null;
-
-    const data = (await response.json()) as ScoringResponse;
-    const models = data?.status === "ok" ? (data.models as V4ModelScore[] | undefined) ?? [] : [];
-
-    return models.find((entry) => entry.id === id || entry.slug === id) ?? null;
-  } catch (error) {
-    console.error(`Failed to load v4 model ${id}`, error);
-    return null;
-  }
-}
 
 interface V4ModelPageProps {
   params: { id: string };
 }
 
 export default async function V4ModelDetailPage({ params }: V4ModelPageProps) {
-  const model = await fetchModel(params.id);
+  const [model, evidenceFromApi] = await Promise.all([
+    fetchDevV4Model(params.id),
+    fetchDevV4Evidence(params.id),
+  ]);
 
   if (!model) {
     return (
@@ -47,8 +27,8 @@ export default async function V4ModelDetailPage({ params }: V4ModelPageProps) {
     );
   }
 
-  const delta = model.delta30d ?? DELTA_FALLBACK;
-  const evidence = model.evidence ?? [];
+  const delta = withDeltaFallback(model.delta30d);
+  const evidence: V4Evidence[] = evidenceFromApi.length > 0 ? evidenceFromApi : model.evidence ?? [];
 
   return (
     <article className="space-y-7">
