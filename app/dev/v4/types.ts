@@ -23,5 +23,7 @@ export type {
   V4Modality,
   V4Status,
   V4Subscores,
+  LeaderboardModel,
+  LeaderboardResponse,
 };
 export type V4ModelScore = V4ModelComputed & { a30d?: number };
