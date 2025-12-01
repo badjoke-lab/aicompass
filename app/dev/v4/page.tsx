@@ -42,31 +42,39 @@ export default async function V4HomePage() {
             </tr>
           </thead>
           <tbody>
-            {models.map((model, index) => (
-              <tr key={model.id} className="border-t border-slate-800/70 bg-background/30 transition hover:bg-background/60">
-                <td className="px-3 py-4 text-right text-slate-500 sm:py-3">{index + 1}</td>
-                <td className="px-3 py-4 font-semibold text-slate-50 sm:py-3">
-                  <Link className="text-accent hover:text-accent/80" href={`/dev/v4/model/${model.slug}`}>
-                    {model.name}
-                  </Link>
-                </td>
-                <td className="px-3 py-4 text-slate-200 sm:py-3">{model.vendor}</td>
-                <td className="px-3 py-4 text-slate-300 sm:py-3">{model.modality.join(", ")}</td>
-                <td className="px-3 py-4 text-right font-semibold text-accent sm:py-3">{model.total}</td>
-                <td
-                  className={`px-3 py-4 text-right sm:py-3 ${
-                    model.delta30d.total >= 0 ? "text-emerald-400" : "text-amber-300"
-                  }`}
+            {models.map((model, index) => {
+              const delta = model.delta30d;
+              const name = model.name ?? model.slug;
+
+              return (
+                <tr
+                  key={model.id}
+                  className="border-t border-slate-800/70 bg-background/30 transition hover:bg-background/60"
                 >
-                  {model.delta30d.total >= 0 ? "+" : ""}
-                  {model.delta30d.total}
-                </td>
-                <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.subscores.reasoning}</td>
-                <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.subscores.coding}</td>
-                <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.subscores.chat}</td>
-                <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.subscores.safety}</td>
-              </tr>
-            ))}
+                  <td className="px-3 py-4 text-right text-slate-500 sm:py-3">{index + 1}</td>
+                  <td className="px-3 py-4 font-semibold text-slate-50 sm:py-3">
+                    <Link className="text-accent hover:text-accent/80" href={`/dev/v4/model/${model.slug}`}>
+                      {name}
+                    </Link>
+                  </td>
+                  <td className="px-3 py-4 text-slate-200 sm:py-3">{model.vendor}</td>
+                  <td className="px-3 py-4 text-slate-300 sm:py-3">{model.modality.join(", ")}</td>
+                  <td className="px-3 py-4 text-right font-semibold text-accent sm:py-3">{model.total}</td>
+                  <td
+                    className={`px-3 py-4 text-right sm:py-3 ${
+                      delta.total >= 0 ? "text-emerald-400" : "text-amber-300"
+                    }`}
+                  >
+                    {delta.total >= 0 ? "+" : ""}
+                    {delta.total}
+                  </td>
+                  <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.subscores.reasoning}</td>
+                  <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.subscores.coding}</td>
+                  <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.subscores.chat}</td>
+                  <td className="px-3 py-4 text-right text-slate-100 sm:py-3">{model.subscores.safety}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
         {!isOk && (

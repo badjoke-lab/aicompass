@@ -28,13 +28,15 @@ export default async function V4ModelDetailPage({ params }: V4ModelPageProps) {
   }
 
   const delta = withDeltaFallback(model.delta30d);
+  const subscores = model.subscores ?? { reasoning: 0, coding: 0, chat: 0, safety: 0 };
   const evidence: V4Evidence[] = evidenceFromApi.length > 0 ? evidenceFromApi : model.evidence ?? [];
+  const updatedAt = model.updatedAt ?? model.updated ?? "";
 
   return (
     <article className="space-y-7">
       <header className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">AIMS · v4</p>
-        <h1 className="text-3xl font-semibold leading-tight text-slate-50 sm:text-4xl">{model.name}</h1>
+        <h1 className="text-3xl font-semibold leading-tight text-slate-50 sm:text-4xl">{model.name ?? model.slug}</h1>
         <p className="text-sm text-slate-400">{model.vendor} · {model.modality.join(", ")}</p>
         <p className="max-w-3xl text-sm leading-relaxed text-slate-300">{model.summary}</p>
       </header>
@@ -43,7 +45,9 @@ export default async function V4ModelDetailPage({ params }: V4ModelPageProps) {
         <div className="rounded-xl border border-slate-800 bg-background/70 p-4 shadow">
           <p className="text-xs uppercase tracking-wide text-slate-400">Total</p>
           <p className="text-4xl font-semibold text-accent">{model.total}</p>
-          <p className="text-xs text-slate-500">Updated {new Date(model.updated).toLocaleDateString()}</p>
+          <p className="text-xs text-slate-500">
+            Updated {updatedAt ? new Date(updatedAt).toLocaleDateString() : "--"}
+          </p>
           <p className={`text-xs font-semibold ${delta.total >= 0 ? "text-emerald-400" : "text-amber-300"}`}>
             30d change: {delta.total >= 0 ? "+" : ""}
             {delta.total}
@@ -52,10 +56,10 @@ export default async function V4ModelDetailPage({ params }: V4ModelPageProps) {
         <div className="rounded-xl border border-slate-800 bg-background/70 p-4 shadow">
           <p className="text-xs uppercase tracking-wide text-slate-400">Subscores</p>
           <ul className="space-y-2 text-sm text-slate-200">
-            <li className="flex items-center justify-between"><span>Reasoning</span><span>{model.subscores.reasoning}</span></li>
-            <li className="flex items-center justify-between"><span>Coding</span><span>{model.subscores.coding}</span></li>
-            <li className="flex items-center justify-between"><span>Chat</span><span>{model.subscores.chat}</span></li>
-            <li className="flex items-center justify-between"><span>Safety</span><span>{model.subscores.safety}</span></li>
+            <li className="flex items-center justify-between"><span>Reasoning</span><span>{subscores.reasoning}</span></li>
+            <li className="flex items-center justify-between"><span>Coding</span><span>{subscores.coding}</span></li>
+            <li className="flex items-center justify-between"><span>Chat</span><span>{subscores.chat}</span></li>
+            <li className="flex items-center justify-between"><span>Safety</span><span>{subscores.safety}</span></li>
           </ul>
         </div>
         <div className="rounded-xl border border-slate-800 bg-background/70 p-4 shadow">
