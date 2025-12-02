@@ -1,5 +1,10 @@
 import { safeJSON, withError } from "@/lib/v4/http";
-import type { ModelListResponse } from "@/lib/v4/types";
+
+interface ModelListResponse {
+  status: "ok";
+  providers: { id: string; name: string; modelCount?: number; focusAreas?: string[] }[];
+  total: number;
+}
 
 export const revalidate = 0;
 
