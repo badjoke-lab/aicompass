@@ -9,6 +9,18 @@ export interface SnapshotResponse {
   models: V4ModelEntry[];
 }
 
+export interface LeaderboardResponse {
+  status: "ok";
+  updated: string | null;
+  leaderboard: V4ModelEntry[];
+}
+
+export interface ScoringResponse {
+  status: "ok";
+  updated: string | null;
+  model: V4ModelEntry | null;
+}
+
 export interface V4ModelEntry {
   id: string;
   slug: string;
