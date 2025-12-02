@@ -1,6 +1,7 @@
 import { DEV_V4_API_BASE } from "@/lib/v4/config";
 
 import type {
+  LeaderboardResponse,
   ScoringResponse,
   SnapshotResponse,
   V4DeltaBreakdown,
@@ -24,10 +25,14 @@ const SUBSCORE_FALLBACK: V4Subscores = {
   safety: 0,
 };
 
-type ApiModelScore = Partial<V4ModelScore> & { updated?: string };
+type ApiModelScore = Partial<V4ModelScore> & { updated?: string; a30d?: number };
 
 function normalizeModel(model: ApiModelScore): V4ModelScore {
-  const delta = withDeltaFallback(model?.delta30d);
+  const delta = withDeltaFallback({
+    ...DELTA_FALLBACK,
+    ...model?.delta30d,
+    total: model?.a30d ?? model?.delta30d?.total ?? DELTA_FALLBACK.total,
+  });
   const subscores = model?.subscores ?? SUBSCORE_FALLBACK;
   const evidence = Array.isArray(model?.evidence) ? model.evidence : [];
   const modality = Array.isArray(model?.modality) ? model.modality : [];
@@ -48,6 +53,7 @@ function normalizeModel(model: ApiModelScore): V4ModelScore {
     updatedAt,
     updated: updatedAt,
     evidence,
+    a30d: model?.a30d ?? delta.total,
   } as V4ModelScore;
 }
 
@@ -59,10 +65,10 @@ function normalizeModels(models: ApiModelScore[] | undefined): V4ModelScore[] {
 
 export async function fetchDevV4Snapshot(): Promise<SnapshotResponse | null> {
   try {
-    const response = await fetch(`${DEV_V4_API_BASE}/snapshot`, { cache: "no-store" });
+    const response = await fetch(`${DEV_V4_API_BASE}/leaderboard`, { cache: "no-store" });
     if (!response.ok) return null;
 
-    const payload = (await response.json()) as SnapshotResponse;
+    const payload = (await response.json()) as LeaderboardResponse | SnapshotResponse;
     if (payload?.status !== "ok") return null;
 
     return {
@@ -77,7 +83,7 @@ export async function fetchDevV4Snapshot(): Promise<SnapshotResponse | null> {
 
 export async function fetchDevV4Model(id: string): Promise<V4ModelScore | null> {
   try {
-    const response = await fetch(`${DEV_V4_API_BASE}/model/${id}`, { cache: "no-store" });
+    const response = await fetch(`${DEV_V4_API_BASE}/models/${id}`, { cache: "no-store" });
     if (!response.ok) return null;
 
     const data = (await response.json()) as ScoringResponse;

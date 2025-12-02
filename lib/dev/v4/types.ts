@@ -50,6 +50,10 @@ export interface V4ModelComputed extends V4ModelInput {
 
 export type V4Model = V4ModelComputed;
 
+export interface LeaderboardModel extends V4ModelComputed {
+  a30d: number;
+}
+
 export interface V4Snapshot {
   status: V4Status;
   updated: string | null;
@@ -67,4 +71,10 @@ export interface ScoringResponse {
   models: V4ModelComputed[];
 }
 
-export type V4Response = SnapshotResponse | ScoringResponse | V4ErrorResponse;
+export interface LeaderboardResponse {
+  status: "ok";
+  updated: string | null;
+  models: LeaderboardModel[];
+}
+
+export type V4Response = SnapshotResponse | ScoringResponse | LeaderboardResponse | V4ErrorResponse;

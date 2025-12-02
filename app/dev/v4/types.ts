@@ -9,6 +9,8 @@ import type {
   V4Modality,
   V4Status,
   V4Subscores,
+  LeaderboardModel,
+  LeaderboardResponse,
 } from "@/lib/dev/v4/types";
 
 export type {
@@ -21,5 +23,7 @@ export type {
   V4Modality,
   V4Status,
   V4Subscores,
+  LeaderboardModel,
+  LeaderboardResponse,
 };
-export type V4ModelScore = V4ModelComputed;
+export type V4ModelScore = V4ModelComputed & { a30d?: number };
