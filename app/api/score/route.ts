@@ -6,13 +6,18 @@ import type { V4Model } from "@/types/v4";
 export const revalidate = 0;
 
 export async function GET(request: NextRequest) {
-  const id = request.nextUrl.searchParams.get("id");
-  const model = id ? sampleData.models.find((entry) => entry.id === id || entry.slug === id) : undefined;
+  const slug = request.nextUrl.searchParams.get("slug") ?? request.nextUrl.searchParams.get("id");
+  const model = slug ? sampleData.models.find((entry) => entry.slug === slug || entry.id === slug) : undefined;
 
   const payload: { status: "ok"; score: V4Model | null } = {
     status: "ok",
     score: model ?? null,
   };
 
-  return NextResponse.json(payload, { headers: { "X-Robots-Tag": "noindex, nofollow" } });
+  const status = model ? 200 : 404;
+
+  return NextResponse.json(payload, {
+    status,
+    headers: { "X-Robots-Tag": "noindex, nofollow" },
+  });
 }
