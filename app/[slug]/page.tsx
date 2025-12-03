@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getScore } from "@/lib/fetchers";
+import { SubscoreChart } from "../components/SubscoreChart";
 import type { V4Model } from "@/types/v4";
 
 function formatDelta(value: number): string {
@@ -50,10 +51,10 @@ export default async function ModelDetailPage({ params }: { params: { slug: stri
       </header>
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <ScoreCard label="Reasoning" value={model.subscores.reasoning} delta={model.delta30d.reasoning} />
-        <ScoreCard label="Coding" value={model.subscores.coding} delta={model.delta30d.coding} />
-        <ScoreCard label="Chat" value={model.subscores.chat} delta={model.delta30d.chat} />
-        <ScoreCard label="Safety" value={model.subscores.safety} delta={model.delta30d.safety} />
+        <SubscoreChart label="reasoning" score={model.subscores.reasoning} delta={model.delta30d.reasoning} />
+        <SubscoreChart label="coding" score={model.subscores.coding} delta={model.delta30d.coding} />
+        <SubscoreChart label="chat" score={model.subscores.chat} delta={model.delta30d.chat} />
+        <SubscoreChart label="safety" score={model.subscores.safety} delta={model.delta30d.safety} />
       </section>
 
       <section className="space-y-3 rounded-2xl border border-slate-800 bg-surface/80 p-4 shadow-xl sm:p-6">
@@ -74,16 +75,6 @@ export default async function ModelDetailPage({ params }: { params: { slug: stri
       <Link href="/" className="text-sm font-semibold text-accent underline">
         ← Back to leaderboard
       </Link>
-    </div>
-  );
-}
-
-function ScoreCard({ label, value, delta }: { label: string; value: number; delta: number }) {
-  return (
-    <div className="rounded-xl border border-slate-800 bg-background/60 px-4 py-3">
-      <p className="text-[0.65rem] uppercase tracking-wide text-slate-500">{label}</p>
-      <p className="text-2xl font-semibold text-slate-50">{value.toFixed(1)}</p>
-      <p className={delta >= 0 ? "text-emerald-400" : "text-rose-400"}>{formatDelta(delta)} vs 30d</p>
     </div>
   );
 }
