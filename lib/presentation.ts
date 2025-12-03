@@ -1,4 +1,4 @@
-import type { HealthStatus } from "@/lib/v3/snapshot";
+export type HealthStatus = "ok" | "degraded" | "unavailable";
 
 export function formatCompactNumber(value: number) {
   return Intl.NumberFormat("en-US", { notation: "compact" }).format(value);

@@ -1,26 +1,20 @@
-import type {
-  LeaderboardResponse,
-  ScoringResponse,
-  SnapshotResponse,
-  V4ModelEntry,
-} from "@/lib/v4/types";
+import type { V4LeaderboardResponse, V4Model, V4SnapshotResponse } from "@/types/v4";
 
 const updated = "2024-11-15T15:00:00Z";
 
-const models: V4ModelEntry[] = [
+const models: V4Model[] = [
   {
     id: "orion-pro",
     slug: "orion-pro",
     name: "Orion Pro",
     vendor: "Starlance",
     modality: ["text", "code"],
-    summary:
-      "Starlance's flagship reasoning model tuned for copilots and long-context planning with strong grounding.",
+    summary: "Flagship reasoning model tuned for copilots and long-context planning.",
     subscores: {
-      reasoning: 96.4,
-      coding: 94.2,
-      chat: 95.1,
-      safety: 92.3,
+      reasoning: 9.6,
+      coding: 9.4,
+      chat: 9.5,
+      safety: 9.2,
     },
     evidence: [
       {
@@ -34,29 +28,29 @@ const models: V4ModelEntry[] = [
         date: "2024-11-10",
       },
     ],
-    updatedAt: "2024-11-15T15:00:00Z",
+    updated,
     tags: ["enterprise", "assistant"],
-    total: 95.2,
+    total: 9.5,
     delta30d: {
-      total: 2.1,
-      reasoning: 1.2,
-      coding: 1.0,
-      chat: 1.4,
-      safety: 0.8,
+      total: 0.4,
+      reasoning: 0.3,
+      coding: 0.3,
+      chat: 0.4,
+      safety: 0.2,
     },
   },
   {
-    id: "model-aurora-lite",
+    id: "aurora-lite",
     slug: "aurora-lite",
     name: "Aurora Lite",
     vendor: "Northwind",
     modality: ["text"],
     summary: "Lightweight chat model tuned for latency-sensitive workloads.",
     subscores: {
-      reasoning: 86.5,
-      coding: 82.1,
-      chat: 88.3,
-      safety: 90.1,
+      reasoning: 8.6,
+      coding: 8.2,
+      chat: 8.8,
+      safety: 9.0,
     },
     evidence: [
       {
@@ -65,29 +59,29 @@ const models: V4ModelEntry[] = [
         date: "2024-05-22",
       },
     ],
-    updatedAt: "2024-11-12T09:30:00Z",
+    updated: "2024-11-12T09:30:00Z",
     tags: ["lightweight", "chat"],
-    total: 88.1,
+    total: 8.8,
     delta30d: {
-      total: 0.8,
-      reasoning: 0.5,
-      coding: 0.2,
-      chat: 0.6,
-      safety: 0.3,
+      total: 0.2,
+      reasoning: 0.1,
+      coding: 0.1,
+      chat: 0.2,
+      safety: 0.1,
     },
   },
   {
-    id: "model-helix-research",
+    id: "helix-research",
     slug: "helix-research",
     name: "Helix Research",
     vendor: "Helix Labs",
     modality: ["text", "vision"],
     summary: "Multimodal research preview with strong coding and reasoning.",
     subscores: {
-      reasoning: 90.7,
-      coding: 92.9,
-      chat: 87.2,
-      safety: 86.4,
+      reasoning: 9.1,
+      coding: 9.3,
+      chat: 8.7,
+      safety: 8.6,
     },
     evidence: [
       {
@@ -96,20 +90,20 @@ const models: V4ModelEntry[] = [
         date: "2024-05-27",
       },
     ],
-    updatedAt: "2024-11-08T15:45:00Z",
+    updated: "2024-11-08T15:45:00Z",
     tags: ["research", "multimodal"],
-    total: 90.1,
+    total: 9.0,
     delta30d: {
-      total: 1.1,
-      reasoning: 0.7,
-      coding: 0.9,
-      chat: 0.4,
-      safety: 0.2,
+      total: 0.3,
+      reasoning: 0.2,
+      coding: 0.3,
+      chat: 0.1,
+      safety: 0.1,
     },
   },
 ];
 
-export function buildSnapshotPayload(): SnapshotResponse {
+export function buildSnapshotPayload(): V4SnapshotResponse {
   return {
     status: "ok",
     updated,
@@ -117,7 +111,7 @@ export function buildSnapshotPayload(): SnapshotResponse {
   };
 }
 
-export function buildLeaderboardPayload(): LeaderboardResponse {
+export function buildLeaderboardPayload(): V4LeaderboardResponse {
   return {
     status: "ok",
     updated,
@@ -125,12 +119,10 @@ export function buildLeaderboardPayload(): LeaderboardResponse {
   };
 }
 
-export function buildScoringPayload(slug: string): ScoringResponse {
-  const model = models.find((entry) => entry.slug === slug) ?? null;
-
+export function buildScorePayload(id: string) {
   return {
-    status: "ok",
+    status: "ok" as const,
     updated,
-    model,
+    model: models.find((model) => model.id === id || model.slug === id) ?? null,
   };
 }

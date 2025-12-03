@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
 
 import { buildPageMetadata } from "@/lib/metadata";
-import { SCORE_WEIGHTS } from "@/lib/v3/snapshot";
+
+const SCORE_WEIGHTS = {
+  reasoning: 0.3,
+  coding: 0.25,
+  chat: 0.25,
+  safety: 0.2,
+};
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Methodology",
-  description: "Understand how AIMS v3 normalizes Hugging Face signals and combines them into composite scores.",
+  description: "Understand how AIMS v4 blends reasoning, coding, chat, and safety signals into composite scores.",
   path: "/methodology",
 });
 
@@ -13,25 +19,24 @@ export default function MethodologyPage() {
   return (
     <div className="space-y-6">
       <header className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">AIMS · v3</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">AIMS · v4</p>
         <h1 className="text-3xl font-semibold leading-tight text-slate-50 sm:text-4xl">Methodology</h1>
         <p className="max-w-3xl text-sm leading-relaxed text-slate-400">
-          aims-v3 stays simple: pull live signals from Hugging Face, normalize them across all tracked models, then apply
-          deterministic weights. No local fixtures, no manual overrides, and minimal styling shifts between light and dark
-          surfaces.
+          The v4 stack simplifies the surface by using a single snapshot format. Each score blends structured subscores and
+          traces back to evidence so the leaderboard reflects the exact signals behind every change.
         </p>
       </header>
 
       <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-5 shadow-sm">
         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-base font-semibold text-slate-100">Data flow</h2>
-          <p className="text-xs uppercase tracking-wide text-slate-500">Live inputs only</p>
+          <p className="text-xs uppercase tracking-wide text-slate-500">v4 snapshot</p>
         </div>
         <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-slate-300">
-          <li>Fetch Hugging Face metadata (downloads, likes, lastModified) for a curated list of foundation models.</li>
-          <li>Normalize each metric using min–max scaling so models are comparable on every refresh.</li>
-          <li>Combine the three scaled scores with fixed weights to produce the composite leaderboard total.</li>
-          <li>Cache snapshots for a few minutes and retry failed calls to avoid spiky 500s.</li>
+          <li>Ingest curated benchmark and safety evidence for each model.</li>
+          <li>Normalize reasoning, coding, chat, and safety scores onto the same 0–10 range.</li>
+          <li>Blend the normalized subscores with fixed weights to produce the composite total.</li>
+          <li>Publish a single snapshot feed that both the leaderboard and model pages consume.</li>
         </ul>
       </div>
 
@@ -42,25 +47,27 @@ export default function MethodologyPage() {
         </div>
         <ul className="space-y-2 text-sm text-slate-300">
           <li>
-            Adoption weight: <strong>{(SCORE_WEIGHTS.adoption * 100).toFixed(0)}%</strong> (downloads)
+            Reasoning weight: <strong>{(SCORE_WEIGHTS.reasoning * 100).toFixed(0)}%</strong>
           </li>
           <li>
-            Ecosystem weight: <strong>{(SCORE_WEIGHTS.ecosystem * 100).toFixed(0)}%</strong> (likes)
+            Coding weight: <strong>{(SCORE_WEIGHTS.coding * 100).toFixed(0)}%</strong>
           </li>
           <li>
-            Velocity weight: <strong>{(SCORE_WEIGHTS.velocity * 100).toFixed(0)}%</strong> (recency)
+            Chat weight: <strong>{(SCORE_WEIGHTS.chat * 100).toFixed(0)}%</strong>
+          </li>
+          <li>
+            Safety weight: <strong>{(SCORE_WEIGHTS.safety * 100).toFixed(0)}%</strong>
           </li>
         </ul>
         <p className="text-xs text-slate-500">
-          Scores always recompute from the latest public metadata; no manual curation or private signals are used.
+          All totals and deltas adhere to the v4 schema, with no legacy model identifiers or versioned payloads.
         </p>
       </div>
 
       <div className="space-y-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-5 shadow-sm">
         <h2 className="text-base font-semibold text-slate-100">Transparency requirements</h2>
         <p className="text-sm leading-relaxed text-slate-400">
-          All values visible on the site come directly from external APIs. If a fetch fails the row stays visible with an error
-          flag so visitors can track health without losing context.
+          Every leaderboard entry links to evidence, keeping the simplified API surface auditable as the scoring inputs evolve.
         </p>
       </div>
     </div>
