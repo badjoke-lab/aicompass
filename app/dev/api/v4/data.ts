@@ -5,43 +5,44 @@ import type {
   V4ModelEntry,
 } from "@/lib/v4/types";
 
-const updated = "2024-06-05T12:00:00Z";
+const updated = "2024-11-15T15:00:00Z";
 
 const models: V4ModelEntry[] = [
   {
-    id: "model-orion-pro",
+    id: "orion-pro",
     slug: "orion-pro",
     name: "Orion Pro",
-    vendor: "Orion Labs",
+    vendor: "Starlance",
     modality: ["text", "code"],
-    summary: "Flagship reasoning-tuned assistant optimized for enterprise copilots.",
+    summary:
+      "Starlance's flagship reasoning model tuned for copilots and long-context planning with strong grounding.",
     subscores: {
-      reasoning: 94.2,
-      coding: 91.8,
-      chat: 93.6,
-      safety: 89.9,
+      reasoning: 96.4,
+      coding: 94.2,
+      chat: 95.1,
+      safety: 92.3,
     },
     evidence: [
       {
-        title: "ARC-AGI benchmark (May)",
-        url: "https://example.com/orion-pro/arc",
-        date: "2024-05-18",
+        title: "Starlance Orion Pro v4 eval: ARC-AGI (Oct 2024)",
+        url: "https://example.com/orion-pro/arc-oct-2024",
+        date: "2024-10-28",
       },
       {
-        title: "Enterprise deployment case study",
-        url: "https://example.com/orion-pro/case-study",
-        date: "2024-05-30",
+        title: "Enterprise copilots rollout (1.2M requests/day)",
+        url: "https://example.com/orion-pro/copilot-scale",
+        date: "2024-11-10",
       },
     ],
-    updatedAt: "2024-06-05T12:00:00Z",
+    updatedAt: "2024-11-15T15:00:00Z",
     tags: ["enterprise", "assistant"],
-    total: 92.4,
+    total: 95.2,
     delta30d: {
-      total: 1.6,
-      reasoning: 0.9,
-      coding: 0.7,
-      chat: 1.1,
-      safety: 0.4,
+      total: 2.1,
+      reasoning: 1.2,
+      coding: 1.0,
+      chat: 1.4,
+      safety: 0.8,
     },
   },
   {
@@ -64,7 +65,7 @@ const models: V4ModelEntry[] = [
         date: "2024-05-22",
       },
     ],
-    updatedAt: "2024-06-02T09:30:00Z",
+    updatedAt: "2024-11-12T09:30:00Z",
     tags: ["lightweight", "chat"],
     total: 88.1,
     delta30d: {
@@ -95,7 +96,7 @@ const models: V4ModelEntry[] = [
         date: "2024-05-27",
       },
     ],
-    updatedAt: "2024-06-03T15:45:00Z",
+    updatedAt: "2024-11-08T15:45:00Z",
     tags: ["research", "multimodal"],
     total: 90.1,
     delta30d: {
