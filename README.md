@@ -1,13 +1,13 @@
 # AI Model Scoreboard
 
-AI Model Scoreboard (aims-v3) publishes a minimal leaderboard sourced directly from public Hugging Face metadata. Each refresh
-pulls real download/like counts and last-update timestamps, normalizes them, and rolls them into a deterministic composite
-score. No mock data or manual overrides are used.
+AI Model Scoreboard (v4) showcases a composite leaderboard that blends reasoning, coding, chat, and safety subscores. The
+App Router exposes matching APIs for the live snapshot, ranked leaderboard, and per-model scorecards used by the UI.
 
 - Live site: https://ai-model-scoreboard.vercel.app/
-- Snapshot API: `/api/snapshot` returns the same data the UI renders
+- Snapshot API: `/api/snapshot` returns the data rendered by the UI
+- Leaderboard API: `/api/leaderboard` returns normalized and sorted scores
+- Score API: `/api/score/[id]` returns a single normalized model by slug or id
 - Health check: `/api/health` reports live fetch/cache/score status
-- Manual refresh: `/api/snapshot/refresh` recomputes the cache (used by cron)
 - Methodology: https://ai-model-scoreboard.vercel.app/methodology
 
 ## Getting started
@@ -27,10 +27,9 @@ npm run lint
 npx tsc --noEmit
 ```
 
-## Data sources (v3)
-- Hugging Face model metadata: downloads, likes, and `lastModified` timestamps are fetched per tracked repo.
-- Scores: min–max normalization across the live set plus fixed weights (adoption 45%, ecosystem 35%, velocity 20%).
-- Resilience: fetch attempts are retried with backoff and cached for a few minutes to reduce 500s.
+## Data
+- Development environments use sample data stored in `lib/data/sample.json`.
+- Normalization and scoring logic lives in `lib/normalizers.ts` and is applied consistently across the API surface.
 
 ## Donation story
 The `/donation` page keeps AI Model Scoreboard independent while production payment rails are finalized. It currently lists
