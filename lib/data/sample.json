@@ -1,0 +1,55 @@
+{
+  "updatedAt": "2024-06-01T12:00:00Z",
+  "models": [
+    {
+      "id": "orion-70b",
+      "slug": "orion-70b",
+      "name": "Orion 70B",
+      "vendor": "Nebula Labs",
+      "modality": ["text"],
+      "summary": "General-purpose chat model tuned for production safety and reasoning depth.",
+      "subscores": { "reasoning": 9.0, "coding": 8.3, "chat": 9.2, "safety": 8.7 },
+      "evidence": [
+        { "title": "BenchSuite Logic: 89.4", "url": "https://example.com/orion/logic", "date": "2024-05-20" },
+        { "title": "Red-team scorecard", "url": "https://example.com/orion/safety", "date": "2024-05-10" }
+      ],
+      "updatedAt": "2024-06-01T10:00:00Z",
+      "tags": ["general", "production"],
+      "total": 8.9,
+      "delta30d": { "total": 0.4, "reasoning": 0.3, "coding": 0.2, "chat": 0.5, "safety": 0.2 }
+    },
+    {
+      "id": "solstice-8x7b",
+      "slug": "solstice-8x7b",
+      "name": "Solstice 8x7B",
+      "vendor": "StudioQ",
+      "modality": ["text", "code"],
+      "summary": "Mixture-of-experts stack optimized for tool-use and structured generation.",
+      "subscores": { "reasoning": 8.3, "coding": 8.9, "chat": 8.1, "safety": 8.0 },
+      "evidence": [
+        { "title": "Toolformer pass rate", "url": "https://example.com/solstice/toolformer", "date": "2024-05-18" },
+        { "title": "Secure coding audit", "url": "https://example.com/solstice/audit", "date": "2024-05-05" }
+      ],
+      "updatedAt": "2024-05-30T17:30:00Z",
+      "tags": ["tools", "coding"],
+      "total": 8.5,
+      "delta30d": { "total": 0.2, "reasoning": 0.1, "coding": 0.3, "chat": 0.0, "safety": 0.1 }
+    },
+    {
+      "id": "lumen-small",
+      "slug": "lumen-small",
+      "name": "Lumen Small",
+      "vendor": "Signal Forge",
+      "modality": ["text"],
+      "summary": "Lightweight safety-first assistant tuned for retrieval-augmented chat.",
+      "subscores": { "reasoning": 7.4, "coding": 7.1, "chat": 8.0, "safety": 9.1 },
+      "evidence": [
+        { "title": "Alignment eval", "url": "https://example.com/lumen/alignment", "date": "2024-05-12" }
+      ],
+      "updatedAt": "2024-05-28T09:15:00Z",
+      "tags": ["safety", "lightweight"],
+      "total": 7.9,
+      "delta30d": { "total": 0.1, "reasoning": 0.0, "coding": -0.1, "chat": 0.2, "safety": 0.3 }
+    }
+  ]
+}

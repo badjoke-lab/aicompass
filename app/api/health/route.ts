@@ -1,14 +1,15 @@
-import { getHealth, getSnapshot } from "@/lib/v3/snapshot";
 import { NextResponse } from "next/server";
+
+import sampleData from "@/lib/data/sample.json";
 
 export const revalidate = 0;
 
 export async function GET() {
-  try {
-    await getSnapshot();
-  } catch (error) {
-    console.error("Health check snapshot error", error);
-  }
-
-  return NextResponse.json(getHealth());
+  return NextResponse.json({
+    status: "ok",
+    snapshot: {
+      updatedAt: sampleData.updatedAt,
+      source: "v4-sample",
+    },
+  });
 }

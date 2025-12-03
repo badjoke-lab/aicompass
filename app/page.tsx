@@ -1,223 +1,86 @@
-import type { Metadata } from "next";
-import type { ReactNode } from "react";
+import Link from "next/link";
 
-import { DEFAULT_DESCRIPTION, buildPageMetadata } from "@/lib/metadata";
-import { metaPillClass } from "@/lib/layout";
-import { formatCompactNumber, formatSnapshotAge, getHealthLabel } from "@/lib/presentation";
-import { getHealth, getSnapshot } from "@/lib/v3/snapshot";
+import { getLeaderboard } from "@/lib/fetchers";
+import type { V4Model } from "@/types/v4";
 
-export const metadata: Metadata = buildPageMetadata({
-  title: "Scores",
-  description: DEFAULT_DESCRIPTION,
-  path: "/",
-});
+function formatDelta(value: number): string {
+  const fixed = value.toFixed(1);
+  if (value > 0) return `+${fixed}`;
+  if (value < 0) return fixed;
+  return "0.0";
+}
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
-export default async function ScoresPage() {
-  let snapshot: Awaited<ReturnType<typeof getSnapshot>> | null = null;
-  let snapshotError: string | null = null;
-
-  try {
-    snapshot = await getSnapshot();
-  } catch (error) {
-    snapshotError = error instanceof Error ? error.message : "Unable to fetch snapshot.";
-  }
-
-  const health = getHealth();
-  const snapshotAgeSeconds = health.snapshot.ageSeconds;
-  const formattedSnapshotAge = formatSnapshotAge(snapshotAgeSeconds);
-  const healthLabel = getHealthLabel(health.status);
-
-  const metrics = snapshot?.metrics ?? {
-    sourceCount: 0,
-    readyCount: 0,
-    downloadRange: { min: 0, max: 0 },
-    likeRange: { min: 0, max: 0 },
-    recencyRange: { min: 0, max: 0 },
-  };
-
-  const models = snapshot?.models ?? [];
-  const updatedAtLabel = snapshot?.updatedAt
-    ? new Date(snapshot.updatedAt).toLocaleString()
-    : "Unavailable";
+export default async function LeaderboardPage() {
+  const response = await getLeaderboard();
+  const models = [...response.leaderboard].sort((a, b) => b.total - a.total);
+  const updatedTimestamp = models.length
+    ? Math.max(...models.map((model) => new Date(model.updatedAt).getTime()))
+    : null;
+  const updatedLabel = updatedTimestamp ? new Date(updatedTimestamp).toLocaleString() : "—";
 
   return (
-    <div className="space-y-10">
-      <header className="space-y-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">AIMS · v3</p>
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-          <div className="space-y-3">
-            <h1 className="text-3xl font-semibold leading-tight text-slate-50 sm:text-4xl">Real-time AI model signals</h1>
-            <p className="max-w-3xl text-sm leading-relaxed text-slate-400">
-              Scores are computed from live Hugging Face metadata. Downloads drive adoption, likes proxy ecosystem pull,
-              and recent updates reward velocity. Data refreshes on every request with short caching to protect the API while
-              avoiding layout drift.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2 self-start rounded-full border border-slate-800 bg-background/70 px-3 py-1.5 text-xs text-slate-300 shadow-sm ring-1 ring-slate-800/60 sm:self-auto sm:flex-nowrap sm:px-4">
-            <span className="flex h-2.5 w-2.5 items-center justify-center rounded-full bg-emerald-400/80" />
-            <div className="flex flex-wrap items-center gap-2 font-semibold uppercase tracking-wide text-slate-200 sm:flex-nowrap">
-              <span className="whitespace-nowrap">Snapshot</span>
-              <span className="sm:min-w-0 tabular-nums rounded px-2 py-0.5 text-center text-xs text-slate-300 ring-1 ring-slate-800/60">
-                {formattedSnapshotAge}
-              </span>
-            </div>
-          </div>
+    <div className="space-y-8">
+      <header className="space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-500">AIMS · v4</p>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <h1 className="text-3xl font-semibold text-slate-50 sm:text-4xl">Live Leaderboard</h1>
+          <p className="text-xs text-slate-500">Snapshot updated: {updatedLabel}</p>
         </div>
-        <div className="flex flex-col gap-2 text-[0.8rem] text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-slate-400">Last updated: {updatedAtLabel}</p>
-          <div className="flex flex-wrap items-center gap-3 text-slate-400">
-            <span className={metaPillClass}>Health: {healthLabel}</span>
-            <a
-              href="https://github.com/ai-model-scoreboard/ai-model-scoreboard/tree/main/docs"
-              className="text-xs font-semibold uppercase tracking-wide text-accent underline-offset-4 hover:text-accent/80"
-              rel="noreferrer"
-              target="_blank"
-            >
-              View docs
-            </a>
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-3 text-xs text-slate-400">
-          <DocLink href="https://github.com/ai-model-scoreboard/ai-model-scoreboard/blob/main/docs/v3-snapshot.md">
-            Snapshot pipeline
-          </DocLink>
-          <DocLink href="https://github.com/ai-model-scoreboard/ai-model-scoreboard/blob/main/docs/v3-status.md">
-            Refresh cadence
-          </DocLink>
-          <DocLink href="https://github.com/ai-model-scoreboard/ai-model-scoreboard/blob/main/docs/api.md">
-            API endpoints
-          </DocLink>
-        </div>
+        <p className="max-w-3xl text-sm text-slate-400">
+          Scores and deltas follow the v4 schema with reasoning, coding, chat, and safety subscores blended into a composite.
+          Evidence links surface the signals that shaped each model&apos;s placement.
+        </p>
       </header>
 
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Sources tracked" value={metrics.sourceCount} helper="Hugging Face repos" />
-        <StatCard label="Healthy responses" value={metrics.readyCount} helper="Fetches that returned data" />
-        <StatCard
-          label="Adoption weight"
-          value={((snapshot?.scores.weights.adoption ?? 0.45) * 100).toFixed(0)}
-          helper="Scaled downloads"
-        />
-        <StatCard
-          label="Velocity weight"
-          value={((snapshot?.scores.weights.velocity ?? 0.2) * 100).toFixed(0)}
-          helper="Favors recent updates"
-        />
-      </section>
-
-      <section className="rounded-2xl border border-slate-800 bg-surface/80 shadow-xl">
-        <div className="flex flex-col gap-2 border-b border-slate-800 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <div className="space-y-0.5">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-300">Live snapshot</h2>
-            <p className="text-xs text-slate-500">
-              Hugging Face → normalize → weighted scores → render. Lower recency values mean fresher updates.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-800/70 bg-background/70 px-3 py-2 text-[0.7rem] text-slate-300 sm:flex-nowrap">
-            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-            <span className="font-semibold text-slate-200">Age</span>
-            <span className="text-slate-400 tabular-nums rounded px-2 py-0.5 text-left sm:min-w-[6.5rem] sm:text-right">{formattedSnapshotAge}</span>
-          </div>
+      <div className="overflow-hidden rounded-2xl border border-slate-800 bg-background/70 shadow-xl">
+        <div className="grid grid-cols-9 bg-surface px-4 py-3 text-[0.75rem] font-semibold uppercase tracking-wide text-slate-400">
+          <span>#</span>
+          <span className="col-span-2">Model</span>
+          <span>Vendor</span>
+          <span>Total</span>
+          <span>Δ 30d</span>
+          <span>Reasoning</span>
+          <span>Coding</span>
+          <span>Chat</span>
+          <span>Safety</span>
         </div>
-        <div className="overflow-x-auto">
-          {snapshotError && (
-            <div className="border-b border-slate-800 bg-slate-900/40 px-4 py-3 text-sm text-amber-200">
-              Snapshot degraded: {snapshotError}. Showing the most recent cached data.
-            </div>
-          )}
-          {models.length === 0 ? (
-            <div className="px-4 py-6 text-sm text-slate-400">
-              No snapshot data is available right now. The Hugging Face feed may be temporarily unreachable or still warming up.
-              Please check back soon.
-            </div>
-          ) : (
-            <table className="min-w-full text-sm">
-              <thead className="bg-background/60 text-[0.65rem] uppercase tracking-wide text-slate-400">
-                <tr>
-                  <th className="px-3 py-3 text-left">#</th>
-                  <th className="px-3 py-3 text-left">Model</th>
-                  <th className="px-3 py-3 text-right">Downloads</th>
-                  <th className="px-3 py-3 text-right">Likes</th>
-                  <th className="px-3 py-3 text-right">Recency (days)</th>
-                  <th className="px-3 py-3 text-right">Adoption</th>
-                  <th className="px-3 py-3 text-right">Ecosystem</th>
-                  <th className="px-3 py-3 text-right">Velocity</th>
-                  <th className="px-3 py-3 text-right">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {models.map((model, index) => (
-                  <tr key={model.id} className="border-t border-slate-800/70 bg-background/30 hover:bg-background/60">
-                    <td className="px-3 py-4 align-top text-right text-slate-500 sm:py-3 sm:align-middle">{index + 1}</td>
-                    <td className="px-3 py-4 align-top sm:py-3 sm:align-middle">
-                      <div className="space-y-1">
-                        <div className="font-semibold text-slate-50">{model.name}</div>
-                        <p className="text-xs text-slate-400">{model.provider}</p>
-                        {model.focus && <p className="text-[0.65rem] text-slate-500">{model.focus}</p>}
-                        <p className="text-[0.65rem] text-slate-500">{model.source}</p>
-                        {model.status === "error" && (
-                          <p className="text-[0.65rem] text-amber-300">Fetch error: {model.error}</p>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-3 py-4 text-right tabular-nums text-slate-100 sm:py-3">
-                      {formatCompactNumber(model.metrics.downloads ?? 0)}
-                    </td>
-                    <td className="px-3 py-4 text-right tabular-nums text-slate-100 sm:py-3">
-                      {formatCompactNumber(model.metrics.likes ?? 0)}
-                    </td>
-                    <td className="px-3 py-4 text-right tabular-nums text-slate-100 sm:py-3">
-                      {model.metrics.recencyDays ?? "—"}
-                    </td>
-                    <td className="px-3 py-4 text-right font-semibold text-slate-50 sm:py-3">
-                      {model.scores.adoption?.toFixed?.(1) ?? "0.0"}
-                    </td>
-                    <td className="px-3 py-4 text-right font-semibold text-slate-50 sm:py-3">
-                      {model.scores.ecosystem?.toFixed?.(1) ?? "0.0"}
-                    </td>
-                    <td className="px-3 py-4 text-right font-semibold text-slate-50 sm:py-3">
-                      {model.scores.velocity?.toFixed?.(1) ?? "0.0"}
-                    </td>
-                    <td className="px-3 py-4 text-right font-semibold text-accent sm:py-3">
-                      {model.scores.total?.toFixed?.(1) ?? "0.0"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+        <div className="divide-y divide-slate-800/80">
+          {models.map((model, index) => (
+            <LeaderboardRow key={model.id} model={model} rank={index + 1} />
+          ))}
         </div>
-        <div className="border-t border-slate-800/70 px-4 py-3 text-[0.75rem] text-slate-500 sm:px-6">
-          Downloads and likes are pulled directly from Hugging Face. Recency is days since last commit; lower values indicate
-          fresher updates. Scores are recalculated on every snapshot using fixed weights.
-        </div>
-      </section>
+      </div>
     </div>
   );
 }
 
-function StatCard({ label, value, helper }: { label: string; value: string | number; helper: string }) {
+function LeaderboardRow({ model, rank }: { model: V4Model; rank: number }) {
   return (
-    <div className="rounded-xl border border-slate-800 bg-background/50 px-4 py-3">
-      <p className="text-[0.65rem] uppercase tracking-wide text-slate-500">{label}</p>
-      <p className="text-2xl font-semibold text-slate-50">{value}</p>
-      <p className="text-[0.7rem] text-slate-500">{helper}</p>
+    <div className="grid grid-cols-9 items-center px-4 py-3 text-sm text-slate-200 hover:bg-surface">
+      <span className="text-sm font-semibold text-slate-500">{rank}</span>
+      <div className="col-span-2">
+        <Link href={`/${model.slug}`} className="font-semibold text-accent hover:text-accent/80">
+          {model.name}
+        </Link>
+        <div className="flex flex-wrap gap-1 text-[0.7rem] text-slate-500">
+          {model.tags.map((tag) => (
+            <span key={tag} className="rounded-full border border-slate-800 px-2 py-0.5">
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+      <span className="text-slate-400">{model.vendor}</span>
+      <span className="font-semibold text-slate-50">{model.total.toFixed(1)}</span>
+      <span className={model.delta30d.total >= 0 ? "text-emerald-400" : "text-rose-400"}>
+        {formatDelta(model.delta30d.total)}
+      </span>
+      <span>{model.subscores.reasoning.toFixed(1)}</span>
+      <span>{model.subscores.coding.toFixed(1)}</span>
+      <span>{model.subscores.chat.toFixed(1)}</span>
+      <span>{model.subscores.safety.toFixed(1)}</span>
     </div>
-  );
-}
-
-function DocLink({ href, children }: { href: string; children: ReactNode }) {
-  return (
-    <a
-      href={href}
-      className="inline-flex items-center gap-2 rounded-full border border-slate-800/60 bg-background/60 px-3 py-1 font-semibold uppercase tracking-wide text-slate-200 underline-offset-4 transition-colors hover:text-accent"
-      rel="noreferrer"
-      target="_blank"
-    >
-      <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-      <span>{children}</span>
-    </a>
   );
 }
