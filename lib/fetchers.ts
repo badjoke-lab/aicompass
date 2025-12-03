@@ -35,7 +35,7 @@ export async function getLeaderboard(): Promise<V4LeaderboardResponse> {
 }
 
 export async function getScore(slug: string): Promise<V4Model | null> {
-  const response = await fetch(resolveApiUrl(`/api/score?slug=${encodeURIComponent(slug)}`), { cache: "no-store" });
+  const response = await fetch(resolveApiUrl(`/api/score/${encodeURIComponent(slug)}`), { cache: "no-store" });
 
   if (response.status === 404) {
     return null;
