@@ -18,10 +18,18 @@ export async function getLeaderboard(): Promise<V4LeaderboardResponse> {
   return fetchJson<V4LeaderboardResponse>("/api/leaderboard");
 }
 
-export async function getScore(id: string): Promise<V4Model | null> {
-  const data = await fetchJson<{ status: "ok"; score: V4Model | null }>(
-    `/api/score?id=${encodeURIComponent(id)}`
-  );
+export async function getScore(slug: string): Promise<V4Model | null> {
+  const response = await fetch(`/api/score?slug=${encodeURIComponent(slug)}`, { cache: "no-store" });
 
-  return data.score;
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`);
+  }
+
+  const data = (await response.json()) as { status: "ok"; score: V4Model | null };
+
+  return data.score ?? null;
 }
