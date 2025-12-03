@@ -8,7 +8,6 @@ export const revalidate = 0;
 export async function GET() {
   const payload: V4SnapshotResponse = {
     status: "ok",
-    updated: sampleData.updated,
     models: sampleData.models,
   };
 

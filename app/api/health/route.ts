@@ -8,7 +8,7 @@ export async function GET() {
   return NextResponse.json({
     status: "ok",
     snapshot: {
-      updated: sampleData.updated,
+      updatedAt: sampleData.updatedAt,
       source: "v4-sample",
     },
   });

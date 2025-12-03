@@ -19,9 +19,9 @@ export async function getLeaderboard(): Promise<V4LeaderboardResponse> {
 }
 
 export async function getScore(id: string): Promise<V4Model | null> {
-  const data = await fetchJson<{ status: "ok"; updated: string; model: V4Model | null }>(
+  const data = await fetchJson<{ status: "ok"; score: V4Model | null }>(
     `/api/score?id=${encodeURIComponent(id)}`
   );
 
-  return data.model;
+  return data.score;
 }

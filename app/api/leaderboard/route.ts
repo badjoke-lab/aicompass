@@ -10,7 +10,6 @@ export async function GET() {
 
   const payload: V4LeaderboardResponse = {
     status: "ok",
-    updated: sampleData.updated,
     leaderboard,
   };
 

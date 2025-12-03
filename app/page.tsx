@@ -15,7 +15,10 @@ export const dynamic = "force-dynamic";
 export default async function LeaderboardPage() {
   const response = await getLeaderboard();
   const models = [...response.leaderboard].sort((a, b) => b.total - a.total);
-  const updatedLabel = response.updated ? new Date(response.updated).toLocaleString() : "—";
+  const updatedTimestamp = models.length
+    ? Math.max(...models.map((model) => new Date(model.updatedAt).getTime()))
+    : null;
+  const updatedLabel = updatedTimestamp ? new Date(updatedTimestamp).toLocaleString() : "—";
 
   return (
     <div className="space-y-8">

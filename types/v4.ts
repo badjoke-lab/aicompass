@@ -5,6 +5,10 @@ export type V4ScoreBreakdown = {
   safety: number;
 };
 
+export type V4DeltaBreakdown = V4ScoreBreakdown & {
+  total: number;
+};
+
 export interface V4Model {
   id: string;
   slug: string;
@@ -13,21 +17,19 @@ export interface V4Model {
   modality: string[];
   summary: string;
   subscores: V4ScoreBreakdown;
-  evidence: { title: string; url?: string; date: string }[];
-  updated: string;
+  evidence: { title: string; url: string; date: string }[];
+  updatedAt: string;
   tags: string[];
   total: number;
-  delta30d: V4ScoreBreakdown & { total: number };
+  delta30d: V4DeltaBreakdown;
 }
 
 export interface V4SnapshotResponse {
   status: "ok";
-  updated: string;
   models: V4Model[];
 }
 
 export interface V4LeaderboardResponse {
   status: "ok";
-  updated: string;
   leaderboard: V4Model[];
 }

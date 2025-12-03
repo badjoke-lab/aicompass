@@ -62,7 +62,7 @@ export default async function ModelDetailPage({ params }: { params: { slug: stri
             <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-300">Evidence</h2>
             <p className="text-xs text-slate-500">Signals and reports attached to the v4 scorecard.</p>
           </div>
-          <span className="text-xs text-slate-500">Updated {new Date(model.updated).toLocaleString()}</span>
+          <span className="text-xs text-slate-500">Updated {new Date(model.updatedAt).toLocaleString()}</span>
         </div>
         <div className="space-y-3">
           {model.evidence.map((item) => (

@@ -9,10 +9,9 @@ export async function GET(request: NextRequest) {
   const id = request.nextUrl.searchParams.get("id");
   const model = id ? sampleData.models.find((entry) => entry.id === id || entry.slug === id) : undefined;
 
-  const payload: { status: "ok"; updated: string; model: V4Model | null } = {
+  const payload: { status: "ok"; score: V4Model | null } = {
     status: "ok",
-    updated: sampleData.updated,
-    model: model ?? null,
+    score: model ?? null,
   };
 
   return NextResponse.json(payload, { headers: { "X-Robots-Tag": "noindex, nofollow" } });
