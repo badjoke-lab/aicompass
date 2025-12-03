@@ -1,24 +1,24 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
 import sampleData from "@/lib/data/sample.json";
 import { normalizeModelScores } from "@/lib/normalizers";
-import type { V4Model } from "@/types/v4";
+import type { V4ModelResponse } from "@/types/v4";
 
 export const revalidate = 0;
 
-export async function GET(request: NextRequest) {
-  const slug = request.nextUrl.searchParams.get("slug") ?? request.nextUrl.searchParams.get("id");
+export async function GET(_: Request, context: { params?: { slug?: string } }) {
+  const slug = context.params?.slug;
   const model = slug
     ? sampleData.models.find((entry) => entry.slug === slug || entry.id === slug)
     : undefined;
   const normalizedModel = model ? normalizeModelScores(model) : null;
 
-  const payload: { status: "ok"; score: V4Model | null } = {
+  const payload: V4ModelResponse = {
     status: "ok",
-    score: normalizedModel,
+    model: normalizedModel,
   };
 
-  const status = model ? 200 : 404;
+  const status = normalizedModel ? 200 : 404;
 
   return NextResponse.json(payload, {
     status,

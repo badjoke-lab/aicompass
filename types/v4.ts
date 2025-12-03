@@ -33,3 +33,8 @@ export interface V4LeaderboardResponse {
   status: "ok";
   leaderboard: V4Model[];
 }
+
+export interface V4ModelResponse {
+  status: "ok";
+  model: V4Model | null;
+}
