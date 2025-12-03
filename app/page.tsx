@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { getLeaderboard } from "@/lib/fetchers";
+import { ModelCard } from "./components/ModelCard";
 import type { V4Model } from "@/types/v4";
 
 function formatDelta(value: number): string {
@@ -34,7 +35,13 @@ export default async function LeaderboardPage() {
         </p>
       </header>
 
-      <div className="overflow-hidden rounded-2xl border border-slate-800 bg-background/70 shadow-xl">
+      <div className="space-y-3 sm:hidden">
+        {models.map((model, index) => (
+          <ModelCard key={model.id} model={model} rank={index + 1} />
+        ))}
+      </div>
+
+      <div className="hidden overflow-hidden rounded-2xl border border-slate-800 bg-background/70 shadow-xl sm:block">
         <div className="grid grid-cols-9 bg-surface px-4 py-3 text-[0.75rem] font-semibold uppercase tracking-wide text-slate-400">
           <span>#</span>
           <span className="col-span-2">Model</span>
