@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { getScore } from "@/lib/fetchers";
+import { fetchScore } from "@/lib/fetchers";
 import { SubscoreChart } from "../components/SubscoreChart";
 import type { V4Model } from "@/types/v4";
 
@@ -15,7 +15,7 @@ function formatDelta(value: number): string {
 export const dynamic = "force-dynamic";
 
 export default async function ModelDetailPage({ params }: { params: { slug: string } }) {
-  const model = await getScore(params.slug);
+  const model = await fetchScore(params.slug);
 
   if (!model) {
     return notFound();
