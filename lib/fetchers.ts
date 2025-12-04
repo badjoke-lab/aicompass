@@ -4,20 +4,34 @@ import type { V4LeaderboardResponse, V4SnapshotResponse, V4Model } from "@/types
 
 type ScoreResponse = { status: "ok"; score: V4Model | null };
 
-function resolveApiUrl(path: string): string {
+export function buildUrl(path: string): string {
   if (path.startsWith("http://") || path.startsWith("https://")) {
     return path;
   }
 
-  const headerStore = headers();
-  const protocol = headerStore.get("x-forwarded-proto") ?? "http";
-  const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host") ?? "localhost:3000";
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
 
-  return `${protocol}://${host}${path.startsWith("/") ? path : `/${path}`}`;
+  try {
+    const headerStore = headers();
+    const protocol = headerStore.get("x-forwarded-proto") ?? "http";
+    const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
+
+    if (host) {
+      return `${protocol}://${host}${normalizedPath}`;
+    }
+  } catch (error) {
+    console.error("Failed to read request headers for URL build", error);
+  }
+
+  if (typeof window !== "undefined" && window.location?.origin) {
+    return `${window.location.origin}${normalizedPath}`;
+  }
+
+  return `http://localhost:3000${normalizedPath}`;
 }
 
 async function fetchJson<T>(path: string): Promise<T> {
-  const response = await fetch(resolveApiUrl(path), { cache: "no-store" });
+  const response = await fetch(buildUrl(path), { cache: "no-store" });
 
   if (!response.ok) {
     throw new Error(`Request failed with status ${response.status}`);
@@ -35,7 +49,7 @@ export async function getLeaderboard(): Promise<V4LeaderboardResponse> {
 }
 
 export async function getScore(slug: string): Promise<V4Model | null> {
-  const response = await fetch(resolveApiUrl(`/api/score/${encodeURIComponent(slug)}`), { cache: "no-store" });
+  const response = await fetch(buildUrl(`/api/score/${encodeURIComponent(slug)}`), { cache: "no-store" });
 
   if (response.status === 404) {
     return null;

@@ -10,12 +10,12 @@
 ## Phase breakdown
 
 ### v4.0 (foundations)
-- **Features**: Historical snapshot storage (rolling 30 days), delta computation (24h/7d), capability tags on models, backward-compatible API versioning (`/api/v4/*`), cache invalidation hooks, basic queue instrumentation.
+- **Features**: Historical snapshot storage (rolling 30 days), delta computation (24h/7d), capability tags on models, unified API surface (`/api/*`), cache invalidation hooks, basic queue instrumentation.
 - **Required data**: Per-snapshot metrics (downloads, likes, lastModified), derived deltas, capability tags (manually curated list), snapshot metadata (source count, TTL, upstream call budget).
 - **Risks**: Storage growth for snapshots; migration risk while keeping v3 responses stable; manual tag curation drift.
 - **User impact**: Users see trend lines and tags on leaderboard/detail; API consumers can request v4 without breaking v3.
 - **Monetization hooks**: Reserved response fields for premium filters (`tier`, `access`), ability to flag private feed sources (config-only).
-- **Done definition**: v4.0 endpoints ship behind `/api/v4`; leaderboard shows tags and delta badges; snapshot history persists 30 days; cache/queue health visible in health endpoint; v3 responses unchanged.
+- **Done definition**: v4.0 endpoints ship behind `/api`; leaderboard shows tags and delta badges; snapshot history persists 30 days; cache/queue health visible in health endpoint.
 
 ### v4.1 (filters + webhooks)
 - **Features**: Client-side filters (capabilities, provider, license, parameter class), paginated API, webhook subscription for snapshot updates with HMAC signing, rate-limit headers.
