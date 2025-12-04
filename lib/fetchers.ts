@@ -40,15 +40,15 @@ async function fetchJson<T>(path: string): Promise<T> {
   return response.json();
 }
 
-export async function getSnapshot(): Promise<V4SnapshotResponse> {
+export async function fetchSnapshot(): Promise<V4SnapshotResponse> {
   return fetchJson<V4SnapshotResponse>("/api/snapshot");
 }
 
-export async function getLeaderboard(): Promise<V4LeaderboardResponse> {
+export async function fetchLeaderboard(): Promise<V4LeaderboardResponse> {
   return fetchJson<V4LeaderboardResponse>("/api/leaderboard");
 }
 
-export async function getScore(slug: string): Promise<V4Model | null> {
+export async function fetchScore(slug: string): Promise<V4Model | null> {
   const response = await fetch(buildUrl(`/api/score/${encodeURIComponent(slug)}`), { cache: "no-store" });
 
   if (response.status === 404) {

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { getLeaderboard } from "@/lib/fetchers";
+import { fetchLeaderboard } from "@/lib/fetchers";
 import { ModelCard } from "./components/ModelCard";
 import type { V4Model } from "@/types/v4";
 
@@ -14,7 +14,7 @@ function formatDelta(value: number): string {
 export const dynamic = "force-dynamic";
 
 export default async function LeaderboardPage() {
-  const response = await getLeaderboard();
+  const response = await fetchLeaderboard();
   const models = [...response.leaderboard].sort((a, b) => b.total - a.total);
   const updatedTimestamp = models.length
     ? Math.max(...models.map((model) => new Date(model.updatedAt).getTime()))
