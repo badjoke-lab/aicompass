@@ -6,9 +6,9 @@ import type { V4Model } from "@/types/v4";
 
 export const revalidate = 0;
 
-export async function GET(_: Request, context: { params?: { id?: string } }) {
-  const id = context.params?.id;
-  const model = id ? sampleData.models.find((entry) => entry.slug === id || entry.id === id) : undefined;
+export async function GET(_: Request, context: { params?: { slug?: string } }) {
+  const slug = context.params?.slug;
+  const model = slug ? sampleData.models.find((entry) => entry.slug === slug || entry.id === slug) : undefined;
   const normalizedModel = model ? normalizeModelScores(model) : null;
 
   const payload: { status: "ok"; score: V4Model | null } = {

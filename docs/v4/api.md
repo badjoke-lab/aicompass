@@ -10,7 +10,7 @@ completed. Responses are intentionally simple and include canonical headers that
 
 ## Endpoints
 
-### GET `/api/v4/snapshot`
+### GET `/api/snapshot`
 Returns the current snapshot placeholder. The payload is typed as `SnapshotResponse` from `lib/v4/types.ts`.
 
 ```json
@@ -21,7 +21,7 @@ Returns the current snapshot placeholder. The payload is typed as `SnapshotRespo
 }
 ```
 
-### GET `/api/v4/models`
+### GET `/api/models`
 Returns the placeholder model index and provider summary. The payload is typed as `ModelListResponse` from `lib/v4/types.ts`.
 
 ```json

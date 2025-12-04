@@ -6,7 +6,7 @@ App Router exposes matching APIs for the live snapshot, ranked leaderboard, and 
 - Live site: https://ai-model-scoreboard.vercel.app/
 - Snapshot API: `/api/snapshot` returns the data rendered by the UI
 - Leaderboard API: `/api/leaderboard` returns normalized and sorted scores
-- Score API: `/api/score/[id]` returns a single normalized model by slug or id
+- Score API: `/api/score/[slug]` returns a single normalized model by slug or id
 - Health check: `/api/health` reports live fetch/cache/score status
 - Methodology: https://ai-model-scoreboard.vercel.app/methodology
 
