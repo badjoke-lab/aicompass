@@ -5,13 +5,7 @@ import { usePathname } from "next/navigation";
 
 import { shellClass } from "@/lib/layout";
 
-const navItems = [
-  { href: "/", label: "Scores" },
-  { href: "/about", label: "About" },
-  { href: "/methodology", label: "Methodology" },
-  { href: "/donation", label: "Donation" },
-  { href: "/docs/changelog", label: "Changelog" },
-];
+const navItems = [{ href: "/", label: "Scores" }];
 
 export default function Header() {
   const pathname = usePathname();
@@ -52,13 +46,6 @@ export default function Header() {
               </Link>
             );
           })}
-          <Link
-            href="/donation"
-            aria-label="Donate to support the AI Model Scoreboard"
-            className="rounded-full border border-accent bg-accent/10 px-3 py-2 text-[0.7rem] font-semibold uppercase tracking-[0.15em] text-accent shadow-sm transition hover:bg-accent/20"
-          >
-            Donate
-          </Link>
         </nav>
       </div>
     </header>
